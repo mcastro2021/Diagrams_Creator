@@ -72,12 +72,17 @@ body {
 
 /* Canvas del diagrama */
 .diagram-canvas {
-    min-height: 600px;
+    min-height: 800px;
+    min-width: 1200px;
     background-color: white;
     border: 2px dashed #dee2e6;
     border-radius: var(--border-radius);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    background-image: 
+        linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 
 .diagram-canvas.active {
@@ -99,22 +104,19 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    font-size: 0.875rem;
-    font-weight: 500;
-    box-shadow: var(--box-shadow);
-    transition: var(--transition);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 100;
 }
 
 .diagram-node:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
 }
 
 .diagram-node.selected {
-    border-color: var(--warning-color);
+    border-color: var(--success-color);
     border-width: 3px;
-    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2);
 }
 
 /* Tipos de nodos específicos */
@@ -287,12 +289,29 @@ body {
 .diagram-connection {
     position: absolute;
     pointer-events: none;
-    z-index: 1;
+    z-index: 50;
+    width: 100%;
+    height: 100%;
 }
 
 .diagram-connection svg {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    overflow: visible;
+}
+
+.diagram-connection svg line {
+    stroke-width: 3;
+    stroke: #0d6efd;
+    stroke-linecap: round;
+}
+
+.diagram-connection svg marker {
+    stroke: #0d6efd;
+    fill: #0d6efd;
 }
 
 /* Overlay de carga */
@@ -674,4 +693,91 @@ body {
 .interactive:hover {
     transform: translateY(-2px);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Contenedores de red */
+.network-container {
+    background-color: rgba(230, 243, 255, 0.3) !important;
+    border: 2px solid #0078d4 !important;
+    border-radius: 8px !important;
+    z-index: 50 !important;
+}
+
+.network-container .network-box-header {
+    background: rgba(0,120,212,0.1);
+    padding: 4px 8px;
+    border-bottom: 1px solid #0078d4;
+    font-size: 11px;
+    font-weight: bold;
+    color: #0078d4;
+    text-align: center;
+}
+
+.network-container .network-box-content {
+    padding: 8px;
+    height: calc(100% - 24px);
+    position: relative;
+    overflow: visible;
+}
+
+/* Iconos Azure */
+.azure-icon {
+    background-color: white !important;
+    border: 2px solid #0078d4 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.azure-icon .icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 8px;
+}
+
+.azure-icon .icon-container img {
+    max-width: 48px;
+    max-height: 48px;
+    object-fit: contain;
+    margin-bottom: 4px;
+}
+
+.azure-icon .node-text {
+    font-size: 10px;
+    text-align: center;
+    line-height: 1.1;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Scroll horizontal y vertical para el canvas */
+.diagram-canvas-container {
+    overflow: auto;
+    max-height: 80vh;
+    max-width: 100%;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+}
+
+/* Ajustes para el contenedor principal */
+.main-content {
+    overflow: hidden;
+    height: calc(100vh - 80px);
+}
+
+/* Ajustes para el sidebar */
+.sidebar {
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+/* Mejoras para las flechas */
+.diagram-connection svg line {
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+
+.diagram-connection svg marker polygon {
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }

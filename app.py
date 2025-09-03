@@ -2478,7 +2478,7 @@ def generate_svg_from_diagram(diagram):
         max_y = max(node.get('y', 0) + node.get('height', 60) for node in nodes)
         
         # Añadir margen
-        margin = 50
+        margin = 100
         width = max_x - min_x + 2 * margin
         height = max_y - min_y + 2 * margin
         
@@ -2497,7 +2497,7 @@ def generate_svg_from_diagram(diagram):
             node_y = node.get('y', 0)
             node_width = node.get('width', 120)
             node_height = node.get('height', 60)
-            node_text = node.get('text', node.get('id', ''))
+            node_text = node.get('text', node.get('id', '')).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
             node_type = node.get('type', 'rectangle')
             
             if node_type == 'network_box':
@@ -2542,9 +2542,10 @@ def generate_svg_from_diagram(diagram):
                 if edge.get('label'):
                     label_x = (from_x + to_x) / 2
                     label_y = (from_y + to_y) / 2 - 10
+                    edge_label = edge['label'].replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
                     svg_content += f'''
         <text x="{label_x}" y="{label_y}" text-anchor="middle" 
-              font-family="Arial" font-size="10" fill="#666">{edge['label']}</text>'''
+              font-family="Arial" font-size="10" fill="#666">{edge_label}</text>'''
         
         svg_content += '''
     </g>
@@ -2566,54 +2567,102 @@ def generate_png_from_diagram(diagram, filepath):
         try:
             import cairosvg
             cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), write_to=filepath)
+            print(f"✅ PNG generado exitosamente: {filepath}")
         except ImportError:
-            # Fallback: usar reportlab para generar PNG básico
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import letter
-            
-            # Crear PDF temporal
-            pdf_path = filepath.replace('.png', '.pdf')
-            c = canvas.Canvas(pdf_path, pagesize=letter)
-            c.drawString(100, 750, f"Diagrama: {diagram.get('title', 'Sin título')}")
-            
-            # Renderizar nodos básicos
-            y_pos = 700
-            for node in diagram['data'].get('nodes', []):
-                c.drawString(100, y_pos, f"- {node.get('text', node.get('id', ''))}")
-                y_pos -= 20
-            
-            c.save()
-            
-            # Convertir PDF a PNG (requiere poppler-utils)
+            print("⚠️ cairosvg no disponible, usando fallback...")
+            # Fallback: usar PIL para generar PNG básico
             try:
-                import subprocess
-                subprocess.run(['pdftoppm', '-png', pdf_path, filepath.replace('.png', '')], check=True)
-                # Renombrar archivo generado
-                import glob
-                png_files = glob.glob(filepath.replace('.png', '') + '-*.png')
-                if png_files:
-                    import shutil
-                    shutil.move(png_files[0], filepath)
-            except:
-                # Si no se puede convertir, usar el PDF
-                filepath = pdf_path
+                from PIL import Image, ImageDraw, ImageFont
+                # Crear imagen PNG básica
+                img = Image.new('RGB', (800, 600), color='white')
+                draw = ImageDraw.Draw(img)
+                
+                # Título del diagrama
+                try:
+                    font = ImageFont.truetype("arial.ttf", 20)
+                except:
+                    font = ImageFont.load_default()
+                
+                draw.text((400, 50), f"Diagrama: {diagram.get('title', 'Sin título')}", 
+                         fill='black', anchor='mm', font=font)
+                
+                # Renderizar nodos básicos
+                y_pos = 100
+                for node in diagram['data'].get('nodes', []):
+                    node_text = node.get('text', node.get('id', ''))
+                    draw.text((50, y_pos), f"• {node_text}", fill='blue', font=font)
+                    y_pos += 30
+                
+                # Renderizar conexiones básicas
+                y_pos += 20
+                draw.text((50, y_pos), "Conexiones:", fill='red', font=font)
+                y_pos += 30
+                for edge in diagram['data'].get('edges', []):
+                    edge_text = f"{edge.get('from', '')} → {edge.get('to', '')}"
+                    if edge.get('label'):
+                        edge_text += f" ({edge['label']})"
+                    draw.text((50, y_pos), edge_text, fill='green', font=font)
+                    y_pos += 25
+                
+                img.save(filepath)
+                print(f"✅ PNG generado con PIL: {filepath}")
+                
+            except ImportError:
+                print("⚠️ PIL no disponible, usando reportlab...")
+                # Fallback: usar reportlab para generar PDF
+                try:
+                    from reportlab.pdfgen import canvas
+                    from reportlab.lib.pagesizes import letter
+                    
+                    # Crear PDF temporal
+                    pdf_path = filepath.replace('.png', '.pdf')
+                    c = canvas.Canvas(pdf_path, pagesize=letter)
+                    c.drawString(100, 750, f"Diagrama: {diagram.get('title', 'Sin título')}")
+                    
+                    # Renderizar nodos básicos
+                    y_pos = 700
+                    for node in diagram['data'].get('nodes', []):
+                        c.drawString(100, y_pos, f"- {node.get('text', node.get('id', ''))}")
+                        y_pos -= 20
+                    
+                    c.save()
+                    print(f"⚠️ PDF generado como fallback: {pdf_path}")
+                    filepath = pdf_path
+                    
+                except ImportError:
+                    print("⚠️ reportlab no disponible, usando archivo de texto...")
+                    # Último fallback: archivo de texto
+                    with open(filepath.replace('.png', '.txt'), 'w', encoding='utf-8') as f:
+                        f.write(f"Diagrama: {diagram.get('title', 'Sin título')}\n")
+                        f.write("=" * 50 + "\n\n")
+                        f.write("NODOS:\n")
+                        for node in diagram['data'].get('nodes', []):
+                            f.write(f"- {node.get('text', node.get('id', ''))}\n")
+                        f.write("\nCONEXIONES:\n")
+                        for edge in diagram['data'].get('edges', []):
+                            f.write(f"- {edge.get('from', '')} → {edge.get('to', '')}")
+                            if edge.get('label'):
+                                f.write(f" ({edge['label']})")
+                            f.write("\n")
+                    
+                    print(f"⚠️ Archivo de texto generado como fallback: {filepath.replace('.png', '.txt')}")
+                    filepath = filepath.replace('.png', '.txt')
             
     except Exception as e:
         print(f"Error generando PNG: {str(e)}")
-        # Crear PNG básico de error
-        from PIL import Image, ImageDraw, ImageFont
+        # Crear archivo de texto de error
         try:
-            img = Image.new('RGB', (800, 600), color='white')
-            draw = ImageDraw.Draw(img)
-            draw.text((400, 300), f"Error generando PNG: {str(e)}", fill='red', anchor='mm')
-            img.save(filepath)
-        except:
-            # Último fallback: archivo de texto
-            with open(filepath.replace('.png', '.txt'), 'w', encoding='utf-8') as f:
+            with open(filepath.replace('.png', '_error.txt'), 'w', encoding='utf-8') as f:
                 f.write(f"Error generando PNG: {str(e)}\n")
                 f.write(f"Diagrama: {diagram.get('title', 'Sin título')}\n")
+                f.write("=" * 50 + "\n")
                 for node in diagram['data'].get('nodes', []):
                     f.write(f"- {node.get('text', node.get('id', ''))}\n")
+        except:
+            pass
+        
+        print(f"⚠️ Archivo de error generado: {filepath.replace('.png', '_error.txt')}")
+        filepath = filepath.replace('.png', '_error.txt')
 
 @app.route('/download/<filename>')
 def download_file(filename):

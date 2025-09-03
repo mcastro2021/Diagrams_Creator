@@ -386,6 +386,8 @@ function createConnectionElement(edge, nodes) {
         return;
     }
     
+    console.log(`🔗 Creando conexión: ${edge.from} -> ${edge.to}`);
+    
     const connectionElement = document.createElement('div');
     connectionElement.className = 'diagram-connection';
     connectionElement.id = edge.id;
@@ -400,6 +402,8 @@ function createConnectionElement(edge, nodes) {
     const fromY = fromRect.top - canvasRect.top + fromRect.height / 2;
     const toX = toRect.left - canvasRect.left + toRect.width / 2;
     const toY = toRect.top - canvasRect.top + toRect.height / 2;
+    
+    console.log(`📍 Posiciones: desde (${fromX}, ${fromY}) hasta (${toX}, ${toY})`);
     
     // Crear SVG para la línea con flecha
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -485,7 +489,7 @@ function createConnectionElement(edge, nodes) {
         labelBg.setAttribute('stroke-width', '1');
         labelBg.setAttribute('rx', '3');
         
-        svg.insertBefore(labelBg, label);
+        svg.appendChild(labelBg);
         svg.appendChild(label);
     }
     
@@ -502,7 +506,7 @@ function createConnectionElement(edge, nodes) {
     
     canvas.appendChild(connectionElement);
     
-    console.log(`🔗 Conexión creada: ${edge.from} -> ${edge.to} (${edge.label || 'sin etiqueta'})`);
+    console.log(`✅ Conexión creada: ${edge.from} -> ${edge.to} (${edge.label || 'sin etiqueta'})`);
 }
 
 // Seleccionar nodo

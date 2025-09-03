@@ -729,7 +729,7 @@ class IconsPanel {
         this.isVisible = false;
     }
     
-    searchIcons(query) {
+    async searchIcons(query) {
         this.searchQuery = query.toLowerCase().trim();
         
         if (!this.searchQuery) {
