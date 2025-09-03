@@ -1,0 +1,34 @@
+# Configuración del entorno para Conversor de Documentos a Diagramas
+
+# Entorno de ejecución (development, production, testing)
+FLASK_ENV=development
+
+# Modo debug (True/False)
+FLASK_DEBUG=True
+
+# Clave secreta para sesiones (cambiar en producción)
+SECRET_KEY=your-secret-key-here
+
+# Configuración de archivos
+MAX_FILE_SIZE=16777216  # 16MB en bytes
+UPLOAD_FOLDER=uploads
+OUTPUT_FOLDER=outputs
+
+# Configuración de draw.io
+DRAWIO_URL=https://app.diagrams.net/
+DRAWIO_API_URL=https://app.diagrams.net/api/1/save
+
+# Configuración de procesamiento
+MAX_TEXT_LENGTH=100000  # 100KB
+MAX_DIAGRAM_ELEMENTS=100
+
+# Configuración de seguridad
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:5000
+
+# Configuración de logging
+LOG_LEVEL=INFO
+LOG_FILE=app.log
+
+# Configuración del servidor
+HOST=0.0.0.0
+PORT=5000
