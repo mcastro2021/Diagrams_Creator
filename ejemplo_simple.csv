@@ -1,0 +1,4 @@
+Subnet,IP_Range,Gateway,Description
+LAN,192.168.1.0/24,192.168.1.1,Red principal
+DMZ,10.0.1.0/24,10.0.1.1,Red desmilitarizada
+VPN,172.16.1.0/24,172.16.1.1,Red VPN

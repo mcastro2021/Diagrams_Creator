@@ -7,6 +7,7 @@ from pathlib import Path
 class DiagramGenerator:
     def __init__(self):
         self.mermaid_path = self._find_mermaid()
+        print(f"DEBUG: Mermaid CLI encontrado en: {self.mermaid_path}")
     
     def _find_mermaid(self):
         """Busca la instalación de Mermaid CLI"""
@@ -14,6 +15,7 @@ class DiagramGenerator:
             # Intentar usar npx si está disponible
             result = subprocess.run(['npx', '--version'], capture_output=True, text=True)
             if result.returncode == 0:
+                print("DEBUG: Usando npx para Mermaid CLI")
                 return 'npx'
         except:
             pass
@@ -22,10 +24,12 @@ class DiagramGenerator:
             # Intentar usar mmdc directamente
             result = subprocess.run(['mmdc', '--version'], capture_output=True, text=True)
             if result.returncode == 0:
+                print("DEBUG: Usando mmdc directamente")
                 return 'mmdc'
         except:
             pass
         
+        print("DEBUG: Mermaid CLI no encontrado")
         return None
     
     def create_diagram_from_content(self, content):
@@ -62,15 +66,18 @@ class DiagramGenerator:
             svg_content = self._convert_mermaid_to_svg(mermaid_code)
             
             if svg_content:
+                print("DEBUG: SVG generado exitosamente")
                 return {
                     'diagram_data': svg_content,
                     'mermaid_code': mermaid_code,
                     'drawio_url': None,
                     'download_url': None,
                     'title': 'Arquitectura Azure - Configuración de Redes',
-                    'type': 'azure_architecture'
+                    'type': 'azure_architecture',
+                    'format': 'svg'
                 }
             else:
+                print("DEBUG: Fallback a código Mermaid")
                 # Fallback: retornar código Mermaid para que el usuario lo use
                 return {
                     'diagram_data': mermaid_code,
@@ -78,7 +85,8 @@ class DiagramGenerator:
                     'drawio_url': None,
                     'download_url': None,
                     'title': 'Código Mermaid - Arquitectura Azure',
-                    'type': 'mermaid_code'
+                    'type': 'mermaid_code',
+                    'format': 'mermaid'
                 }
             
         except Exception as e:
@@ -208,8 +216,10 @@ class DiagramGenerator:
                 print("DEBUG: Mermaid CLI no encontrado, retornando código Mermaid")
                 return None
             
+            print(f"DEBUG: Convirtiendo Mermaid a SVG usando: {self.mermaid_path}")
+            
             # Crear archivo temporal con código Mermaid
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.mmd', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.mmd', delete=False, encoding='utf-8') as temp_file:
                 temp_file.write(mermaid_code)
                 temp_mmd_path = temp_file.name
             
@@ -219,12 +229,19 @@ class DiagramGenerator:
             try:
                 if self.mermaid_path == 'npx':
                     # Usar npx para ejecutar mermaid-cli
-                    cmd = ['npx', '@mermaid-js/mermaid-cli', '-i', temp_mmd_path, '-o', svg_path]
+                    cmd = ['npx', '@mermaid-js/mermaid-cli', '-i', temp_mmd_path, '-o', svg_path, '-f', 'svg']
                 else:
                     # Usar mmdc directamente
-                    cmd = ['mmdc', '-i', temp_mmd_path, '-o', svg_path]
+                    cmd = ['mmdc', '-i', temp_mmd_path, '-o', svg_path, '-f', 'svg']
                 
-                result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+                print(f"DEBUG: Ejecutando comando: {' '.join(cmd)}")
+                result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+                
+                print(f"DEBUG: Resultado del comando: {result.returncode}")
+                if result.stdout:
+                    print(f"DEBUG: STDOUT: {result.stdout}")
+                if result.stderr:
+                    print(f"DEBUG: STDERR: {result.stderr}")
                 
                 if result.returncode == 0 and os.path.exists(svg_path):
                     # Leer el SVG generado
@@ -232,8 +249,11 @@ class DiagramGenerator:
                         svg_content = f.read()
                     
                     # Limpiar archivos temporales
-                    os.unlink(temp_mmd_path)
-                    os.unlink(svg_path)
+                    try:
+                        os.unlink(temp_mmd_path)
+                        os.unlink(svg_path)
+                    except:
+                        pass
                     
                     print(f"DEBUG: SVG generado exitosamente: {len(svg_content)} caracteres")
                     return svg_content
@@ -290,7 +310,8 @@ class DiagramGenerator:
                 'drawio_url': None,
                 'download_url': None,
                 'title': 'Diagrama Azure Básico',
-                'type': 'azure_basic'
+                'type': 'azure_basic',
+                'format': 'mermaid'
             }
             
         except Exception as e:
@@ -319,6 +340,7 @@ class DiagramGenerator:
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(diagram_data)
             
+            print(f"DEBUG: Diagrama guardado en: {filepath}")
             return filepath
         except Exception as e:
             raise Exception(f"Error guardando diagrama: {str(e)}")

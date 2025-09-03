@@ -395,6 +395,9 @@
                 <button class="action-btn btn-info" onclick="createNew()">
                     <i class="fas fa-plus"></i> Nuevo Diagrama
                 </button>
+                <button class="action-btn btn-primary" onclick="convertToSVG()">
+                    <i class="fas fa-image"></i> Convertir a SVG
+                </button>
             </div>
 
             <div class="file-info" id="file-info"></div>
@@ -640,6 +643,20 @@
                 window.URL.revokeObjectURL(url);
                 
                 showSuccess(`Archivo ${filename} descargado exitosamente`);
+            }
+        }
+
+        function convertToSVG() {
+            if (currentMermaidCode && currentMermaidCode.startsWith('graph')) {
+                showSuccess('Convirtiendo Mermaid a SVG...');
+                
+                // Crear un enlace para abrir en Mermaid Live Editor con opción de exportar SVG
+                const mermaidUrl = `https://mermaid.live/edit#/${encodeURIComponent(currentMermaidCode)}`;
+                window.open(mermaidUrl, '_blank');
+                
+                showSuccess('Abierto en Mermaid Live Editor. Usa "Export SVG" para descargar como SVG.');
+            } else {
+                showError('No hay código Mermaid válido para convertir.');
             }
         }
 
