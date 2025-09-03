@@ -281,6 +281,167 @@ const AzureIcons = {
         <path d="M8 9h8" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M8 12h8" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M8 15h8" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`,
+    
+    // Iconos específicos para el diagrama de Azure Hub and Spoke
+    internet: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="10" fill="#40a9ff" stroke="#1890ff" stroke-width="2"/>
+        <path d="M2 12h20" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 2c2.5 2.5 4 6 4 10s-1.5 7.5-4 10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+        <path d="M12 2c-2.5 2.5-4 6-4 10s1.5 7.5 4 10" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+    </svg>`,
+    
+    azure_vnet: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#0078d4" stroke="#005a9e" stroke-width="2"/>
+        <path d="M7 7h10v10H7z" fill="#ffffff" opacity="0.8"/>
+        <path d="M9 9h6v6H9z" fill="#0078d4"/>
+        <circle cx="12" cy="12" r="2" fill="#ffffff"/>
+    </svg>`,
+    
+    azure_bastion: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#faad14" stroke="#d48806" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#faad14"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#faad14"/>
+        <path d="M10 12h4v1h-4z" fill="#faad14"/>
+        <path d="M10 14h4v1h-4z" fill="#faad14"/>
+        <path d="M10 16h4v1h-4z" fill="#faad14"/>
+        <circle cx="12" cy="18" r="1" fill="#faad14"/>
+    </svg>`,
+    
+    azure_express_route: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#13c2c2" stroke="#08979c" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#13c2c2"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 12h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 14h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 16h4v1h-4z" fill="#13c2c2"/>
+        <circle cx="12" cy="18" r="1" fill="#13c2c2"/>
+    </svg>`,
+    
+    azure_shared_services: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#eb2f96" stroke="#c41d7f" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#eb2f96"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#eb2f96"/>
+        <path d="M10 12h4v1h-4z" fill="#eb2f96"/>
+        <path d="M10 14h4v1h-4z" fill="#eb2f96"/>
+        <path d="M10 16h4v1h-4z" fill="#eb2f96"/>
+        <circle cx="12" cy="18" r="1" fill="#eb2f96"/>
+    </svg>`,
+    
+    diagram_title: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#f5222d" stroke="#cf1322" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#f5222d"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#f5222d"/>
+        <path d="M10 12h4v1h-4z" fill="#f5222d"/>
+        <path d="M10 14h4v1h-4z" fill="#f5222d"/>
+        <path d="M10 16h4v1h-4z" fill="#f5222d"/>
+        <circle cx="12" cy="18" r="1" fill="#f5222d"/>
+    </svg>`,
+    
+    // Iconos genéricos para tipos no específicos
+    azure_vm: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#52c41a" stroke="#389e0d" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#52c41a"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#52c41a"/>
+        <path d="M10 12h4v1h-4z" fill="#52c41a"/>
+        <path d="M10 14h4v1h-4z" fill="#52c41a"/>
+        <path d="M10 16h4v1h-4z" fill="#52c41a"/>
+        <circle cx="12" cy="18" r="1" fill="#52c41a"/>
+    </svg>`,
+    
+    azure_monitoring: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#13c2c2" stroke="#08979c" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#13c2c2"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 12h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 14h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 16h4v1h-4z" fill="#13c2c2"/>
+        <circle cx="12" cy="18" r="1" fill="#13c2c2"/>
+    </svg>`,
+    
+    azure_vpn_gateway: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#faad14" stroke="#d48806" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#faad14"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#faad14"/>
+        <path d="M10 12h4v1h-4z" fill="#faad14"/>
+        <path d="M10 14h4v1h-4z" fill="#faad14"/>
+        <path d="M10 16h4v1h-4z" fill="#faad14"/>
+        <circle cx="12" cy="18" r="1" fill="#faad14"/>
+    </svg>`,
+    
+    // Iconos adicionales que faltan
+    azure_key_vault: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#722ed1" stroke="#531dab" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#722ed1"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#722ed1"/>
+        <path d="M10 12h4v1h-4z" fill="#722ed1"/>
+        <path d="M10 14h4v1h-4z" fill="#722ed1"/>
+        <path d="M10 16h4v1h-4z" fill="#722ed1"/>
+        <circle cx="12" cy="18" r="1" fill="#722ed1"/>
+    </svg>`,
+    
+    azure_monitoring: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#13c2c2" stroke="#08979c" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#13c2c2"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 12h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 14h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 16h4v1h-4z" fill="#13c2c2"/>
+        <circle cx="12" cy="18" r="1" fill="#13c2c2"/>
+    </svg>`,
+    
+    azure_express_route: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#13c2c2" stroke="#08979c" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#13c2c2"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 12h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 14h4v1h-4z" fill="#13c2c2"/>
+        <path d="M10 16h4v1h-4z" fill="#13c2c2"/>
+        <circle cx="12" cy="18" r="1" fill="#13c2c2"/>
+    </svg>`,
+    
+    azure_shared_services: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#eb2f96" stroke="#c41d7f" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#eb2f96"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#eb2f96"/>
+        <path d="M10 12h4v1h-4z" fill="#eb2f96"/>
+        <path d="M10 14h4v1h-4z" fill="#eb2f96"/>
+        <path d="M10 16h4v1h-4z" fill="#eb2f96"/>
+        <circle cx="12" cy="18" r="1" fill="#eb2f96"/>
+    </svg>`,
+    
+    diagram_title: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="20" height="20" rx="2" fill="#f5222d" stroke="#cf1322" stroke-width="2"/>
+        <path d="M4 4h16v16H4z" fill="#ffffff" opacity="0.2"/>
+        <path d="M6 6h12v12H6z" fill="#f5222d"/>
+        <path d="M8 8h8v8H8z" fill="#ffffff" opacity="0.8"/>
+        <path d="M10 10h4v1h-4z" fill="#f5222d"/>
+        <path d="M10 12h4v1h-4z" fill="#f5222d"/>
+        <path d="M10 14h4v1h-4z" fill="#f5222d"/>
+        <path d="M10 16h4v1h-4z" fill="#f5222d"/>
+        <circle cx="12" cy="18" r="1" fill="#f5222d"/>
     </svg>`
 };
 
@@ -310,29 +471,30 @@ function createArrowConnection(fromElement, toElement, connectionType = 'default
     svg.style.pointerEvents = 'none';
     svg.style.zIndex = '1';
     
-    // Crear línea principal
+    // Crear línea principal con mejor estilo
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', fromX);
     line.setAttribute('y1', fromY);
     line.setAttribute('x2', toX);
     line.setAttribute('y2', toY);
-    line.setAttribute('stroke', '#374151');
-    line.setAttribute('stroke-width', '2');
+    line.setAttribute('stroke', '#2563eb');
+    line.setAttribute('stroke-width', '3');
     line.setAttribute('marker-end', 'url(#arrowhead)');
+    line.setAttribute('stroke-linecap', 'round');
     
-    // Crear marcador de flecha
+    // Crear marcador de flecha más visible
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
     marker.setAttribute('id', 'arrowhead');
-    marker.setAttribute('markerWidth', '10');
-    marker.setAttribute('markerHeight', '7');
-    marker.setAttribute('refX', '9');
-    marker.setAttribute('refY', '3.5');
+    marker.setAttribute('markerWidth', '12');
+    marker.setAttribute('markerHeight', '8');
+    marker.setAttribute('refX', '10');
+    marker.setAttribute('refY', '4');
     marker.setAttribute('orient', 'auto');
     
     const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
-    polygon.setAttribute('fill', '#374151');
+    polygon.setAttribute('points', '0 0, 12 4, 0 8');
+    polygon.setAttribute('fill', '#2563eb');
     
     marker.appendChild(polygon);
     defs.appendChild(marker);
@@ -350,15 +512,24 @@ function updateAllConnections() {
     
     // Recrear conexiones
     if (window.currentDiagram && window.currentDiagram.data && window.currentDiagram.data.edges) {
+        console.log('Actualizando conexiones:', window.currentDiagram.data.edges);
         window.currentDiagram.data.edges.forEach(edge => {
+            console.log('Buscando elementos:', edge.from, '->', edge.to);
             const fromElement = document.getElementById(edge.from);
             const toElement = document.getElementById(edge.to);
+            
+            console.log('Elementos encontrados:', fromElement, toElement);
             
             if (fromElement && toElement) {
                 const connection = createArrowConnection(fromElement, toElement);
                 connection.classList.add('connection-svg');
                 document.getElementById('canvas').appendChild(connection);
+                console.log('Conexión creada entre', edge.from, 'y', edge.to);
+            } else {
+                console.warn('No se pudieron encontrar los elementos para la conexión:', edge.from, '->', edge.to);
             }
         });
+    } else {
+        console.warn('No hay diagrama actual o datos de conexiones');
     }
 }

@@ -378,3 +378,139 @@
     padding: 8px;
     box-sizing: border-box;
 }
+
+/* Estilos mejorados para nodos Azure específicos */
+.diagram-node.azure_vnet {
+    background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
+    border: 2px solid #005a9e;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+    min-width: 140px;
+    min-height: 100px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_subnet {
+    background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+    border: 2px solid #1890ff;
+    color: white;
+    box-shadow: 0 4px 12px rgba(64, 169, 255, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_app_service {
+    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+    border: 2px solid #389e0d;
+    color: white;
+    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_sql {
+    background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+    border: 2px solid #531dab;
+    color: white;
+    box-shadow: 0 4px 12px rgba(114, 46, 209, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_firewall {
+    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
+    border: 2px solid #cf1322;
+    color: white;
+    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.internet {
+    background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+    border: 2px solid #1890ff;
+    color: white;
+    box-shadow: 0 4px 12px rgba(64, 169, 255, 0.3);
+    min-width: 120px;
+    min-height: 80px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_bastion {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    border: 2px solid #d48806;
+    color: white;
+    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_express_route {
+    background: linear-gradient(135deg, #13c2c2 0%, #08979c 100%);
+    border: 2px solid #08979c;
+    color: white;
+    box-shadow: 0 4px 12px rgba(19, 194, 194, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.azure_shared_services {
+    background: linear-gradient(135deg, #eb2f96 0%, #c41d7f 100%);
+    border: 2px solid #c41d7f;
+    color: white;
+    box-shadow: 0 4px 12px rgba(235, 47, 150, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+.diagram-node.diagram_title {
+    background: linear-gradient(135deg, #f5222d 0%, #cf1322 100%);
+    border: 2px solid #cf1322;
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 34, 45, 0.3);
+    font-weight: bold;
+    text-align: center;
+    min-width: 200px;
+    min-height: 60px;
+    font-size: 14px;
+}
+
+/* Estilos para nodos de suscripción */
+.diagram-node.azure_subscription {
+    background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
+    border: 2px solid #d46b08;
+    color: white;
+    box-shadow: 0 4px 12px rgba(250, 140, 22, 0.3);
+    min-width: 150px;
+    min-height: 100px;
+    font-weight: 600;
+}
+
+/* Estilos para nodos de monitoreo */
+.diagram-node.azure_monitoring {
+    background: linear-gradient(135deg, #13c2c2 0%, #08979c 100%);
+    border: 2px solid #08979c;
+    color: white;
+    box-shadow: 0 4px 12px rgba(19, 194, 194, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
+
+/* Estilos para nodos de VPN Gateway */
+.diagram-node.azure_vpn_gateway {
+    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
+    border: 2px solid #d48806;
+    color: white;
+    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
+    min-width: 130px;
+    min-height: 90px;
+    font-weight: 600;
+}
