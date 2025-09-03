@@ -782,3 +782,114 @@ body {
 .diagram-connection svg marker polygon {
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
+
+/* Estilos para el panel de iconos */
+.icons-categories {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.icon-category {
+    margin-bottom: 1rem;
+}
+
+.icon-category h6 {
+    color: #6c757d;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    text-align: center;
+}
+
+.icon-item:hover {
+    border-color: var(--primary-color);
+    background-color: #f8f9fa;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.icon-preview {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    margin-bottom: 0.25rem;
+    color: #6c757d;
+}
+
+.icon-name {
+    font-size: 0.75rem;
+    color: #495057;
+    font-weight: 500;
+    line-height: 1.2;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+/* Barra de búsqueda de iconos */
+#iconSearch {
+    border-radius: 0.375rem;
+    border: 1px solid #ced4da;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+#iconSearch:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Pestañas de bibliotecas */
+#libraryTabs .nav-link {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+#libraryTabs .nav-link.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Scrollbar personalizado para el panel de iconos */
+.icons-categories::-webkit-scrollbar {
+    width: 6px;
+}
+
+.icons-categories::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.icons-categories::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.icons-categories::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

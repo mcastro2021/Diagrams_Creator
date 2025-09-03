@@ -23,7 +23,7 @@ class IconsPanel {
     async loadIcons() {
         try {
             // Usar la nueva API de la carpeta Libs
-            const response = await fetch('/api/icons/libs');
+            const response = await fetch('/api/icons');
             const data = await response.json();
             
             if (data.success) {
@@ -32,35 +32,14 @@ class IconsPanel {
                 
                 // Crear índice de búsqueda para búsqueda más rápida
                 this.createSearchIndex();
-            } else {
-                // Fallback a la API original si la nueva falla
-                console.log('⚠️ Fallback a API original de iconos...');
-                const fallbackResponse = await fetch('/api/icons');
-                const fallbackData = await fallbackResponse.json();
                 
-                if (fallbackData.success) {
-                    this.icons = fallbackData.icons;
-                    console.log('📦 Panel de iconos inicializado (fallback):', fallbackData.total_icons, 'iconos');
-                    this.createSearchIndex();
-                }
+                // Renderizar iconos en las pestañas
+                this.renderIconsByLibrary();
+            } else {
+                console.error('Error cargando iconos:', data.error);
             }
         } catch (error) {
-            console.error('Error cargando iconos desde Libs:', error);
-            
-            // Fallback a la API original
-            try {
-                console.log('🔄 Intentando fallback a API original...');
-                const fallbackResponse = await fetch('/api/icons');
-                const fallbackData = await fallbackResponse.json();
-                
-                if (fallbackData.success) {
-                    this.icons = fallbackData.icons;
-                    console.log('📦 Panel de iconos inicializado (fallback):', fallbackData.total_icons, 'iconos');
-                    this.createSearchIndex();
-                }
-            } catch (fallbackError) {
-                console.error('Error en fallback también:', fallbackError);
-            }
+            console.error('Error cargando iconos:', error);
         }
     }
     
@@ -77,6 +56,15 @@ class IconsPanel {
                         if (!this.searchIndex[word]) this.searchIndex[word] = [];
                         this.searchIndex[word].push(icon);
                     });
+                    
+                    // Indexar por título
+                    if (icon.title) {
+                        const titleWords = icon.title.toLowerCase().split(' ');
+                        titleWords.forEach(word => {
+                            if (!this.searchIndex[word]) this.searchIndex[word] = [];
+                            this.searchIndex[word].push(icon);
+                        });
+                    }
                     
                     // Indexar por categoría
                     if (icon.category) {
@@ -102,6 +90,65 @@ class IconsPanel {
                 });
             }
         });
+    }
+    
+    renderIconsByLibrary() {
+        // Renderizar todos los iconos
+        this.renderIconList('allIcons', Object.values(this.icons).flat());
+        
+        // Renderizar iconos de integración
+        const integrationIcons = this.icons['integration'] || [];
+        this.renderIconList('integrationIcons', integrationIcons);
+        
+        // Renderizar iconos de Azure
+        const azureIcons = this.icons['integration/azure'] || [];
+        this.renderIconList('azureIcons', azureIcons);
+    }
+    
+    renderIconList(containerId, icons) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (icons.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">No se encontraron iconos</p>';
+            return;
+        }
+        
+        // Agrupar iconos por categoría
+        const groupedIcons = {};
+        icons.forEach(icon => {
+            const category = icon.category || 'General';
+            if (!groupedIcons[category]) {
+                groupedIcons[category] = [];
+            }
+            groupedIcons[category].push(icon);
+        });
+        
+        // Renderizar cada categoría
+        Object.entries(groupedIcons).forEach(([category, categoryIcons]) => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'icon-category mb-3';
+            categoryDiv.innerHTML = `
+                <h6 class="text-muted mb-2">${category}</h6>
+                <div class="icon-grid">
+                    ${categoryIcons.map(icon => this.createIconElement(icon)).join('')}
+                </div>
+            `;
+            container.appendChild(categoryDiv);
+        });
+    }
+    
+    createIconElement(icon) {
+        return `
+            <div class="icon-item" data-icon='${JSON.stringify(icon)}' title="${icon.title || icon.name}">
+                <div class="icon-preview">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="icon-name">${icon.name}</div>
+            </div>
+        `;
     }
     
     loadUserPreferences() {
@@ -217,37 +264,29 @@ class IconsPanel {
     }
     
     setupEventListeners() {
-        // Filtro de proveedor
-        document.getElementById('providerFilter').addEventListener('change', (e) => {
-            this.currentProvider = e.target.value;
-            this.updateCategoryFilter();
-            this.renderIcons();
-        });
-        
-        // Filtro de categoría
-        document.getElementById('categoryFilter').addEventListener('change', (e) => {
-            this.currentCategory = e.target.value;
-            this.renderIcons();
-        });
-        
-        // Búsqueda mejorada con debounce
+        // Búsqueda en tiempo real
         const searchInput = document.getElementById('iconSearch');
-        searchInput.addEventListener('input', this.debounce((e) => {
-            this.searchQuery = e.target.value.toLowerCase();
-            this.showSearchSuggestions();
-            this.renderIcons();
-        }, 300));
+        if (searchInput) {
+            searchInput.addEventListener('input', this.debounce((e) => {
+                this.handleSearch(e.target.value);
+            }, 300));
+        }
         
-        // Búsqueda con Enter
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.performAdvancedSearch();
+        // Event listeners para pestañas
+        const tabLinks = document.querySelectorAll('#libraryTabs .nav-link');
+        tabLinks.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleTabChange(e.target.getAttribute('href').substring(1));
+            });
+        });
+        
+        // Event listeners para iconos
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.icon-item')) {
+                this.handleIconClick(e.target.closest('.icon-item'));
             }
         });
-        
-        // Inicializar filtros
-        this.updateCategoryFilter();
-        this.renderIcons();
     }
     
     debounce(func, wait) {
@@ -260,6 +299,84 @@ class IconsPanel {
             clearTimeout(timeout);
             timeout = setTimeout(later, wait);
         };
+    }
+    
+    handleTabChange(tabId) {
+        // Actualizar pestañas activas
+        document.querySelectorAll('#libraryTabs .nav-link').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`[href="#${tabId}"]`).classList.add('active');
+        
+        // Actualizar contenido activo
+        document.querySelectorAll('#iconsTabContent .tab-pane').forEach(pane => {
+            pane.classList.remove('show', 'active');
+        });
+        document.getElementById(tabId).classList.add('show', 'active');
+        
+        // Limpiar búsqueda
+        const searchInput = document.querySelector('#iconSearch');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        
+        // Renderizar iconos de la pestaña
+        this.renderIconsByLibrary();
+    }
+    
+    handleSearch(query) {
+        if (!query.trim()) {
+            this.renderIconsByLibrary();
+            return;
+        }
+        
+        const results = this.searchIcons(query);
+        this.renderSearchResults(results);
+    }
+    
+    searchIcons(query) {
+        const searchTerms = query.toLowerCase().split(' ');
+        const results = [];
+        
+        Object.entries(this.icons).forEach(([libraryName, iconList]) => {
+            iconList.forEach(icon => {
+                let score = 0;
+                
+                searchTerms.forEach(term => {
+                    if (icon.name && icon.name.toLowerCase().includes(term)) score += 30;
+                    if (icon.title && icon.title.toLowerCase().includes(term)) score += 30;
+                    if (icon.category && icon.category.toLowerCase().includes(term)) score += 20;
+                    if (icon.provider && icon.provider.toLowerCase().includes(term)) score += 15;
+                    if (libraryName.toLowerCase().includes(term)) score += 10;
+                });
+                
+                if (score > 0) {
+                    results.push({ ...icon, score });
+                }
+            });
+        });
+        
+        return results.sort((a, b) => b.score - a.score);
+    }
+    
+    renderSearchResults(results) {
+        // Renderizar resultados en todas las pestañas
+        this.renderIconList('allIcons', results);
+        this.renderIconList('integrationIcons', results.filter(icon => 
+            icon.library && icon.library.startsWith('integration')));
+        this.renderIconList('azureIcons', results.filter(icon => 
+            icon.library && icon.library.includes('azure')));
+    }
+    
+    handleIconClick(iconElement) {
+        const iconData = JSON.parse(iconElement.dataset.icon);
+        console.log('Icono seleccionado:', iconData);
+        
+        // Aquí puedes implementar la lógica para usar el icono en el diagrama
+        // Por ejemplo, emitir un evento o llamar a una función del editor
+        if (window.diagramEditor && window.diagramEditor.addIconToCanvas) {
+            window.diagramEditor.addIconToCanvas(iconData);
+        }
     }
     
     showSearchSuggestions() {

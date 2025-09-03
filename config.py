@@ -35,7 +35,7 @@ class Config:
     OPENAI_TEMPERATURE = float(os.getenv('OPENAI_TEMPERATURE', 0.7))
     
     # Configuración de iconos
-    ICONS_BASE_PATH = 'icons'
+    ICONS_BASE_PATH = 'Libs'  # Cambiar a la carpeta Libs donde están los iconos
     ICONS_PER_PAGE = 50
     MAX_SEARCH_RESULTS = 200
     
@@ -80,7 +80,7 @@ class Config:
     AWS_REGION = os.getenv('AWS_REGION', 'us-east-1')
     
     # Configuración de iconos específica
-    ICONS_BASE_DIR = 'icons'
+    ICONS_BASE_DIR = 'Libs'  # Cambiar a la carpeta Libs donde están los iconos
     ICONS_AWS_DIR = 'AWS'
     ICONS_AZURE_DIR = 'Azure'
     

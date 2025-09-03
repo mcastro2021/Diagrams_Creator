@@ -37,6 +37,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'docx', 'xlsx', 'csv', 'json', 'png', 'jpg',
 
 # Almacenamiento en memoria para diagramas
 diagrams = {}  # {diagram_id: diagram_data}
+diagram_cache = {}  # Cache para evitar diagramas repetidos
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -118,6 +119,10 @@ def generate_diagram_with_ai(description, diagram_type='auto'):
     try:
         print(f"🤖 Generando diagrama IA para: {description}")
         
+        # Generar hash único para la descripción para evitar caché
+        import hashlib
+        description_hash = hashlib.md5(f"{description}_{diagram_type}_{int(time.time())}".encode()).hexdigest()
+        
         # Determinar el tipo de diagrama si es 'auto'
         if diagram_type == 'auto':
             diagram_type = detect_diagram_type(description)
@@ -140,9 +145,9 @@ def generate_diagram_with_ai(description, diagram_type='auto'):
             print("⚠️ OpenAI no configurado, usando diagrama de fallback")
             return generate_fallback_diagram(description, diagram_type)
         
-        # Crear prompt para OpenAI según el tipo
+        # Crear prompt para OpenAI según el tipo con timestamp para evitar caché
         system_prompt = get_system_prompt_for_type(diagram_type)
-        user_prompt = f"Genera un diagrama de {diagram_type} para: {description}"
+        user_prompt = f"Genera un diagrama de {diagram_type} para: {description}\n\nTimestamp: {int(time.time())}\nHash: {description_hash}"
         
         # Llamar a OpenAI
         response = openai.ChatCompletion.create(
@@ -172,6 +177,11 @@ def generate_diagram_with_ai(description, diagram_type='auto'):
                 if 'nodes' not in diagram_data or 'edges' not in diagram_data:
                     raise ValueError("Estructura de diagrama inválida")
                 
+                # Añadir metadatos únicos para evitar caché
+                diagram_data['generation_timestamp'] = int(time.time())
+                diagram_data['description_hash'] = description_hash
+                diagram_data['unique_id'] = str(uuid.uuid4())
+                
                 print(f"✅ Diagrama IA generado exitosamente: {len(diagram_data['nodes'])} nodos, {len(diagram_data['edges'])} conexiones")
                 
                 return {
@@ -199,6 +209,10 @@ def generate_azure_architecture_diagram(description):
         # Analizar la descripción para extraer componentes específicos
         description_lower = description.lower()
         
+        # Generar hash único para evitar caché
+        import hashlib
+        description_hash = hashlib.md5(f"{description}_azure_{int(time.time())}".encode()).hexdigest()
+        
         # Detectar componentes de Azure mencionados
         components = {
             'virtual_machines': any(word in description_lower for word in config.AZURE_VM_KEYWORDS),
@@ -222,6 +236,11 @@ def generate_azure_architecture_diagram(description):
         
         # Crear diagrama de Azure con componentes detectados
         azure_diagram = create_azure_diagram_structure(components, description)
+        
+        # Añadir metadatos únicos para evitar caché
+        azure_diagram['generation_timestamp'] = int(time.time())
+        azure_diagram['description_hash'] = description_hash
+        azure_diagram['unique_id'] = str(uuid.uuid4())
         
         return {
             'success': True,
@@ -247,8 +266,17 @@ def generate_hub_spoke_architecture(description, components):
         
         print(f"🏗️ Generando topología Hub and Spoke con {num_subscriptions} suscripciones...")
         
+        # Generar hash único para evitar caché
+        import hashlib
+        description_hash = hashlib.md5(f"{description}_hub_spoke_{int(time.time())}".encode()).hexdigest()
+        
         # Crear diagrama hub and spoke
         hub_spoke_diagram = create_hub_spoke_structure(num_subscriptions, components)
+        
+        # Añadir metadatos únicos para evitar caché
+        hub_spoke_diagram['generation_timestamp'] = int(time.time())
+        hub_spoke_diagram['description_hash'] = description_hash
+        hub_spoke_diagram['unique_id'] = str(uuid.uuid4())
         
         return {
             'success': True,
@@ -997,10 +1025,17 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "style": {"fontSize": "12px", "fontWeight": "normal", "textAlign": "left", "backgroundColor": "#f8f9fa", "border": "1px solid #dee2e6", "padding": "10px"}
     })
     
+    # Generar hash único para evitar caché
+    import hashlib
+    description_hash = hashlib.md5(f"hub_spoke_structure_{int(time.time())}".encode()).hexdigest()
+    
     return {
         "type": "azure_hub_spoke",
         "nodes": nodes,
         "edges": edges,
+        "generation_timestamp": int(time.time()),
+        "description_hash": description_hash,
+        "unique_id": str(uuid.uuid4()),
         "metadata": {
             "architecture_type": "Hub and Spoke",
             "subscriptions": num_subscriptions,
@@ -1855,10 +1890,17 @@ def create_azure_diagram_structure(components, description):
         'style': {"fontSize": "11px", "fontWeight": "normal", "textAlign": "left", "backgroundColor": "#f8f9fa", "border": "1px solid #dee2e6", "padding": "10px"}
     })
     
+    # Generar hash único para evitar caché
+    import hashlib
+    description_hash = hashlib.md5(f"azure_structure_{int(time.time())}".encode()).hexdigest()
+    
     return {
         'type': 'azure_architecture',
         'nodes': nodes,
         'edges': edges,
+        'generation_timestamp': int(time.time()),
+        'description_hash': description_hash,
+        'unique_id': str(uuid.uuid4()),
         'metadata': {
             'architecture_type': 'Multi-tier Web Application',
             'components': list(components.keys()),
@@ -1898,18 +1940,26 @@ def generate_fallback_diagram(description, diagram_type):
         # Crear un diagrama básico basado en la descripción
         words = description.split()[:5]  # Tomar las primeras 5 palabras
         
+        # Generar hash único para evitar caché
+        import hashlib
+        description_hash = hashlib.md5(f"{description}_{diagram_type}_{int(time.time())}".encode()).hexdigest()
+        
         nodes = []
         edges = []
         
-        # Crear nodos básicos
+        # Crear nodos básicos con posiciones únicas basadas en timestamp
+        timestamp = int(time.time())
         for i, word in enumerate(words):
-            node_id = f"node_{i+1}"
+            node_id = f"node_{i+1}_{timestamp}"
+            # Usar timestamp para variar posiciones
+            x_offset = (timestamp % 100) + (i * 150)
+            y_offset = (timestamp % 50) + (i * 50)
             nodes.append({
                 'id': node_id,
                 'type': 'rectangle',
                 'text': word.capitalize(),
-                'x': 100 + (i * 150),
-                'y': 100 + (i * 50),
+                'x': 100 + x_offset,
+                'y': 100 + y_offset,
                 'width': 120,
                 'height': 60
             })
@@ -1917,8 +1967,8 @@ def generate_fallback_diagram(description, diagram_type):
             # Conectar nodos secuencialmente
             if i > 0:
                 edges.append({
-                    'id': f"edge_{i}",
-                    'from': f"node_{i}",
+                    'id': f"edge_{i}_{timestamp}",
+                    'from': f"node_{i}_{timestamp}",
                     'to': node_id
                 })
         
@@ -1930,7 +1980,10 @@ def generate_fallback_diagram(description, diagram_type):
                 'generated_by': 'fallback_system',
                 'description': description,
                 'diagram_type': diagram_type,
-                'fallback_reason': 'AI service unavailable'
+                'fallback_reason': 'AI service unavailable',
+                'generation_timestamp': timestamp,
+                'description_hash': description_hash,
+                'unique_id': str(uuid.uuid4())
             }
         }
         
@@ -2702,57 +2755,72 @@ def get_available_icons():
     """Obtiene todos los iconos disponibles organizados por categorías"""
     try:
         icons = {}
-        icons_base_path = config.ICONS_BASE_DIR
+        # Usar directamente la carpeta Libs en lugar de config.ICONS_BASE_DIR
+        libs_path = 'Libs'
         
-        # Cargar iconos de AWS
-        aws_path = os.path.join(icons_base_path, config.ICONS_AWS_DIR)
-        if os.path.exists(aws_path):
-            icons['AWS'] = {}
-            for category in os.listdir(aws_path):
-                category_path = os.path.join(aws_path, category)
-                if os.path.isdir(category_path):
-                    icons['AWS'][category] = []
-                    for icon_file in os.listdir(category_path):
-                        if icon_file.endswith('.svg'):
-                            icon_name = icon_file.replace('.svg', '')
-                            icons['AWS'][category].append({
-                                'name': icon_name,
-                                'path': f'/icons/AWS/{category}/{icon_file}',
-                                'category': category,
-                                'provider': 'AWS'
-                            })
+        if not os.path.exists(libs_path):
+            return jsonify({'error': 'Carpeta Libs no encontrada'}), 404
         
-        # Cargar iconos de Azure
-        azure_path = os.path.join(icons_base_path, config.ICONS_AZURE_DIR)
-        if os.path.exists(azure_path):
-            icons['Azure'] = {}
-            for category in os.listdir(azure_path):
-                category_path = os.path.join(azure_path, category)
-                if os.path.isdir(category_path):
-                    icons['Azure'][category] = []
-                    for icon_file in os.listdir(category_path):
-                        if icon_file.endswith('.svg'):
-                            icon_name = icon_file.replace('.svg', '')
-                            icons['Azure'][category].append({
-                                'name': icon_name,
-                                'path': f'/icons/Azure/{category}/{icon_file}',
-                                'category': category,
-                                'provider': 'Azure'
-                            })
+        # Cargar iconos desde archivos XML en la carpeta Libs y subcarpetas
+        for root, dirs, files in os.walk(libs_path):
+            for filename in files:
+                if filename.endswith('.xml'):
+                    # Construir ruta relativa desde Libs
+                    relative_path = os.path.relpath(os.path.join(root, filename), libs_path)
+                    library_name = relative_path.replace('.xml', '')
+                    icons[library_name] = []
+                    
+                    # Leer el archivo XML y extraer información de iconos
+                    xml_path = os.path.join(root, filename)
+                    try:
+                        with open(xml_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        
+                        # Buscar patrones de iconos en el XML
+                        import re
+                        
+                        # Buscar entradas de iconos (patrón común en drawio-libs)
+                        icon_matches = re.findall(r'"title":\s*"([^"]+)"', content)
+                        width_matches = re.findall(r'"w":\s*(\d+)', content)
+                        height_matches = re.findall(r'"h":\s*(\d+)', content)
+                        data_matches = re.findall(r'"data":\s*"([^"]+)"', content)
+                        
+                        # Combinar información de iconos
+                        for i in range(min(len(icon_matches), len(width_matches), len(height_matches))):
+                            icon_info = {
+                                'name': icon_matches[i],
+                                'title': icon_matches[i],
+                                'width': int(width_matches[i]),
+                                'height': int(height_matches[i]),
+                                'provider': library_name.split('/')[0] if '/' in library_name else library_name,
+                                'category': library_name.split('/')[-1] if '/' in library_name else library_name,
+                                'library': library_name,
+                                'path': f'/libs/{relative_path}',
+                                'type': 'drawio-icon'
+                            }
+                            
+                            if i < len(data_matches):
+                                icon_info['data'] = data_matches[i]
+                            
+                            icons[library_name].append(icon_info)
+                        
+                        print(f"📦 Biblioteca {library_name}: {len(icons[library_name])} iconos")
+                        
+                    except Exception as e:
+                        print(f"Error procesando {filename}: {str(e)}")
+                        icons[library_name] = []
         
         # Contar total de iconos
-        total_icons = 0
-        for provider in icons.values():
-            for category in provider.values():
-                total_icons += len(category)
+        total_icons = sum(len(icon_list) for icon_list in icons.values())
         
-        print(f"📦 Iconos cargados: {total_icons} iconos en {len(icons)} proveedores")
+        print(f"📦 Total de iconos cargados desde Libs: {total_icons} desde {len(icons)} bibliotecas")
         
         return jsonify({
             'success': True,
             'icons': icons,
             'total_icons': total_icons,
-            'providers': list(icons.keys())
+            'libraries': list(icons.keys()),
+            'source': 'Libs'
         })
         
     except Exception as e:
@@ -2940,22 +3008,20 @@ def search_icons():
         # Búsqueda más profunda con múltiples criterios
         search_terms = query.split()
         
-        for provider_name, provider_icons in all_icons.items():
-            if provider != 'all' and provider_name.lower() != provider.lower():
+        for library_name, icon_list in all_icons.items():
+            if provider != 'all' and library_name.lower() != provider.lower():
                 continue
                 
-            for category_name, category_icons in provider_icons.items():
-                if category != 'all' and category_name.lower() != category.lower():
-                    continue
-                    
-                for icon in category_icons:
+            for icon in icon_list:
                     # Búsqueda por múltiples criterios
-                    icon_name_lower = icon['name'].lower()
-                    category_lower = category_name.lower()
-                    provider_lower = provider_name.lower()
+                    icon_name_lower = icon.get('name', '').lower()
+                    icon_title_lower = icon.get('title', '').lower()
+                    category_lower = icon.get('category', '').lower()
+                    provider_lower = icon.get('provider', '').lower()
+                    library_lower = library_name.lower()
                     
                     # Búsqueda exacta
-                    if query in icon_name_lower:
+                    if query in icon_name_lower or query in icon_title_lower:
                         icon['relevance_score'] = 100
                         results.append(icon)
                         continue
@@ -2963,11 +3029,13 @@ def search_icons():
                     # Búsqueda por palabras individuales
                     match_score = 0
                     for term in search_terms:
-                        if term in icon_name_lower:
+                        if term in icon_name_lower or term in icon_title_lower:
                             match_score += 30
                         if term in category_lower:
                             match_score += 20
                         if term in provider_lower:
+                            match_score += 15
+                        if term in library_lower:
                             match_score += 10
                         
                         # Búsqueda por sinónimos y términos relacionados
@@ -3042,11 +3110,11 @@ def generate_search_suggestions(query, all_icons):
         if term in query.lower():
             suggestions.extend(related)
     
-    # Sugerencias basadas en categorías populares
-    popular_categories = config.POPULAR_ICON_CATEGORIES
-    for category in popular_categories:
-        if category in query.lower():
-            suggestions.append(f"Buscar en categoría: {category}")
+    # Sugerencias basadas en bibliotecas populares
+    popular_libraries = ['integration', 'azure', 'aws', 'kubernetes', 'material-design']
+    for library in popular_libraries:
+        if library in query.lower():
+            suggestions.append(f"Buscar en biblioteca: {library}")
     
     return list(set(suggestions))[:10]  # Máximo 10 sugerencias únicas
 

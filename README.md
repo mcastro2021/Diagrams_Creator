@@ -1,4 +1,4 @@
-# 🎨 Diagramas Creator - Editor de Diagramas con IA
+# Diagramas Creator - Editor de Diagramas con IA
 
 Una aplicación web moderna para crear diagramas interactivos usando inteligencia artificial, con soporte para iconos de AWS y Azure, similar a draw.io pero con capacidades de generación automática.
 
