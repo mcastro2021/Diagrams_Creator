@@ -383,13 +383,16 @@
             </div>
 
             <div class="result-actions">
-                <button class="action-btn btn-primary" onclick="openInDrawIO()">
-                    <i class="fas fa-external-link-alt"></i> Abrir en Draw.io Desktop
+                <button class="action-btn btn-primary" onclick="viewMermaidCode()">
+                    <i class="fas fa-code"></i> Ver Código Mermaid
                 </button>
-                <button class="action-btn btn-secondary" onclick="downloadDiagram()">
-                    <i class="fas fa-download"></i> Descargar XML
+                <button class="action-btn btn-secondary" onclick="openInMermaidEditor()">
+                    <i class="fas fa-external-link-alt"></i> Abrir en Mermaid Live
                 </button>
-                <button class="action-btn btn-success" onclick="createNew()">
+                <button class="action-btn btn-success" onclick="downloadDiagram()">
+                    <i class="fas fa-download"></i> Descargar
+                </button>
+                <button class="action-btn btn-info" onclick="createNew()">
                     <i class="fas fa-plus"></i> Nuevo Diagrama
                 </button>
             </div>
@@ -406,6 +409,7 @@
     <script>
         let currentTab = 'file';
         let currentDiagramData = null;
+        let currentMermaidCode = null;
 
         function switchTab(tabName) {
             // Ocultar todas las pestañas
@@ -552,6 +556,7 @@
             }
             
             currentDiagramData = result.diagram_data;
+            currentMermaidCode = result.mermaid_code || result.diagram_data;
             
             // Debug: verificar campos individuales
             console.log('Title:', result.title);
@@ -566,15 +571,17 @@
             const diagramInfo = document.getElementById('diagram-info');
             const diagramDetails = document.getElementById('diagram-details');
             
-            let instructions = 'Descarga el archivo XML y ábrelo en Draw.io Desktop';
-            if (type === 'routing_table') {
-                instructions = 'Diagrama de tabla de ruteo generado. Descarga el archivo XML y ábrelo en Draw.io Desktop para editarlo.';
+            let instructions = 'Descarga el archivo y ábrelo en Draw.io Desktop o Mermaid Live Editor';
+            if (type === 'azure_architecture') {
+                instructions = 'Diagrama de arquitectura Azure generado. Puedes ver el SVG, editar el código Mermaid, o descargarlo.';
+            } else if (type === 'mermaid_code') {
+                instructions = 'Código Mermaid generado. Cópialo en Mermaid Live Editor o descárgalo como archivo .mmd';
             }
             
             diagramDetails.innerHTML = `
                 <p><strong>Tipo:</strong> ${type}</p>
                 <p><strong>Título:</strong> ${title}</p>
-                <p><strong>Formato:</strong> XML (compatible con draw.io)</p>
+                <p><strong>Formato:</strong> ${result.diagram_data.startsWith('<svg') ? 'SVG (Mermaid)' : 'Código Mermaid'}</p>
                 <p><strong>Tamaño:</strong> ${(result.diagram_data.length / 1024).toFixed(2)} KB</p>
                 <p><strong>Instrucciones:</strong> ${instructions}</p>
             `;
@@ -607,15 +614,32 @@
 
         function downloadDiagram() {
             if (currentDiagramData) {
-                const blob = new Blob([currentDiagramData], { type: 'application/xml' });
+                let filename = 'diagrama';
+                let mimeType = 'text/plain';
+                
+                // Determinar tipo de archivo basado en el contenido
+                if (currentDiagramData.startsWith('<svg')) {
+                    filename += '.svg';
+                    mimeType = 'image/svg+xml';
+                } else if (currentDiagramData.startsWith('graph')) {
+                    filename += '.mmd';
+                    mimeType = 'text/plain';
+                } else {
+                    filename += '.txt';
+                    mimeType = 'text/plain';
+                }
+                
+                const blob = new Blob([currentDiagramData], { type: mimeType });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'diagrama.xml';
+                a.download = filename;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
+                
+                showSuccess(`Archivo ${filename} descargado exitosamente`);
             }
         }
 
@@ -637,6 +661,58 @@
             
             // Scroll al inicio
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function viewMermaidCode() {
+            if (currentMermaidCode) {
+                const mermaidCodeDiv = document.createElement('div');
+                mermaidCodeDiv.style.whiteSpace = 'pre-wrap';
+                mermaidCodeDiv.style.padding = '15px';
+                mermaidCodeDiv.style.backgroundColor = '#f8f9fa';
+                mermaidCodeDiv.style.borderRadius = '10px';
+                mermaidCodeDiv.style.fontFamily = 'monospace';
+                mermaidCodeDiv.style.fontSize = '0.9rem';
+                mermaidCodeDiv.style.overflowX = 'auto';
+                mermaidCodeDiv.textContent = currentMermaidCode;
+
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '1000';
+                modal.innerHTML = `
+                    <div style="background: white; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto;">
+                        <h3>Código Mermaid</h3>
+                        <div>${mermaidCodeDiv.outerHTML}</div>
+                        <button onclick="closeMermaidCodeModal()" class="action-btn btn-primary" style="margin-top: 10px;">
+                            <i class="fas fa-times"></i> Cerrar
+                        </button>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            } else {
+                showError('No hay código Mermaid disponible para mostrar.');
+            }
+        }
+
+        function closeMermaidCodeModal() {
+            document.body.removeChild(document.querySelector('.modal-content'));
+        }
+
+        function openInMermaidEditor() {
+            if (currentMermaidCode) {
+                const mermaidUrl = `https://mermaid.live/edit#/${encodeURIComponent(currentMermaidCode)}`;
+                window.open(mermaidUrl, '_blank');
+                showSuccess('Abriendo en Mermaid Live Editor...');
+            } else {
+                showError('No hay código Mermaid disponible para abrir.');
+            }
         }
 
         // Verificar conexión al cargar la página
