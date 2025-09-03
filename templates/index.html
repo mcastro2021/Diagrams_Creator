@@ -42,76 +42,98 @@
             opacity: 0.9;
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .card {
+        .upload-section {
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 40px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 30px;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-        }
-
-        .card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+        .upload-tabs {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
         }
 
-        .upload-area {
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab:hover {
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .file-upload-area {
             border: 3px dashed #ddd;
             border-radius: 15px;
-            padding: 40px;
+            padding: 60px 20px;
             text-align: center;
             transition: all 0.3s ease;
             cursor: pointer;
             background: #fafafa;
         }
 
-        .upload-area:hover, .upload-area.dragover {
+        .file-upload-area:hover {
             border-color: #667eea;
             background: #f0f4ff;
         }
 
-        .upload-area i {
-            font-size: 3rem;
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #e8f2ff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
             color: #667eea;
             margin-bottom: 20px;
         }
 
-        .upload-area p {
+        .upload-text {
+            font-size: 1.2rem;
             color: #666;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 0.9rem;
         }
 
         .file-input {
             display: none;
         }
 
-        .supported-formats {
-            font-size: 0.9rem;
-            color: #888;
-            margin-top: 15px;
+        .text-input-area {
+            margin-top: 20px;
         }
 
         .text-input {
             width: 100%;
             min-height: 200px;
             padding: 20px;
-            border: 2px solid #ddd;
+            border: 2px solid #eee;
             border-radius: 15px;
             font-size: 1rem;
             font-family: inherit;
@@ -124,122 +146,35 @@
             border-color: #667eea;
         }
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .process-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
             margin-top: 20px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
-        .btn:hover {
+        .process-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
         }
 
-        .btn:disabled {
+        .process-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
         }
 
-        .results {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-top: 30px;
-            display: none;
-        }
-
-        .results.show {
-            display: block;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .result-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .result-title {
-            color: #667eea;
-            font-size: 1.3rem;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #667eea;
-            border: 2px solid #667eea;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .content-preview {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .content-preview h4 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
-
-        .content-preview pre {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
         .loading {
             display: none;
             text-align: center;
-            padding: 40px;
-        }
-
-        .loading.show {
-            display: block;
+            margin: 20px 0;
         }
 
         .spinner {
@@ -257,72 +192,137 @@
             100% { transform: rotate(360deg); }
         }
 
-        .error {
-            background: #fee;
-            border: 2px solid #fcc;
-            color: #c33;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
+        .result-section {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             display: none;
         }
 
-        .error.show {
+        .result-section.show {
             display: block;
         }
 
-        .success {
-            background: #efe;
-            border: 2px solid #cfc;
-            color: #3c3;
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .result-header h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 20px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
             display: none;
         }
 
-        .success.show {
-            display: block;
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .file-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        .diagram-info {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #2196f3;
+        }
+
+        .diagram-info h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .diagram-info p {
+            margin: 8px 0;
+            color: #424242;
+        }
+
+        .diagram-info strong {
+            color: #1976d2;
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
+            .container {
+                padding: 10px;
             }
-
+            
+            .upload-section, .result-section {
+                padding: 20px;
+            }
+            
             .header h1 {
                 font-size: 2rem;
             }
-
-            .card {
-                padding: 20px;
+            
+            .result-actions {
+                flex-direction: column;
+                align-items: center;
             }
-
-            .upload-area {
-                padding: 30px 20px;
-            }
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #f0f0f0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 15px;
-            display: none;
-        }
-
-        .progress-bar.show {
-            display: block;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s ease;
         }
     </style>
 </head>
@@ -330,325 +330,327 @@
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-project-diagram"></i> Conversor de Documentos a Diagramas</h1>
-            <p>Convierte Excel, PDF, Word y más en diagramas profesionales con draw.io</p>
+            <p>Convierte automáticamente documentos y texto en diagramas profesionales</p>
         </div>
 
-        <div class="main-content">
-            <!-- Subida de archivos -->
-            <div class="card">
-                <h2><i class="fas fa-upload"></i> Subir Documento</h2>
-                <div class="upload-area" id="uploadArea">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    <p><strong>Arrastra y suelta tu archivo aquí</strong></p>
-                    <p>o haz clic para seleccionar</p>
-                    <div class="supported-formats">
-                        Formatos soportados: PDF, Excel, Word, CSV, TXT, JSON
-                    </div>
-                    <input type="file" id="fileInput" class="file-input" accept=".pdf,.docx,.xlsx,.csv,.txt,.json">
+        <div class="upload-section">
+            <div class="upload-tabs">
+                <div class="tab active" onclick="switchTab('file')">
+                    <i class="fas fa-file-upload"></i> Subir Archivo
                 </div>
-                <button class="btn" id="uploadBtn" disabled>
-                    <i class="fas fa-upload"></i> Procesar Documento
-                </button>
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill"></div>
+                <div class="tab" onclick="switchTab('text')">
+                    <i class="fas fa-keyboard"></i> Escribir Texto
                 </div>
             </div>
 
-            <!-- Entrada de texto -->
-            <div class="card">
-                <h2><i class="fas fa-edit"></i> Escribir Texto</h2>
-                <textarea 
-                    class="text-input" 
-                    id="textInput" 
-                    placeholder="Escribe tu texto aquí...&#10;&#10;Ejemplo:&#10;1. INICIO&#10;   - Punto de partida del proceso&#10;2. PROCESO&#10;   - Lógica principal&#10;3. FINAL&#10;   - Resultado final"
-                ></textarea>
-                <button class="btn" id="textBtn">
+            <div id="file-tab" class="tab-content active">
+                <div class="file-upload-area" onclick="document.getElementById('file-input').click()" 
+                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Arrastra y suelta archivos aquí o haz clic para seleccionar</div>
+                    <div class="upload-hint">Soporta: PDF, Excel, Word, CSV, TXT, JSON</div>
+                </div>
+                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.xlsx,.csv,.txt,.json" onchange="handleFileSelect(event)">
+            </div>
+
+            <div id="text-tab" class="tab-content">
+                <div class="text-input-area">
+                    <textarea class="text-input" id="text-input" placeholder="Escribe o pega tu texto aquí..."></textarea>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="process-btn" onclick="processContent()" id="process-btn">
                     <i class="fas fa-magic"></i> Generar Diagrama
                 </button>
             </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Procesando documento...</p>
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+            <div class="success-message" id="success-message"></div>
         </div>
 
-        <!-- Loading -->
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Procesando documento y generando diagrama...</p>
-        </div>
-
-        <!-- Resultados -->
-        <div class="results" id="results">
+        <div class="result-section" id="result-section">
             <div class="result-header">
-                <h3 class="result-title" id="resultTitle">Diagrama Generado</h3>
-                <div class="result-actions">
-                    <button class="btn-secondary" id="editBtn">
-                        <i class="fas fa-edit"></i> Editar en draw.io
-                    </button>
-                    <button class="btn-secondary" id="downloadBtn">
-                        <i class="fas fa-download"></i> Descargar XML
-                    </button>
-                </div>
+                <h2><i class="fas fa-check-circle"></i> Diagrama Generado</h2>
+                <p>Tu diagrama ha sido creado exitosamente</p>
             </div>
-            
-            <div class="content-preview">
-                <h4>Contenido Procesado:</h4>
-                <pre id="contentPreview"></pre>
+
+            <div class="result-actions">
+                <button class="action-btn btn-primary" onclick="openInDrawIO()">
+                    <i class="fas fa-external-link-alt"></i> Abrir en Draw.io Desktop
+                </button>
+                <button class="action-btn btn-secondary" onclick="downloadDiagram()">
+                    <i class="fas fa-download"></i> Descargar XML
+                </button>
+                <button class="action-btn btn-success" onclick="createNew()">
+                    <i class="fas fa-plus"></i> Nuevo Diagrama
+                </button>
             </div>
+
+            <div class="file-info" id="file-info"></div>
             
-            <div class="content-preview">
-                <h4>Información del Diagrama:</h4>
-                <pre id="diagramInfo"></pre>
+            <div class="diagram-info" id="diagram-info" style="display: none;">
+                <h3>Detalles del Diagrama</h3>
+                <div id="diagram-details"></div>
             </div>
         </div>
-
-        <!-- Mensajes -->
-        <div class="error" id="error"></div>
-        <div class="success" id="success"></div>
     </div>
 
     <script>
-        // Elementos del DOM
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const textBtn = document.getElementById('textBtn');
-        const textInput = document.getElementById('textInput');
-        const loading = document.getElementById('loading');
-        const results = document.getElementById('results');
-        const resultTitle = document.getElementById('resultTitle');
-        const contentPreview = document.getElementById('contentPreview');
-        const diagramInfo = document.getElementById('diagramInfo');
-        const editBtn = document.getElementById('editBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const progressBar = document.getElementById('progressBar');
-        const progressFill = document.getElementById('progressFill');
-        const error = document.getElementById('error');
-        const success = document.getElementById('success');
+        let currentTab = 'file';
+        let currentDiagramData = null;
 
-        let currentDiagram = null;
-
-        // Eventos de drag and drop
-        uploadArea.addEventListener('click', () => fileInput.click());
-        
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-        
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('dragover');
-        });
-        
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
+        function switchTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                handleFileSelect();
-            }
-        });
+            // Mostrar pestaña seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            document.querySelectorAll('.tab')[tabName === 'file' ? 0 : 1].classList.add('active');
+            
+            currentTab = tabName;
+        }
 
-        fileInput.addEventListener('change', handleFileSelect);
-
-        function handleFileSelect() {
-            const file = fileInput.files[0];
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
             if (file) {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = `Procesar: ${file.name}`;
-            } else {
-                uploadBtn.disabled = true;
-                uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Procesar Documento';
+                showFileInfo(file);
             }
         }
 
-        // Subida de archivo
-        uploadBtn.addEventListener('click', async () => {
-            const file = fileInput.files[0];
-            if (!file) return;
-
-            await processFile(file);
-        });
-
-        // Procesamiento de texto
-        textBtn.addEventListener('click', async () => {
-            const text = textInput.value.trim();
-            if (!text) {
-                showError('Por favor, escribe algún texto.');
-                return;
+        function handleDrop(event) {
+            event.preventDefault();
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                document.getElementById('file-input').files = event.dataTransfer.files;
+                showFileInfo(file);
             }
-
-            await processText(text);
-        });
-
-        async function processFile(file) {
-            try {
-                showLoading(true);
-                hideMessages();
-                
-                const formData = new FormData();
-                formData.append('file', file);
-
-                // Simular progreso
-                simulateProgress();
-
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    showResults(data);
-                    showSuccess('Documento procesado exitosamente!');
-                } else {
-                    showError(data.error || 'Error procesando el documento');
-                }
-            } catch (err) {
-                showError('Error de conexión: ' + err.message);
-            } finally {
-                showLoading(false);
-                hideProgress();
-            }
+            document.querySelector('.file-upload-area').classList.remove('dragover');
         }
 
-        async function processText(text) {
-            try {
-                showLoading(true);
-                hideMessages();
-
-                const response = await fetch('/text', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ text })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    showResults(data);
-                    showSuccess('Texto procesado exitosamente!');
-                } else {
-                    showError(data.error || 'Error procesando el texto');
-                }
-            } catch (err) {
-                showError('Error de conexión: ' + err.message);
-            } finally {
-                showLoading(false);
-            }
+        function handleDragOver(event) {
+            event.preventDefault();
+            document.querySelector('.file-upload-area').classList.add('dragover');
         }
 
-        function showResults(data) {
-            currentDiagram = data.diagram;
-            
-            resultTitle.textContent = data.diagram.title;
-            
-            // Mostrar contenido procesado
-            if (data.content) {
-                contentPreview.textContent = JSON.stringify(data.content, null, 2);
-            } else {
-                contentPreview.textContent = 'Sin contenido para mostrar';
-            }
-            
-            // Mostrar información del diagrama
-            diagramInfo.textContent = JSON.stringify({
-                tipo: data.diagram.type,
-                descripción: data.diagram.description,
-                título: data.diagram.title
-            }, null, 2);
-            
-            results.classList.add('show');
-            
-            // Configurar botones
-            editBtn.onclick = () => openInDrawIO(data.diagram);
-            downloadBtn.onclick = () => downloadXML(data.diagram);
+        function handleDragLeave(event) {
+            event.preventDefault();
+            document.querySelector('.file-upload-area').classList.remove('dragover');
         }
 
-        function openInDrawIO(diagram) {
-            try {
-                // Generar URL para draw.io
-                const xmlData = btoa(unescape(encodeURIComponent(diagram.xml)));
-                const drawioUrl = `https://app.diagrams.net/?embed=1&spin=1&modified=unsavedChanges&proto=json#R${xmlData}`;
-                
-                window.open(drawioUrl, '_blank');
-            } catch (err) {
-                showError('Error abriendo en draw.io: ' + err.message);
-            }
-        }
-
-        function downloadXML(diagram) {
-            try {
-                const blob = new Blob([diagram.xml], { type: 'application/xml' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `diagrama_${diagram.type}_${Date.now()}.xml`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showSuccess('Diagrama descargado exitosamente!');
-            } catch (err) {
-                showError('Error descargando el diagrama: ' + err.message);
-            }
-        }
-
-        function showLoading(show) {
-            if (show) {
-                loading.classList.add('show');
-                results.classList.remove('show');
-            } else {
-                loading.classList.remove('show');
-            }
-        }
-
-        function showProgress() {
-            progressBar.classList.add('show');
-        }
-
-        function hideProgress() {
-            progressBar.classList.remove('show');
-            progressFill.style.width = '0%';
-        }
-
-        function simulateProgress() {
-            showProgress();
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(interval);
-                }
-                progressFill.style.width = progress + '%';
-            }, 200);
+        function showFileInfo(file) {
+            const fileInfo = document.getElementById('file-info');
+            fileInfo.innerHTML = `
+                <strong>Archivo seleccionado:</strong> ${file.name}<br>
+                <strong>Tamaño:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
+                <strong>Tipo:</strong> ${file.type || 'No especificado'}
+            `;
+            fileInfo.style.display = 'block';
         }
 
         function showError(message) {
-            error.textContent = message;
-            error.classList.add('show');
-            setTimeout(() => error.classList.remove('show'), 5000);
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
         }
 
         function showSuccess(message) {
-            success.textContent = message;
-            success.classList.add('show');
-            setTimeout(() => success.classList.remove('show'), 5000);
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
         }
 
         function hideMessages() {
-            error.classList.remove('show');
-            success.classList.remove('show');
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
         }
 
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', () => {
-            // Limpiar estado inicial
+        async function processContent() {
             hideMessages();
-            hideProgress();
+            
+            const processBtn = document.getElementById('process-btn');
+            const loading = document.getElementById('loading');
+            
+            processBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                let response;
+                
+                if (currentTab === 'file') {
+                    const fileInput = document.getElementById('file-input');
+                    if (!fileInput.files[0]) {
+                        throw new Error('Por favor selecciona un archivo');
+                    }
+                    
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    
+                    response = await fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    const textInput = document.getElementById('text-input');
+                    const text = textInput.value.trim();
+                    
+                    if (!text) {
+                        throw new Error('Por favor escribe algún texto');
+                    }
+                    
+                    response = await fetch('/process_text', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: text })
+                    });
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `Error HTTP: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showSuccess(result.message);
+                    showResult(result);
+                } else {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Error: ${error.message}`);
+            } finally {
+                processBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function showResult(result) {
+            // Debug: mostrar en consola qué se está recibiendo
+            console.log('Resultado recibido:', result);
+            
+            // Verificar que result tenga los datos necesarios
+            if (!result || !result.diagram_data) {
+                console.error('Error: result o diagram_data es undefined');
+                showError('Error: No se recibieron datos del diagrama');
+                return;
+            }
+            
+            currentDiagramData = result.diagram_data;
+            
+            // Debug: verificar campos individuales
+            console.log('Title:', result.title);
+            console.log('Type:', result.type);
+            console.log('Diagram data length:', result.diagram_data ? result.diagram_data.length : 'undefined');
+            
+            // Mostrar información del diagrama de forma segura
+            const title = result.title || 'Diagrama';
+            const type = result.type || 'genérico';
+            
+            // Mostrar detalles del diagrama
+            const diagramInfo = document.getElementById('diagram-info');
+            const diagramDetails = document.getElementById('diagram-details');
+            
+            let instructions = 'Descarga el archivo XML y ábrelo en Draw.io Desktop';
+            if (type === 'routing_table') {
+                instructions = 'Diagrama de tabla de ruteo generado. Descarga el archivo XML y ábrelo en Draw.io Desktop para editarlo.';
+            }
+            
+            diagramDetails.innerHTML = `
+                <p><strong>Tipo:</strong> ${type}</p>
+                <p><strong>Título:</strong> ${title}</p>
+                <p><strong>Formato:</strong> XML (compatible con draw.io)</p>
+                <p><strong>Tamaño:</strong> ${(result.diagram_data.length / 1024).toFixed(2)} KB</p>
+                <p><strong>Instrucciones:</strong> ${instructions}</p>
+            `;
+            diagramInfo.style.display = 'block';
+            
+            // Mostrar sección de resultados
+            document.getElementById('result-section').classList.add('show');
+            
+            // Scroll a resultados
+            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function openInDrawIO() {
+            if (currentDiagramData) {
+                // Crear un archivo temporal y descargarlo
+                const blob = new Blob([currentDiagramData], { type: 'application/xml' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'diagrama.drawio';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                // Mostrar instrucciones
+                showSuccess('Archivo descargado. Ábrelo en Draw.io Desktop para editarlo.');
+            }
+        }
+
+        function downloadDiagram() {
+            if (currentDiagramData) {
+                const blob = new Blob([currentDiagramData], { type: 'application/xml' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'diagrama.xml';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }
+        }
+
+        function createNew() {
+            // Limpiar formularios
+            document.getElementById('file-input').value = '';
+            document.getElementById('text-input').value = '';
+            document.getElementById('file-info').style.display = 'none';
+            document.getElementById('diagram-info').style.display = 'none';
+            
+            // Ocultar resultados
+            document.getElementById('result-section').classList.remove('show');
+            
+            // Limpiar mensajes
+            hideMessages();
+            
+            // Cambiar a pestaña de archivo
+            switchTab('file');
+            
+            // Scroll al inicio
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Verificar conexión al cargar la página
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/health');
+                if (!response.ok) {
+                    throw new Error('Servidor no responde correctamente');
+                }
+                console.log('Conexión al servidor establecida');
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                showError('No se puede conectar al servidor. Asegúrate de que esté ejecutándose.');
+            }
         });
     </script>
 </body>

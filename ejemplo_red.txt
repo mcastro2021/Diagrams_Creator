@@ -1,0 +1,37 @@
+CONFIGURACIÓN DE REDES - TABLA DE RUTEO
+
+RED PRINCIPAL:
+- Subnet: 192.168.1.0/24
+- Gateway: 192.168.1.1
+- Descripción: Red principal de la oficina
+- Rango IP: 192.168.1.1 - 192.168.1.254
+
+RED DMZ:
+- Subnet: 10.0.1.0/24
+- Gateway: 10.0.1.1
+- Descripción: Red desmilitarizada para servidores web
+- Rango IP: 10.0.1.1 - 10.0.1.254
+
+RED VPN:
+- Subnet: 172.16.1.0/24
+- Gateway: 172.16.1.1
+- Descripción: Red VPN para usuarios remotos
+- Rango IP: 172.16.1.1 - 172.16.1.254
+
+RED DE ADMINISTRACIÓN:
+- Subnet: 10.10.10.0/24
+- Gateway: 10.10.10.1
+- Descripción: Red para administración de equipos
+- Rango IP: 10.10.10.1 - 10.10.10.254
+
+INFORMACIÓN DE RUTEO:
+- Ruta por defecto: 0.0.0.0/0 -> 192.168.1.254
+- Ruta interna: 192.168.0.0/16 -> 192.168.1.1
+- Ruta DMZ: 10.0.0.0/8 -> 10.0.1.1
+- Ruta VPN: 172.16.0.0/16 -> 172.16.1.1
+
+MÁSCARAS DE RED:
+- Red principal: 255.255.255.0
+- Red DMZ: 255.255.255.0
+- Red VPN: 255.255.255.0
+- Red administración: 255.255.255.0
