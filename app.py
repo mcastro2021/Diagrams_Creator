@@ -242,234 +242,334 @@ def generate_hub_spoke_architecture(description, components):
         return generate_fallback_diagram(description, 'azure_architecture')
 
 def create_hub_spoke_structure(num_subscriptions, components):
-    """Crea la estructura hub and spoke con múltiples suscripciones"""
+    """Create a professional Hub and Spoke architecture diagram structure"""
     
-    # Posiciones base para organizar el diagrama
-    positions = {
-        'internet': {'x': 500, 'y': 50, 'width': 120, 'height': 60},
-        'hub_vnet': {'x': 400, 'y': 150, 'width': 300, 'height': 200},
-        'hub_firewall': {'x': 500, 'y': 200, 'width': 120, 'height': 60},
-        'hub_bastion': {'x': 400, 'y': 250, 'width': 120, 'height': 60},
-        'hub_vpn': {'x': 600, 'y': 250, 'width': 120, 'height': 60},
-        'hub_express_route': {'x': 500, 'y': 320, 'width': 120, 'height': 60},
-        'hub_monitoring': {'x': 400, 'y': 400, 'width': 120, 'height': 60},
-        'hub_key_vault': {'x': 600, 'y': 400, 'width': 120, 'height': 60},
-        'hub_shared_services': {'x': 500, 'y': 480, 'width': 120, 'height': 60}
-    }
+    # Base positions for Hub components
+    hub_center_x = 400
+    hub_center_y = 300
+    
+    # Hub VNet dimensions
+    hub_width = 300
+    hub_height = 400
+    
+    # Spoke positioning
+    spoke_spacing = 250
+    spoke_start_x = hub_center_x + 200
     
     nodes = []
     edges = []
-    node_id = 1
     
-    # Agregar nodos del hub
+    # 1. Diagram Title
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'internet',
-        'text': 'Internet',
-        'x': positions['internet']['x'],
-        'y': positions['internet']['y'],
-        'width': positions['internet']['width'],
-        'height': positions['internet']['height']
+        "id": "diagram_title",
+        "type": "diagram_title",
+        "text": "Azure Hub and Spoke\nNetwork Topology",
+        "x": hub_center_x - 100,
+        "y": 50,
+        "width": 200,
+        "height": 60
     })
-    internet_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub VNet
+    # 2. Azure Virtual Network Manager (Top)
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_vnet',
-        'text': 'Hub VNet\n10.0.0.0/16\nSuscripción Hub',
-        'x': positions['hub_vnet']['x'],
-        'y': positions['hub_vnet']['y'],
-        'width': positions['hub_vnet']['width'],
-        'height': positions['hub_vnet']['height']
+        "id": "azure_vnet_manager",
+        "type": "azure_vnet_manager",
+        "text": "Azure Virtual\nNetwork Manager",
+        "x": hub_center_x - 75,
+        "y": 120,
+        "width": 150,
+        "height": 80
     })
-    hub_vnet_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub Firewall
+    # 3. Cross-premises Network (Left)
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_firewall',
-        'text': 'Azure Firewall\nHub',
-        'x': positions['hub_firewall']['x'],
-        'y': positions['hub_firewall']['y'],
-        'width': positions['hub_firewall']['width'],
-        'height': positions['hub_firewall']['height']
+        "id": "cross_premises_network",
+        "type": "cross_premises_network",
+        "text": "Cross-premises\nNetwork",
+        "x": hub_center_x - 400,
+        "y": hub_center_y - 100,
+        "width": 200,
+        "height": 200
     })
-    hub_firewall_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub Bastion
+    # VMs in Cross-premises
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_bastion',
-        'text': 'Bastion Host\nHub',
-        'x': positions['hub_bastion']['x'],
-        'y': positions['hub_bastion']['y'],
-        'width': positions['hub_bastion']['width'],
-        'height': positions['hub_bastion']['height']
+        "id": "cross_premises_vm1",
+        "type": "azure_vm",
+        "text": "Virtual\nMachine",
+        "x": hub_center_x - 380,
+        "y": hub_center_y - 60,
+        "width": 80,
+        "height": 60
     })
-    hub_bastion_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub VPN Gateway
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_vpn_gateway',
-        'text': 'VPN Gateway\nHub',
-        'x': positions['hub_vpn']['x'],
-        'y': positions['hub_vpn']['y'],
-        'width': positions['hub_vpn']['width'],
-        'height': positions['hub_vpn']['height']
+        "id": "cross_premises_vm2",
+        "type": "azure_vm",
+        "text": "Virtual\nMachine",
+        "x": hub_center_x - 300,
+        "y": hub_center_y - 60,
+        "width": 80,
+        "height": 60
     })
-    hub_vpn_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub Express Route
+    # Secure Connection
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_express_route',
-        'text': 'Express Route\nHub',
-        'x': positions['hub_express_route']['x'],
-        'y': positions['hub_express_route']['y'],
-        'width': positions['hub_express_route']['width'],
-        'height': positions['hub_express_route']['height']
+        "id": "secure_connection",
+        "type": "secure_connection",
+        "text": "Secure\nConnection",
+        "x": hub_center_x - 340,
+        "y": hub_center_y + 20,
+        "width": 80,
+        "height": 60
     })
-    hub_express_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub Monitoring
+    # 4. Hub Virtual Network (Center)
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_monitoring',
-        'text': 'Log Analytics\nHub',
-        'x': positions['hub_monitoring']['x'],
-        'y': positions['hub_monitoring']['y'],
-        'width': positions['hub_monitoring']['width'],
-        'height': positions['hub_monitoring']['height']
+        "id": "hub_vnet",
+        "type": "hub_vnet",
+        "text": "Hub Virtual Network",
+        "x": hub_center_x - 150,
+        "y": hub_center_y - 150,
+        "width": hub_width,
+        "height": hub_height
     })
-    hub_monitoring_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub Key Vault
+    # Hub Internal Services
+    # Azure Bastion
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_key_vault',
-        'text': 'Key Vault\nHub',
-        'x': positions['hub_key_vault']['x'],
-        'y': positions['hub_key_vault']['y'],
-        'width': positions['hub_key_vault']['width'],
-        'height': positions['hub_key_vault']['height']
+        "id": "hub_bastion",
+        "type": "azure_bastion",
+        "text": "Azure\nBastion",
+        "x": hub_center_x - 120,
+        "y": hub_center_y - 100,
+        "width": 100,
+        "height": 80
     })
-    hub_key_vault_id = f'node_{node_id}'
-    node_id += 1
     
-    # Hub Shared Services
+    # Azure Firewall
     nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'azure_shared_services',
-        'text': 'Shared Services\nHub',
-        'x': positions['hub_shared_services']['x'],
-        'y': positions['hub_shared_services']['y'],
-        'width': positions['hub_shared_services']['width'],
-        'height': positions['hub_shared_services']['height']
+        "id": "hub_firewall",
+        "type": "azure_firewall",
+        "text": "Azure\nFirewall",
+        "x": hub_center_x - 120,
+        "y": hub_center_y,
+        "width": 100,
+        "height": 80
     })
-    hub_shared_id = f'node_{node_id}'
-    node_id += 1
     
-    # Conectar Internet al Hub
+    # VPN Gateway/ExpressRoute
+    nodes.append({
+        "id": "hub_vpn_gateway",
+        "type": "azure_vpn_gateway",
+        "text": "VPN Gateway/\nExpressRoute",
+        "x": hub_center_x - 120,
+        "y": hub_center_y + 100,
+        "width": 100,
+        "height": 80
+    })
+    
+    # Azure Monitor (Right side of Hub)
+    nodes.append({
+        "id": "hub_monitor",
+        "type": "azure_monitoring",
+        "text": "Azure\nMonitor",
+        "x": hub_center_x + 50,
+        "y": hub_center_y,
+        "width": 100,
+        "height": 80
+    })
+    
+    # 5. Production Spoke Networks (Top Right)
+    for i in range(2):
+        spoke_x = spoke_start_x + (i * spoke_spacing)
+        spoke_y = hub_center_y - 150
+        
+        # Production Spoke VNet
+        nodes.append({
+            "id": f"prod_spoke_vnet_{i+1}",
+            "type": "azure_vnet",
+            "text": f"Production Spoke\nVirtual Network {i+1}",
+            "x": spoke_x - 100,
+            "y": spoke_y,
+            "width": 200,
+            "height": 150
+        })
+        
+        # Resource Subnet
+        nodes.append({
+            "id": f"prod_spoke_subnet_{i+1}",
+            "type": "azure_subnet",
+            "text": "Resource\nSubnet(s)",
+            "x": spoke_x - 80,
+            "y": spoke_y + 30,
+            "width": 160,
+            "height": 100
+        })
+        
+        # VMs in Resource Subnet
+        for j in range(3):
+            vm_x = spoke_x - 70 + (j * 50)
+            vm_y = spoke_y + 50
+            nodes.append({
+                "id": f"prod_spoke_vm_{i+1}_{j+1}",
+                "type": "azure_vm",
+                "text": "VM",
+                "x": vm_x,
+                "y": vm_y,
+                "width": 40,
+                "height": 40
+            })
+    
+    # 6. Non-production Spoke Networks (Bottom Right)
+    for i in range(2):
+        spoke_x = spoke_start_x + (i * spoke_spacing)
+        spoke_y = hub_center_y + 100
+        
+        # Non-production Spoke VNet
+        nodes.append({
+            "id": f"nonprod_spoke_vnet_{i+1}",
+            "type": "azure_vnet",
+            "text": f"Non-production Spoke\nVirtual Network {i+1}",
+            "x": spoke_x - 100,
+            "y": spoke_y,
+            "width": 200,
+            "height": 150
+        })
+        
+        # Resource Subnet
+        nodes.append({
+            "id": f"nonprod_spoke_subnet_{i+1}",
+            "type": "azure_subnet",
+            "text": "Resource\nSubnet(s)",
+            "x": spoke_x - 80,
+            "y": spoke_y + 30,
+            "width": 160,
+            "height": 100
+        })
+        
+        # VMs in Resource Subnet
+        for j in range(3):
+            vm_x = spoke_x - 70 + (j * 50)
+            vm_y = spoke_y + 50
+            nodes.append({
+                "id": f"nonprod_spoke_vm_{i+1}_{j+1}",
+                "type": "azure_vm",
+                "text": "VM",
+                "x": vm_x,
+                "y": vm_y,
+                "width": 40,
+                "height": 40
+            })
+    
+    # 7. Connections (Edges)
+    
+    # Hub VNet Manager to Hub VNet
     edges.append({
-        'id': f'edge_{len(edges)}',
-        'from': internet_id,
-        'to': hub_firewall_id
+        "id": "manager_to_hub",
+        "from": "azure_vnet_manager",
+        "to": "hub_vnet",
+        "label": "Management",
+        "type": "management"
     })
     
-    # Conectar componentes del Hub
-    edges.extend([
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_firewall_id},
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_bastion_id},
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_vpn_id},
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_express_id},
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_monitoring_id},
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_key_vault_id},
-        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_shared_id}
-    ])
+    # Cross-premises to Hub
+    edges.append({
+        "id": "cross_to_hub",
+        "from": "secure_connection",
+        "to": "hub_vpn_gateway",
+        "label": "VPN/ExpressRoute",
+        "type": "vpn"
+    })
     
-    # Generar nodos de spoke para cada suscripción
-    spoke_spacing = 800 // (num_subscriptions + 1)
-    for i in range(num_subscriptions):
-        spoke_x = 100 + (i + 1) * spoke_spacing
-        spoke_y = 600
-        
-        # Spoke VNet
-        nodes.append({
-            'id': f'node_{node_id}',
-            'type': 'azure_vnet',
-            'text': f'Spoke VNet {i+1}\n10.{i+1}.0.0/16\nSuscripción {i+1}',
-            'x': spoke_x - 100,
-            'y': spoke_y,
-            'width': 200,
-            'height': 150
-        })
-        spoke_vnet_id = f'node_{node_id}'
-        node_id += 1
-        
-        # Spoke App Service
-        nodes.append({
-            'id': f'node_{node_id}',
-            'type': 'azure_app_service',
-            'text': f'App Service\nSpoke {i+1}',
-            'x': spoke_x - 70,
-            'y': spoke_y + 170,
-            'width': 140,
-            'height': 70
-        })
-        spoke_app_id = f'node_{node_id}'
-        node_id += 1
-        
-        # Spoke SQL Database
-        nodes.append({
-            'id': f'node_{node_id}',
-            'type': 'azure_sql',
-            'text': f'SQL Database\nSpoke {i+1}',
-            'x': spoke_x + 30,
-            'y': spoke_y + 170,
-            'width': 140,
-            'height': 70
-        })
-        spoke_sql_id = f'node_{node_id}'
-        node_id += 1
-        
-        # Conectar Spoke al Hub
-        edges.append({
-            'id': f'edge_{len(edges)}',
-            'from': hub_vnet_id,
-            'to': spoke_vnet_id
-        })
-        
-        # Conectar componentes del Spoke
-        edges.extend([
-            {'id': f'edge_{len(edges)}', 'from': spoke_vnet_id, 'to': spoke_app_id},
-            {'id': f'edge_{len(edges)}', 'from': spoke_vnet_id, 'to': spoke_sql_id},
-            {'id': f'edge_{len(edges)}', 'from': spoke_app_id, 'to': spoke_sql_id}
-        ])
+    # Hub Internal Connections
+    edges.append({
+        "id": "bastion_to_monitor",
+        "from": "hub_bastion",
+        "to": "hub_monitor",
+        "label": "Diagnostics",
+        "type": "diagnostics"
+    })
     
-    # Agregar título del diagrama
-    nodes.append({
-        'id': f'node_{node_id}',
-        'type': 'diagram_title',
-        'text': f'Topología Hub and Spoke\n{num_subscriptions} Suscripciones Azure',
-        'x': 400,
-        'y': 20,
-        'width': 400,
-        'height': 40
+    edges.append({
+        "id": "firewall_to_monitor",
+        "from": "hub_firewall",
+        "to": "hub_monitor",
+        "label": "Forced Tunnel",
+        "type": "forced_tunnel"
+    })
+    
+    edges.append({
+        "id": "vpn_to_monitor",
+        "from": "hub_vpn_gateway",
+        "to": "hub_monitor",
+        "label": "Forced Tunnel",
+        "type": "forced_tunnel"
+    })
+    
+    # Hub to Production Spokes
+    edges.append({
+        "id": "bastion_to_prod1",
+        "from": "hub_bastion",
+        "to": "prod_spoke_vnet_1",
+        "label": "VNet Peering",
+        "type": "peering"
+    })
+    
+    edges.append({
+        "id": "firewall_to_prod1",
+        "from": "hub_firewall",
+        "to": "prod_spoke_vnet_1",
+        "label": "Forced Tunnel",
+        "type": "forced_tunnel"
+    })
+    
+    edges.append({
+        "id": "firewall_to_prod2",
+        "from": "hub_firewall",
+        "to": "prod_spoke_vnet_2",
+        "label": "Forced Tunnel",
+        "type": "forced_tunnel"
+    })
+    
+    # Hub to Non-production Spokes
+    edges.append({
+        "id": "vpn_to_nonprod1",
+        "from": "hub_vpn_gateway",
+        "to": "nonprod_spoke_vnet_1",
+        "label": "Connected Virtual Networks",
+        "type": "connected"
+    })
+    
+    edges.append({
+        "id": "hub_to_nonprod1",
+        "from": "hub_vnet",
+        "to": "nonprod_spoke_vnet_1",
+        "label": "Virtual Networks Connected or Peered Through Hub",
+        "type": "peered"
+    })
+    
+    edges.append({
+        "id": "hub_to_nonprod2",
+        "from": "hub_vnet",
+        "to": "nonprod_spoke_vnet_2",
+        "label": "Virtual Networks Connected or Peered Through Hub",
+        "type": "peered"
+    })
+    
+    # Non-production Spokes to each other
+    edges.append({
+        "id": "nonprod1_to_nonprod2",
+        "from": "nonprod_spoke_vnet_1",
+        "to": "nonprod_spoke_vnet_2",
+        "label": "Peered or Directly Connected Virtual Networks",
+        "type": "peered"
     })
     
     return {
-        'type': 'azure_hub_spoke',
-        'nodes': nodes,
-        'edges': edges
+        "type": "azure_hub_spoke",
+        "nodes": nodes,
+        "edges": edges
     }
 
 def create_azure_diagram_structure(components, description):

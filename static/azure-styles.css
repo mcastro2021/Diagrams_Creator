@@ -1,516 +1,344 @@
-/* Azure-specific node types */
-.diagram-node.azure_vnet {
-    border-radius: 8px;
-    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-    border: 2px solid #0284c7;
-    color: #0c4a6e;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.3;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
+/* Azure-specific node styles */
+.azure-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
 }
 
-.diagram-node.azure_subnet {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #0ea5e9;
-    color: #0369a1;
+.azure-icon svg {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Text styling for Azure nodes */
+.text-line {
+    text-align: center;
+    margin: 2px 0;
     font-weight: 500;
-    font-size: 11px;
+    color: #1f2937;
     line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
 }
 
-.diagram-node.azure_app_service {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    border: 2px solid #10b981;
-    color: #047857;
+.content {
+    text-align: center;
     font-weight: 500;
-    font-size: 11px;
+    color: #1f2937;
     line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
 }
 
-.diagram-node.azure_web_app {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 2px solid #22c55e;
-    color: #15803d;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_api_app {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #f59e0b;
-    color: #92400e;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_function {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-    border: 2px solid #ec4899;
-    color: #be185d;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_sql {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    border: 2px solid #6366f1;
-    color: #3730a3;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_storage {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border: 2px solid #ef4444;
-    color: #991b1b;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_key_vault {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-    border: 2px solid #a855f7;
-    color: #6b21a8;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_monitoring {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    border: 2px solid #10b981;
-    color: #047857;
-    font-weight: 500;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_firewall {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border: 2px solid #dc2626;
-    color: #7f1d1d;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_load_balancer {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #0ea5e9;
-    color: #0369a1;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_cdn {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 2px solid #16a34a;
-    color: #15803d;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_vpn_gateway {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #d97706;
-    color: #92400e;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-/* Nuevos tipos de nodos para Hub and Spoke */
-.diagram-node.azure_bastion {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #d97706;
-    color: #92400e;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_express_route {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-    border: 2px solid #ec4899;
-    color: #be185d;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.azure_shared_services {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    border: 2px solid #6366f1;
-    color: #3730a3;
-    font-weight: 600;
-    font-size: 11px;
-    line-height: 1.2;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.diagram_title {
-    border-radius: 8px;
-    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-    border: 2px solid #475569;
-    color: #f8fafc;
-    font-weight: 700;
-    font-size: 16px;
-    line-height: 1.3;
-    text-align: center;
-    padding: 12px;
-    box-sizing: border-box;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.diagram-node.internet {
-    border-radius: 8px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #0ea5e9;
-    color: #0369a1;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.3;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.on_premises {
-    border-radius: 8px;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border: 2px solid #dc2626;
-    color: #7f1d1d;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.3;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-/* Special node types for different diagram types */
-.diagram-node.start {
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    border: 2px solid #10b981;
-    color: #047857;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.process {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #0ea5e9;
-    color: #0369a1;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.decision {
-    transform: rotate(45deg);
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #f59e0b;
-    color: #92400e;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.decision .content {
-    transform: rotate(-45deg);
-}
-
-.diagram-node.end {
-    border-radius: 50%;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border: 2px solid #ef4444;
-    color: #991b1b;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.system {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #0ea5e9;
-    color: #0369a1;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.database {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
-    border: 2px solid #6366f1;
-    color: #3730a3;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.external {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border: 2px solid #ef4444;
-    color: #991b1b;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.interface {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    border: 2px solid #f59e0b;
-    color: #92400e;
-    border-style: dashed;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.abstract {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-    border: 2px solid #a855f7;
-    color: #6b21a8;
-    border-style: dashed;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.relationship {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 2px solid #22c55e;
-    color: #15803d;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-.diagram-node.attribute {
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border: 2px solid #0ea5e9;
-    color: #0369a1;
-    font-size: 10px;
-    text-align: center;
-    padding: 8px;
-    box-sizing: border-box;
-}
-
-/* Estilos mejorados para nodos Azure específicos */
-.diagram-node.azure_vnet {
-    background: linear-gradient(135deg, #0078d4 0%, #005a9e 100%);
-    border: 2px solid #005a9e;
+/* Azure Virtual Network */
+.azure_vnet {
+    background: linear-gradient(135deg, #86d633 0%, #5e9624 100%);
+    border: 2px solid #4a7c1a;
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
     min-width: 140px;
     min-height: 100px;
-    font-weight: 600;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(134, 214, 51, 0.3);
 }
 
-.diagram-node.azure_subnet {
-    background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
-    border: 2px solid #1890ff;
+/* Azure Subnet */
+.azure_subnet {
+    background: linear-gradient(135deg, #86d633 0%, #5e9624 100%);
+    border: 2px solid #4a7c1a;
     color: white;
-    box-shadow: 0 4px 12px rgba(64, 169, 255, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
-}
-
-.diagram-node.azure_app_service {
-    background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
-    border: 2px solid #389e0d;
-    color: white;
-    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
-}
-
-.diagram-node.azure_sql {
-    background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
-    border: 2px solid #531dab;
-    color: white;
-    box-shadow: 0 4px 12px rgba(114, 46, 209, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
-}
-
-.diagram-node.azure_firewall {
-    background: linear-gradient(135deg, #ff4d4f 0%, #cf1322 100%);
-    border: 2px solid #cf1322;
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
-}
-
-.diagram-node.internet {
-    background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
-    border: 2px solid #1890ff;
-    color: white;
-    box-shadow: 0 4px 12px rgba(64, 169, 255, 0.3);
     min-width: 120px;
     min-height: 80px;
-    font-weight: 600;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(134, 214, 51, 0.3);
 }
 
-.diagram-node.azure_bastion {
-    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
-    border: 2px solid #d48806;
+/* Azure Virtual Machine */
+.azure_vm {
+    background: linear-gradient(135deg, #0078d4 0%, #5ea0ef 100%);
+    border: 2px solid #005a9e;
     color: white;
-    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
 }
 
-.diagram-node.azure_express_route {
-    background: linear-gradient(135deg, #13c2c2 0%, #08979c 100%);
-    border: 2px solid #08979c;
+/* Azure App Service */
+.azure_app_service {
+    background: linear-gradient(135deg, #0078d4 0%, #5ea0ef 100%);
+    border: 2px solid #005a9e;
     color: white;
-    box-shadow: 0 4px 12px rgba(19, 194, 194, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
 }
 
-.diagram-node.azure_shared_services {
-    background: linear-gradient(135deg, #eb2f96 0%, #c41d7f 100%);
-    border: 2px solid #c41d7f;
+/* Azure SQL Database */
+.azure_sql {
+    background: linear-gradient(135deg, #005ba1 0%, #0078d4 100%);
+    border: 2px solid #004e8c;
     color: white;
-    box-shadow: 0 4px 12px rgba(235, 47, 150, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 91, 161, 0.3);
 }
 
-.diagram-node.diagram_title {
-    background: linear-gradient(135deg, #f5222d 0%, #cf1322 100%);
-    border: 2px solid #cf1322;
+/* Azure Firewall */
+.azure_firewall {
+    background: linear-gradient(135deg, #d13438 0%, #e81123 100%);
+    border: 2px solid #a4262c;
     color: white;
-    box-shadow: 0 4px 12px rgba(245, 34, 45, 0.3);
-    font-weight: bold;
-    text-align: center;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(209, 52, 56, 0.3);
+}
+
+/* Internet */
+.internet {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
+}
+
+/* On-Premises */
+.on_premises {
+    background: linear-gradient(135deg, #666 0%, #333 100%);
+    border: 2px solid #444;
+    color: white;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(102, 102, 102, 0.3);
+}
+
+/* Azure Bastion */
+.azure_bastion {
+    background: linear-gradient(135deg, #86d633 0%, #5e9624 100%);
+    border: 2px solid #4a7c1a;
+    color: white;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(134, 214, 51, 0.3);
+}
+
+/* Azure Express Route */
+.azure_express_route {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
+}
+
+/* Azure Shared Services */
+.azure_shared_services {
+    background: linear-gradient(135deg, #ff8c00 0%, #d67600 100%);
+    border: 2px solid #b85c00;
+    color: white;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(255, 140, 0, 0.3);
+}
+
+/* Diagram Title */
+.diagram_title {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
     min-width: 200px;
     min-height: 60px;
-    font-size: 14px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
 }
 
-/* Estilos para nodos de suscripción */
-.diagram-node.azure_subscription {
-    background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
-    border: 2px solid #d46b08;
+/* Azure Monitoring */
+.azure_monitoring {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
     color: white;
-    box-shadow: 0 4px 12px rgba(250, 140, 22, 0.3);
-    min-width: 150px;
+    min-width: 140px;
     min-height: 100px;
-    font-weight: 600;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
 }
 
-/* Estilos para nodos de monitoreo */
-.diagram-node.azure_monitoring {
-    background: linear-gradient(135deg, #13c2c2 0%, #08979c 100%);
-    border: 2px solid #08979c;
+/* Azure VPN Gateway */
+.azure_vpn_gateway {
+    background: linear-gradient(135deg, #86d633 0%, #5e9624 100%);
+    border: 2px solid #4a7c1a;
     color: white;
-    box-shadow: 0 4px 12px rgba(19, 194, 194, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(134, 214, 51, 0.3);
 }
 
-/* Estilos para nodos de VPN Gateway */
-.diagram-node.azure_vpn_gateway {
-    background: linear-gradient(135deg, #faad14 0%, #d48806 100%);
-    border: 2px solid #d48806;
+/* Azure Key Vault */
+.azure_key_vault {
+    background: linear-gradient(135deg, #ff8c00 0%, #d67600 100%);
+    border: 2px solid #b85c00;
     color: white;
-    box-shadow: 0 4px 12px rgba(250, 173, 20, 0.3);
-    min-width: 130px;
-    min-height: 90px;
-    font-weight: 600;
+    min-width: 140px;
+    min-height: 100px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(255, 140, 0, 0.3);
+}
+
+/* Azure Subscription */
+.azure_subscription {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
+    min-width: 160px;
+    min-height: 120px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 120, 212, 0.3);
+}
+
+/* Generic node styles */
+.start {
+    background: linear-gradient(135deg, #107c10 0%, #0b5a0b 100%);
+    border: 2px solid #0a4a0a;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(16, 124, 16, 0.3);
+}
+
+.process {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 120, 212, 0.3);
+}
+
+.decision {
+    background: linear-gradient(135deg, #ff8c00 0%, #d67600 100%);
+    border: 2px solid #b85c00;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
+}
+
+.end {
+    background: linear-gradient(135deg, #d13438 0%, #a4262c 100%);
+    border: 2px solid #8a1e23;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(209, 52, 56, 0.3);
+}
+
+.system {
+    background: linear-gradient(135deg, #68217a 0%, #4a1482 100%);
+    border: 2px solid #3a0f66;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(104, 33, 122, 0.3);
+}
+
+.database {
+    background: linear-gradient(135deg, #005ba1 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 91, 161, 0.3);
+}
+
+.external {
+    background: linear-gradient(135deg, #666 0%, #333 100%);
+    border: 2px solid #444;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(102, 102, 102, 0.3);
+}
+
+.interface {
+    background: linear-gradient(135deg, #ff8c00 0%, #d67600 100%);
+    border: 2px solid #b85c00;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
+}
+
+.abstract {
+    background: linear-gradient(135deg, #68217a 0%, #4a1482 100%);
+    border: 2px solid #3a0f66;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(104, 33, 122, 0.3);
+}
+
+.relationship {
+    background: linear-gradient(135deg, #86d633 0%, #5e9624 100%);
+    border: 2px solid #4a7c1a;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(134, 214, 51, 0.3);
+}
+
+.attribute {
+    background: linear-gradient(135deg, #0078d4 0%, #004e8c 100%);
+    border: 2px solid #003d6b;
+    color: white;
+    min-width: 120px;
+    min-height: 80px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 120, 212, 0.3);
+}
+
+/* Connection styles */
+.connection-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.connection-svg svg {
+    width: 100%;
+    height: 100%;
+}
+
+.connection-svg line {
+    transition: stroke-width 0.2s ease;
+}
+
+.connection-svg:hover line {
+    stroke-width: 4;
+    filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.3));
 }
