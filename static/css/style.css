@@ -1,0 +1,677 @@
+/* Variables CSS */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --border-radius: 0.375rem;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --transition: all 0.15s ease-in-out;
+}
+
+/* Estilos generales */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: var(--dark-color);
+}
+
+/* Navbar personalizado */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Cards personalizadas */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: var(--light-color);
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Botones personalizados */
+.btn {
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Sidebar */
+.col-md-3 .card {
+    margin-bottom: 1rem;
+}
+
+.col-md-3 .card:last-child {
+    margin-bottom: 0;
+}
+
+/* Canvas del diagrama */
+.diagram-canvas {
+    min-height: 600px;
+    background-color: white;
+    border: 2px dashed #dee2e6;
+    border-radius: var(--border-radius);
+    position: relative;
+    overflow: hidden;
+}
+
+.diagram-canvas.active {
+    border-color: var(--primary-color);
+    border-style: solid;
+}
+
+/* Nodos del diagrama */
+.diagram-node {
+    position: absolute;
+    border: 2px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    background-color: white;
+    padding: 8px;
+    cursor: move;
+    user-select: none;
+    min-width: 80px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.diagram-node:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transform: scale(1.02);
+}
+
+.diagram-node.selected {
+    border-color: var(--warning-color);
+    border-width: 3px;
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+/* Tipos de nodos específicos */
+.diagram-node.start {
+    background-color: #d4edda;
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.diagram-node.end {
+    background-color: #f8d7da;
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.diagram-node.decision {
+    background-color: #fff3cd;
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+}
+
+.diagram-node.process {
+    background-color: #d1ecf1;
+    border-color: var(--info-color);
+    color: var(--info-color);
+}
+
+/* Nodos Azure con iconos */
+.diagram-node.azure_icon {
+    background-color: #ffffff;
+    border: 2px solid #0078d4;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 120, 212, 0.15);
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.diagram-node.azure_icon:hover {
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.25);
+    transform: translateY(-2px);
+}
+
+.diagram-node.azure_icon .icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.diagram-node.azure_icon img {
+    max-width: 48px;
+    max-height: 48px;
+    object-fit: contain;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+}
+
+.diagram-node.azure_icon .node-text {
+    font-size: 10px;
+    font-weight: 600;
+    color: #323130;
+    text-align: center;
+    line-height: 1.1;
+    max-width: 100%;
+    word-wrap: break-word;
+    hyphens: auto;
+}
+
+/* Cajas de red (VNet, Subnets) */
+.diagram-node.network_box {
+    background-color: rgba(230, 243, 255, 0.3);
+    border: 2px solid #0078d4;
+    border-radius: 8px;
+    padding: 0;
+    display: block;
+    position: relative;
+    overflow: visible;
+}
+
+.diagram-node.network_box:hover {
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.2);
+    transform: none;
+}
+
+.diagram-node.network_box .network-box-header {
+    background: linear-gradient(135deg, rgba(0, 120, 212, 0.1), rgba(0, 120, 212, 0.05));
+    padding: 6px 12px;
+    border-bottom: 1px solid #0078d4;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0078d4;
+    border-radius: 6px 6px 0 0;
+    text-align: left;
+    letter-spacing: 0.3px;
+}
+
+.diagram-node.network_box .network-box-content {
+    padding: 12px;
+    height: calc(100% - 28px);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nodos de texto puro */
+.diagram-node.text {
+    background-color: transparent;
+    border: none;
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #323130;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.diagram-node.text:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Estilos para diferentes tipos de redes */
+.diagram-node.network_box.hub-vnet {
+    border-color: #0078d4;
+    background-color: rgba(0, 120, 212, 0.08);
+}
+
+.diagram-node.network_box.production-spoke {
+    border-color: #107c10;
+    background-color: rgba(16, 124, 16, 0.08);
+}
+
+.diagram-node.network_box.production-spoke .network-box-header {
+    background: linear-gradient(135deg, rgba(16, 124, 16, 0.1), rgba(16, 124, 16, 0.05));
+    border-bottom-color: #107c10;
+    color: #107c10;
+}
+
+.diagram-node.network_box.nonprod-spoke {
+    border-color: #ff8c00;
+    background-color: rgba(255, 140, 0, 0.08);
+}
+
+.diagram-node.network_box.nonprod-spoke .network-box-header {
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 140, 0, 0.05));
+    border-bottom-color: #ff8c00;
+    color: #ff8c00;
+}
+
+.diagram-node.network_box.cross-premises {
+    border: 2px dashed #666;
+    background-color: rgba(102, 102, 102, 0.05);
+}
+
+.diagram-node.network_box.cross-premises .network-box-header {
+    background: linear-gradient(135deg, rgba(102, 102, 102, 0.1), rgba(102, 102, 102, 0.05));
+    border-bottom-color: #666;
+    color: #666;
+}
+
+/* Conexiones del diagrama */
+.diagram-connection {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.diagram-connection svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Overlay de carga */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Lista de plantillas */
+.template-item {
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: white;
+}
+
+.template-item:hover {
+    border-color: var(--primary-color);
+    background-color: var(--light-color);
+}
+
+.template-item.selected {
+    border-color: var(--primary-color);
+    background-color: #e7f3ff;
+}
+
+.template-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+/* Lista de diagramas */
+.diagram-item {
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: white;
+}
+
+.diagram-item:hover {
+    border-color: var(--primary-color);
+    background-color: var(--light-color);
+}
+
+.diagram-item.active {
+    border-color: var(--primary-color);
+    background-color: #e7f3ff;
+}
+
+.diagram-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.diagram-meta {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+}
+
+/* Modales personalizados */
+.modal-header {
+    background-color: var(--light-color);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-title {
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+/* Formularios */
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+    border: 1px solid #ced4da;
+    transition: var(--transition);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Alertas personalizadas */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-left: 4px solid var(--info-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .col-md-3 {
+        margin-bottom: 1rem;
+    }
+    
+    .diagram-canvas {
+        min-height: 400px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        margin-bottom: 0.25rem;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--dark-color);
+}
+
+/* Panel de iconos */
+.icons-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background-color: white;
+    border-left: 1px solid #dee2e6;
+    box-shadow: -0.5rem 0 1rem rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.icons-panel.visible {
+    right: 0;
+}
+
+.icons-panel-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: var(--light-color);
+    display: flex;
+    justify-content: between;
+    align-items: center;
+}
+
+.icons-panel-controls {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.icons-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.icons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 0.5rem;
+}
+
+.icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    background-color: white;
+}
+
+.icon-item:hover {
+    border-color: var(--primary-color);
+    background-color: var(--light-color);
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+.icon-preview {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+}
+
+.icon-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.icon-name {
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--dark-color);
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.icons-toggle-btn {
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    z-index: 1040;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.icons-toggle-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Nodos con iconos */
+.diagram-node.icon {
+    background-color: transparent;
+    border: 2px dashed var(--primary-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.diagram-node.icon img {
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+    margin-bottom: 0.25rem;
+}
+
+.diagram-node.icon .node-text {
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--dark-color);
+    line-height: 1.2;
+}
+
+/* Estados de los botones */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    transform: none;
+    box-shadow: var(--box-shadow);
+}
+
+/* Tooltips personalizados */
+.tooltip {
+    font-size: 0.875rem;
+}
+
+.tooltip-inner {
+    background-color: var(--dark-color);
+    border-radius: var(--border-radius);
+}
+
+/* Dropdown personalizado */
+.dropdown-menu {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: var(--transition);
+}
+
+.dropdown-item:hover {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+}
+
+/* Badges personalizados */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--border-radius);
+}
+
+/* Progress bars */
+.progress {
+    height: 0.5rem;
+    border-radius: var(--border-radius);
+}
+
+.progress-bar {
+    background-color: var(--primary-color);
+}
+
+/* Spinners */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Utilidades */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.user-select-none {
+    user-select: none;
+}
+
+/* Estados de hover para elementos interactivos */
+.interactive {
+    transition: var(--transition);
+}
+
+.interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
