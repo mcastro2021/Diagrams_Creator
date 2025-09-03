@@ -729,27 +729,213 @@ class IconsPanel {
         this.isVisible = false;
     }
     
-    async searchIcons(query, provider = 'all', category = 'all') {
-        try {
-            const params = new URLSearchParams({
-                q: query,
-                provider: provider,
-                category: category
+    searchIcons(query) {
+        this.searchQuery = query.toLowerCase().trim();
+        
+        if (!this.searchQuery) {
+            this.showAllIcons();
+            return;
+        }
+        
+        console.log(`🔍 Buscando iconos: "${this.searchQuery}"`);
+        
+        // Búsqueda mejorada con múltiples estrategias
+        const results = new Set();
+        
+        // 1. Búsqueda exacta por nombre
+        Object.entries(this.icons).forEach(([providerName, provider]) => {
+            Object.entries(provider).forEach(([categoryName, categoryIcons]) => {
+                categoryIcons.forEach(icon => {
+                    if (icon.name.toLowerCase().includes(this.searchQuery)) {
+                        results.add(icon);
+                    }
+                });
+            });
+        });
+        
+        // 2. Búsqueda por palabras clave en el nombre
+        const queryWords = this.searchQuery.split(/\s+/);
+        Object.entries(this.icons).forEach(([providerName, provider]) => {
+            Object.entries(provider).forEach(([categoryName, categoryIcons]) => {
+                categoryIcons.forEach(icon => {
+                    const iconName = icon.name.toLowerCase();
+                    const iconWords = iconName.split(/[-_\s]+/);
+                    
+                    // Verificar si todas las palabras de la búsqueda están en el nombre del icono
+                    const allWordsMatch = queryWords.every(queryWord => 
+                        iconWords.some(iconWord => iconWord.includes(queryWord) || queryWord.includes(iconWord))
+                    );
+                    
+                    if (allWordsMatch) {
+                        results.add(icon);
+                    }
+                });
+            });
+        });
+        
+        // 3. Búsqueda por categoría
+        Object.entries(this.icons).forEach(([providerName, provider]) => {
+            Object.entries(provider).forEach(([categoryName, categoryIcons]) => {
+                if (categoryName.toLowerCase().includes(this.searchQuery)) {
+                    categoryIcons.forEach(icon => results.add(icon));
+                }
+            });
+        });
+        
+        // 4. Búsqueda por proveedor
+        Object.entries(this.icons).forEach(([providerName, provider]) => {
+            if (providerName.toLowerCase().includes(this.searchQuery)) {
+                Object.values(provider).flat().forEach(icon => results.add(icon));
+            }
+        });
+        
+        // 5. Búsqueda por sinónimos y términos relacionados
+        const synonyms = this.getSynonyms(this.searchQuery);
+        synonyms.forEach(synonym => {
+            Object.entries(this.icons).forEach(([providerName, provider]) => {
+                Object.entries(provider).forEach(([categoryName, categoryIcons]) => {
+                    categoryIcons.forEach(icon => {
+                        if (icon.name.toLowerCase().includes(synonym)) {
+                            results.add(icon);
+                        }
+                    });
+                });
+            });
+        });
+        
+        // Convertir Set a Array y ordenar por relevancia
+        const searchResults = Array.from(results);
+        this.sortByRelevance(searchResults);
+        
+        console.log(`✅ Búsqueda completada: ${searchResults.length} resultados encontrados`);
+        
+        // Mostrar resultados
+        this.displaySearchResults(searchResults);
+        
+        // Guardar en historial de búsqueda
+        if (this.searchQuery && !this.searchHistory.includes(this.searchQuery)) {
+            this.searchHistory.unshift(this.searchQuery);
+            this.searchHistory = this.searchHistory.slice(0, 10); // Mantener solo los últimos 10
+            this.saveUserPreferences();
+        }
+    }
+    
+    getSynonyms(query) {
+        // Diccionario de sinónimos para mejorar la búsqueda
+        const synonymMap = {
+            'vm': ['virtual', 'machine', 'compute'],
+            'server': ['compute', 'instance', 'vm'],
+            'database': ['db', 'sql', 'nosql', 'storage'],
+            'storage': ['blob', 'file', 'disk', 'backup'],
+            'network': ['vnet', 'subnet', 'gateway', 'firewall'],
+            'security': ['firewall', 'keyvault', 'bastion', 'identity'],
+            'monitoring': ['monitor', 'log', 'analytics', 'insights'],
+            'web': ['app', 'service', 'function', 'api'],
+            'container': ['kubernetes', 'aks', 'docker', 'registry'],
+            'ai': ['machine', 'learning', 'cognitive', 'intelligence'],
+            'iot': ['internet', 'things', 'device', 'hub'],
+            'mobile': ['app', 'service', 'notification', 'hub']
+        };
+        
+        const synonyms = [];
+        Object.entries(synonymMap).forEach(([key, values]) => {
+            if (query.includes(key) || values.some(val => query.includes(val))) {
+                synonyms.push(...values, key);
+            }
+        });
+        
+        return [...new Set(synonyms)]; // Eliminar duplicados
+    }
+    
+    sortByRelevance(results) {
+        results.sort((a, b) => {
+            let scoreA = 0;
+            let scoreB = 0;
+            
+            // Puntuación por coincidencia exacta en el nombre
+            if (a.name.toLowerCase() === this.searchQuery) scoreA += 100;
+            if (b.name.toLowerCase() === this.searchQuery) scoreB += 100;
+            
+            // Puntuación por coincidencia al inicio del nombre
+            if (a.name.toLowerCase().startsWith(this.searchQuery)) scoreA += 50;
+            if (b.name.toLowerCase().startsWith(this.searchQuery)) scoreB += 50;
+            
+            // Puntuación por coincidencia en el nombre
+            if (a.name.toLowerCase().includes(this.searchQuery)) scoreA += 25;
+            if (b.name.toLowerCase().includes(this.searchQuery)) scoreB += 25;
+            
+            // Puntuación por favoritos
+            if (this.favoriteIcons.includes(a.path)) scoreA += 10;
+            if (this.favoriteIcons.includes(b.path)) scoreB += 10;
+            
+            // Puntuación por uso reciente
+            const recentIndexA = this.recentIcons.indexOf(a.path);
+            const recentIndexB = this.recentIcons.indexOf(b.path);
+            if (recentIndexA !== -1) scoreA += (10 - recentIndexA);
+            if (recentIndexB !== -1) scoreB += (10 - recentIndexB);
+            
+            return scoreB - scoreA; // Orden descendente por puntuación
+        });
+    }
+    
+    displaySearchResults(results) {
+        const container = document.getElementById('iconsContainer');
+        if (!container) return;
+        
+        if (results.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-search fa-2x mb-2"></i>
+                    <p>No se encontraron iconos para "${this.searchQuery}"</p>
+                    <small>Intenta con términos más generales o revisa la ortografía</small>
+                </div>
+            `;
+            return;
+        }
+        
+        // Agrupar resultados por proveedor y categoría
+        const groupedResults = this.groupResultsByProvider(results);
+        
+        let html = '';
+        Object.entries(groupedResults).forEach(([providerName, categories]) => {
+            html += `<div class="provider-section mb-3">`;
+            html += `<h6 class="text-primary mb-2"><i class="fas fa-cloud me-2"></i>${providerName}</h6>`;
+            
+            Object.entries(categories).forEach(([categoryName, icons]) => {
+                html += `<div class="category-section mb-2">`;
+                html += `<small class="text-muted d-block mb-1">${categoryName} (${icons.length})</small>`;
+                html += `<div class="icons-grid">`;
+                
+                icons.forEach(icon => {
+                    html += this.createIconElement(icon);
+                });
+                
+                html += `</div></div>`;
             });
             
-            const response = await fetch(`/api/search_icons?${params}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                return data.results;
-            } else {
-                console.error('Error buscando iconos:', data.error);
-                return [];
+            html += `</div>`;
+        });
+        
+        container.innerHTML = html;
+        
+        // Añadir eventos a los iconos
+        this.addIconEventListeners();
+    }
+    
+    groupResultsByProvider(results) {
+        const grouped = {};
+        
+        results.forEach(icon => {
+            if (!grouped[icon.provider]) {
+                grouped[icon.provider] = {};
             }
-        } catch (error) {
-            console.error('Error en búsqueda de iconos:', error);
-            return [];
-        }
+            if (!grouped[icon.provider][icon.category]) {
+                grouped[icon.provider][icon.category] = [];
+            }
+            grouped[icon.provider][icon.category].push(icon);
+        });
+        
+        return grouped;
     }
 }
 

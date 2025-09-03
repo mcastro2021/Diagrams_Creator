@@ -274,9 +274,9 @@ def create_hub_spoke_structure(num_subscriptions, components):
     hub_center_x = grid_config['start_x'] + (6 * (grid_config['cell_width'] + grid_config['margin']))
     hub_center_y = grid_config['start_y'] + (4 * (grid_config['cell_height'] + grid_config['margin']))
     
-    # Hub VNet dimensions
-    hub_width = 300
-    hub_height = 300
+    # Hub VNet dimensions - Increased to properly contain internal services
+    hub_width = 400
+    hub_height = 400
     
     # Spoke positioning with consistent spacing
     spoke_spacing = grid_config['cell_width'] + grid_config['margin']
@@ -316,16 +316,18 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # 3. Cross-premises Network (Left side, organized in grid)
+    # 3. Cross-premises Network (Left side, organized in grid) - Increased size to contain VMs
     cross_premises_x, cross_premises_y = get_grid_position(2, 0, 0, 0)
+    cross_premises_width = 250
+    cross_premises_height = 280
     nodes.append({
         "id": "cross_premises_network",
         "type": "network_box",
         "text": "Cross-premises\nNetwork\nOn-Premises\nInfrastructure",
         "x": cross_premises_x,
         "y": cross_premises_y,
-        "width": 220,
-        "height": 240,
+        "width": cross_premises_width,
+        "height": cross_premises_height,
         "style": {"border": "2px dashed #666", "backgroundColor": "#f0f0f0"},
         "metadata": {
             "type": "On-Premises Network",
@@ -334,8 +336,9 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # VMs in Cross-premises with organized positioning
-    vm1_x, vm1_y = get_grid_position(3, 0, 10, 0)
+    # VMs in Cross-premises with organized positioning - Positioned inside the container
+    vm1_x = cross_premises_x + 20
+    vm1_y = cross_premises_y + 60
     nodes.append({
         "id": "cross_premises_vm1",
         "type": "azure_icon",
@@ -352,7 +355,8 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    vm2_x, vm2_y = get_grid_position(3, 1, 0, 0)
+    vm2_x = cross_premises_x + 130
+    vm2_y = cross_premises_y + 60
     nodes.append({
         "id": "cross_premises_vm2",
         "type": "azure_icon",
@@ -369,8 +373,9 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # Secure Connection with organized positioning
-    secure_conn_x, secure_conn_y = get_grid_position(4, 0, 10, 0)
+    # Secure Connection with organized positioning - Positioned inside the container
+    secure_conn_x = cross_premises_x + 70
+    secure_conn_y = cross_premises_y + 180
     nodes.append({
         "id": "secure_connection",
         "type": "azure_icon",
@@ -388,7 +393,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # 4. Hub Virtual Network (Center, organized)
+    # 4. Hub Virtual Network (Center, organized) - Increased size to properly contain services
     hub_vnet_x = hub_center_x - (hub_width // 2)
     hub_vnet_y = hub_center_y - (hub_height // 2)
     nodes.append({
@@ -407,10 +412,10 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # Hub Internal Services with organized positioning
+    # Hub Internal Services with organized positioning - All positioned inside the hub container
     # Azure Bastion (left side of hub)
-    bastion_x = hub_center_x - 120
-    bastion_y = hub_center_y - 80
+    bastion_x = hub_center_x - 150
+    bastion_y = hub_center_y - 120
     nodes.append({
         "id": "hub_bastion",
         "type": "azure_icon",
@@ -490,16 +495,18 @@ def create_hub_spoke_structure(num_subscriptions, components):
         spoke_col = 8 + i  # Start from column 8 (right side)
         spoke_row = 2      # Top row
         
-        # Production Spoke VNet
+        # Production Spoke VNet - Increased size to contain subnet and VMs
         spoke_vnet_x, spoke_vnet_y = get_grid_position(spoke_row, spoke_col, -100, 0)
+        spoke_vnet_width = 240
+        spoke_vnet_height = 200
         nodes.append({
             "id": f"prod_spoke_vnet_{i+1}",
             "type": "network_box",
             "text": f"Production Spoke\nVirtual Network {i+1}\n10.{i+1}.0.0/16\nTier 1 Applications",
             "x": spoke_vnet_x,
             "y": spoke_vnet_y,
-            "width": 200,
-            "height": 160,
+            "width": spoke_vnet_width,
+            "height": spoke_vnet_height,
             "style": {"border": "2px solid #107c10", "backgroundColor": "#e6ffe6", "borderRadius": "8px"},
             "metadata": {
                 "address_space": f"10.{i+1}.0.0/16",
@@ -509,8 +516,9 @@ def create_hub_spoke_structure(num_subscriptions, components):
             }
         })
         
-        # Resource Subnet (below VNet)
-        subnet_x, subnet_y = get_grid_position(spoke_row + 1, spoke_col, -80, 0)
+        # Resource Subnet (below VNet) - Positioned inside the VNet container
+        subnet_x = spoke_vnet_x + 40
+        subnet_y = spoke_vnet_y + 80
         nodes.append({
             "id": f"prod_spoke_subnet_{i+1}",
             "type": "network_box",
@@ -526,9 +534,10 @@ def create_hub_spoke_structure(num_subscriptions, components):
             }
         })
         
-        # VMs in Resource Subnet with organized positioning
+        # VMs in Resource Subnet with organized positioning - All positioned inside the subnet container
         for j in range(3):
-            vm_x, vm_y = get_grid_position(spoke_row + 2, spoke_col + j - 1, 0, 0)
+            vm_x = subnet_x + 20 + (j * 45)
+            vm_y = subnet_y + 60
             vm_tier = ["Web", "App", "Data"][j]
             vm_specs = ["2 vCPU, 4 GB", "4 vCPU, 8 GB", "8 vCPU, 16 GB"][j]
             
@@ -555,16 +564,18 @@ def create_hub_spoke_structure(num_subscriptions, components):
         spoke_col = 8 + i  # Start from column 8 (right side)
         spoke_row = 6      # Bottom row
         
-        # Non-production Spoke VNet
+        # Non-production Spoke VNet - Increased size to contain subnet and VMs
         spoke_vnet_x, spoke_vnet_y = get_grid_position(spoke_row, spoke_col, -100, 0)
+        spoke_vnet_width = 240
+        spoke_vnet_height = 200
         nodes.append({
             "id": f"nonprod_spoke_vnet_{i+1}",
             "type": "network_box",
             "text": f"Non-production Spoke\nVirtual Network {i+1}\n10.{i+10}.0.0/16\nDev/Test/Staging",
             "x": spoke_vnet_x,
             "y": spoke_vnet_y,
-            "width": 200,
-            "height": 160,
+            "width": spoke_vnet_width,
+            "height": spoke_vnet_height,
             "style": {"border": "2px solid #ff8c00", "backgroundColor": "#fff4e6", "borderRadius": "8px"},
             "metadata": {
                 "address_space": f"10.{i+10}.0.0/16",
@@ -574,8 +585,9 @@ def create_hub_spoke_structure(num_subscriptions, components):
             }
         })
         
-        # Resource Subnet (below VNet)
-        subnet_x, subnet_y = get_grid_position(spoke_row + 1, spoke_col, -80, 0)
+        # Resource Subnet (below VNet) - Positioned inside the VNet container
+        subnet_x = spoke_vnet_x + 40
+        subnet_y = spoke_vnet_y + 80
         nodes.append({
             "id": f"nonprod_spoke_subnet_{i+1}",
             "type": "network_box",
@@ -591,9 +603,10 @@ def create_hub_spoke_structure(num_subscriptions, components):
             }
         })
         
-        # VMs in Resource Subnet with organized positioning
+        # VMs in Resource Subnet with organized positioning - All positioned inside the subnet container
         for j in range(3):
-            vm_x, vm_y = get_grid_position(spoke_row + 2, spoke_col + j - 1, 0, 0)
+            vm_x = subnet_x + 20 + (j * 45)
+            vm_y = subnet_y + 60
             vm_env = ["Dev", "Test", "Staging"][j]
             vm_specs = ["1 vCPU, 2 GB", "2 vCPU, 4 GB", "4 vCPU, 8 GB"][j]
             
@@ -614,7 +627,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
                 }
             })
     
-    # 7. Connections (Edges) with enhanced details and organized routing
+    # 7. Enhanced Connections (Edges) with comprehensive architectural flow
     # Hub VNet Manager to Hub VNet
     edges.append({
         "id": "manager_to_hub",
@@ -628,7 +641,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # Cross-premises to Hub
+    # Cross-premises to Hub - Enhanced connection
     edges.append({
         "id": "cross_to_hub",
         "from": "secure_connection",
@@ -642,7 +655,81 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # Hub Internal Connections
+    # NEW: Cross-premises VMs to secure connection
+    edges.append({
+        "id": "vm1_to_secure",
+        "from": "cross_premises_vm1",
+        "to": "secure_connection",
+        "label": "Internal Traffic\nManagement",
+        "type": "internal",
+        "metadata": {
+            "traffic": "Management traffic",
+            "protocol": "Internal routing"
+        }
+    })
+    
+    edges.append({
+        "id": "vm2_to_secure",
+        "from": "cross_premises_vm2",
+        "to": "secure_connection",
+        "label": "Internal Traffic\nApplication",
+        "type": "internal",
+        "metadata": {
+            "traffic": "Application traffic",
+            "protocol": "Internal routing"
+        }
+    })
+    
+    # NEW: Hub VNet to all internal services
+    edges.append({
+        "id": "hub_to_bastion",
+        "from": "hub_vnet",
+        "to": "hub_bastion",
+        "label": "VNet Integration\nManagement Subnet",
+        "type": "vnet_integration",
+        "metadata": {
+            "subnet": "10.0.1.0/24",
+            "purpose": "Management access"
+        }
+    })
+    
+    edges.append({
+        "id": "hub_to_firewall",
+        "from": "hub_vnet",
+        "to": "hub_firewall",
+        "label": "VNet Integration\nSecurity Subnet",
+        "type": "vnet_integration",
+        "metadata": {
+            "subnet": "10.0.2.0/24",
+            "purpose": "Security services"
+        }
+    })
+    
+    edges.append({
+        "id": "hub_to_vpn",
+        "from": "hub_vnet",
+        "to": "hub_vpn_gateway",
+        "label": "VNet Integration\nGateway Subnet",
+        "type": "vnet_integration",
+        "metadata": {
+            "subnet": "10.0.3.0/27",
+            "purpose": "Gateway services"
+        }
+    })
+    
+    edges.append({
+        "id": "hub_to_monitor",
+        "from": "hub_vnet",
+        "to": "hub_monitor",
+        "label": "VNet Integration\nMonitoring Subnet",
+        "type": "vnet_integration",
+        "metadata": {
+            "subnet": "10.0.4.0/24",
+            "purpose": "Monitoring services"
+        }
+    })
+    
+    # Hub Internal Connections - Enhanced with more detail
     edges.append({
         "id": "bastion_to_monitor",
         "from": "hub_bastion",
@@ -679,80 +766,176 @@ def create_hub_spoke_structure(num_subscriptions, components):
         }
     })
     
-    # Hub to Production Spokes
+    # NEW: Internal hub service connections
     edges.append({
-        "id": "bastion_to_prod1",
+        "id": "bastion_to_firewall",
         "from": "hub_bastion",
-        "to": "prod_spoke_vnet_1",
-        "label": "VNet Peering\nManagement Access",
-        "type": "peering",
+        "to": "hub_firewall",
+        "label": "Management Access\nThrough Firewall",
+        "type": "management",
         "metadata": {
-            "peering_type": "Hub-Spoke",
-            "traffic": "Management traffic only",
-            "nsg": "Restrict to Bastion subnet"
+            "purpose": "Bastion management access",
+            "security": "Firewall rules applied"
         }
     })
     
     edges.append({
-        "id": "firewall_to_prod1",
+        "id": "firewall_to_vpn",
         "from": "hub_firewall",
-        "to": "prod_spoke_vnet_1",
-        "label": "Forced Tunnel\nInternet Access",
-        "type": "forced_tunnel",
+        "to": "hub_vpn_gateway",
+        "label": "Traffic Inspection\nBefore Gateway",
+        "type": "security",
         "metadata": {
-            "traffic": "Internet-bound traffic",
-            "inspection": "Firewall inspection required"
+            "purpose": "Security inspection",
+            "traffic": "Cross-premises traffic"
         }
     })
     
+    # Hub to Production Spokes - Enhanced with more connections
+    for i in range(2):
+        spoke_id = f"prod_spoke_vnet_{i+1}"
+        
+        # Bastion to production spokes
+        edges.append({
+            "id": f"bastion_to_prod{i+1}",
+            "from": "hub_bastion",
+            "to": spoke_id,
+            "label": "VNet Peering\nManagement Access",
+            "type": "peering",
+            "metadata": {
+                "peering_type": "Hub-Spoke",
+                "traffic": "Management traffic only",
+                "nsg": "Restrict to Bastion subnet"
+            }
+        })
+        
+        # Firewall to production spokes
+        edges.append({
+            "id": f"firewall_to_prod{i+1}",
+            "from": "hub_firewall",
+            "to": spoke_id,
+            "label": "Forced Tunnel\nInternet Access",
+            "type": "forced_tunnel",
+            "metadata": {
+                "traffic": "Internet-bound traffic",
+                "inspection": "Firewall inspection required"
+            }
+        })
+        
+        # Hub VNet to production spokes
+        edges.append({
+            "id": f"hub_to_prod{i+1}",
+            "from": "hub_vnet",
+            "to": spoke_id,
+            "label": "VNet Peering\nInternal Communication",
+            "type": "peering",
+            "metadata": {
+                "peering_type": "Hub-Spoke",
+                "traffic": "Internal communication",
+                "monitoring": "Traffic analysis enabled"
+            }
+        })
+        
+        # Production spoke to its subnet
+        subnet_id = f"prod_spoke_subnet_{i+1}"
+        edges.append({
+            "id": f"prod{i+1}_to_subnet",
+            "from": spoke_id,
+            "to": subnet_id,
+            "label": "VNet Integration\nResource Subnet",
+            "type": "vnet_integration",
+            "metadata": {
+                "purpose": "Resource deployment",
+                "routing": "System routes"
+            }
+        })
+        
+        # Subnet to VMs
+        for j in range(3):
+            vm_id = f"prod_spoke_vm_{i+1}_{j+1}"
+            edges.append({
+                "id": f"subnet_to_vm_{i+1}_{j+1}",
+                "from": subnet_id,
+                "to": vm_id,
+                "label": "Subnet Integration\nVM Deployment",
+                "type": "subnet_integration",
+                "metadata": {
+                    "purpose": "VM deployment",
+                    "nsg": "Subnet-level security"
+                }
+            })
+    
+    # Hub to Non-production Spokes - Enhanced with more connections
+    for i in range(2):
+        spoke_id = f"nonprod_spoke_vnet_{i+1}"
+        
+        # VPN Gateway to non-production spokes
+        edges.append({
+            "id": f"vpn_to_nonprod{i+1}",
+            "from": "hub_vpn_gateway",
+            "to": spoke_id,
+            "label": "Connected Virtual Networks\nDevOps Access",
+            "type": "connected",
+            "metadata": {
+                "access": "DevOps team access",
+                "restrictions": "Limited external access"
+            }
+        })
+        
+        # Hub VNet to non-production spokes
+        edges.append({
+            "id": f"hub_to_nonprod{i+1}",
+            "from": "hub_vnet",
+            "to": spoke_id,
+            "label": "Virtual Networks Connected\nor Peered Through Hub",
+            "type": "peered",
+            "metadata": {
+                "peering_type": "Hub-Spoke",
+                "traffic": "Internal communication",
+                "monitoring": "Traffic analysis enabled"
+            }
+        })
+        
+        # Non-production spoke to its subnet
+        subnet_id = f"nonprod_spoke_subnet_{i+1}"
+        edges.append({
+            "id": f"nonprod{i+1}_to_subnet",
+            "from": spoke_id,
+            "to": subnet_id,
+            "label": "VNet Integration\nResource Subnet",
+            "type": "vnet_integration",
+            "metadata": {
+                "purpose": "Resource deployment",
+                "routing": "System routes"
+            }
+        })
+        
+        # Subnet to VMs
+        for j in range(3):
+            vm_id = f"nonprod_spoke_vm_{i+1}_{j+1}"
+            edges.append({
+                "id": f"nonprod_subnet_to_vm_{i+1}_{j+1}",
+                "from": subnet_id,
+                "to": vm_id,
+                "label": "Subnet Integration\nVM Deployment",
+                "type": "subnet_integration",
+                "metadata": {
+                    "purpose": "VM deployment",
+                    "nsg": "Subnet-level security"
+                }
+            })
+    
+    # NEW: Cross-spoke connections for production
     edges.append({
-        "id": "firewall_to_prod2",
-        "from": "hub_firewall",
+        "id": "prod1_to_prod2",
+        "from": "prod_spoke_vnet_1",
         "to": "prod_spoke_vnet_2",
-        "label": "Forced Tunnel\nInternet Access",
-        "type": "forced_tunnel",
-        "metadata": {
-            "traffic": "Internet-bound traffic",
-            "inspection": "Firewall inspection required"
-        }
-    })
-    
-    # Hub to Non-production Spokes
-    edges.append({
-        "id": "vpn_to_nonprod1",
-        "from": "hub_vpn_gateway",
-        "to": "nonprod_spoke_vnet_1",
-        "label": "Connected Virtual Networks\nDevOps Access",
-        "type": "connected",
-        "metadata": {
-            "access": "DevOps team access",
-            "restrictions": "Limited external access"
-        }
-    })
-    
-    edges.append({
-        "id": "hub_to_nonprod1",
-        "from": "hub_vnet",
-        "to": "nonprod_spoke_vnet_1",
-        "label": "Virtual Networks Connected\nor Peered Through Hub",
+        "label": "VNet Peering\nProduction Communication",
         "type": "peered",
         "metadata": {
-            "peering_type": "Hub-Spoke",
-            "traffic": "Internal communication",
-            "monitoring": "Traffic analysis enabled"
-        }
-    })
-    
-    edges.append({
-        "id": "hub_to_nonprod2",
-        "from": "hub_vnet",
-        "to": "nonprod_spoke_vnet_2",
-        "label": "Virtual Networks Connected\nor Peered Through Hub",
-        "type": "peered",
-        "metadata": {
-            "peering_type": "Hub-Spoke",
-            "traffic": "Internal communication",
-            "monitoring": "Traffic analysis enabled"
+            "peering_type": "Spoke-Spoke",
+            "purpose": "Production services communication",
+            "restrictions": "Limited to production environments"
         }
     })
     
@@ -767,6 +950,19 @@ def create_hub_spoke_structure(num_subscriptions, components):
             "peering_type": "Spoke-Spoke",
             "purpose": "Cross-environment testing",
             "restrictions": "Limited to non-prod environments"
+        }
+    })
+    
+    # NEW: Cross-environment connections (Dev to Test, Test to Staging)
+    edges.append({
+        "id": "dev_to_test",
+        "from": "nonprod_spoke_vnet_1",
+        "to": "nonprod_spoke_vnet_2",
+        "label": "Development to Test\nEnvironment Flow",
+        "type": "development_flow",
+        "metadata": {
+            "purpose": "Development workflow",
+            "traffic": "Test data and configurations"
         }
     })
     
@@ -825,7 +1021,7 @@ def create_azure_diagram_structure(components, description):
         'firewall': get_grid_position(1, 4, 0, 0),
         'load_balancer': get_grid_position(2, 4, 0, 0),
         'app_gateway': get_grid_position(3, 4, 0, 0),
-        'vnet': get_grid_position(2, 2, -100, -50),
+        'vnet': get_grid_position(2, 2, -150, -100),  # Increased size to contain subnets
         'subnet_frontend': get_grid_position(2, 1, -50, 0),
         'subnet_backend': get_grid_position(2, 3, -50, 0),
         'subnet_data': get_grid_position(4, 2, -50, 0),
@@ -961,15 +1157,18 @@ def create_azure_diagram_structure(components, description):
                 }
             })
     
-    # Virtual Network con detalles de red
+    # Virtual Network con detalles de red - Increased size to properly contain subnets
+    vnet_x, vnet_y = positions['vnet']
+    vnet_width = 700
+    vnet_height = 500
     nodes.append({
         'id': f'node_{node_id}',
         'type': 'azure_vnet',
         'text': 'Virtual Network\n10.0.0.0/16\nCentralized Network\nManagement',
-        'x': positions['vnet'][0],
-        'y': positions['vnet'][1],
-        'width': 600,
-        'height': 400,
+        'x': vnet_x,
+        'y': vnet_y,
+        'width': vnet_width,
+        'height': vnet_height,
         'metadata': {
             'address_space': '10.0.0.0/16',
             'region': 'East US 2',
@@ -981,15 +1180,17 @@ def create_azure_diagram_structure(components, description):
     vnet_id = f'node_{node_id}'
     node_id += 1
     
-    # Subnets con configuraciones detalladas
+    # Subnets con configuraciones detalladas - Positioned inside the VNet container
     if components['network']:
-        # Frontend subnet
+        # Frontend subnet - Positioned inside VNet
+        subnet_frontend_x = vnet_x + 50
+        subnet_frontend_y = vnet_y + 80
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_subnet',
             'text': 'Frontend Subnet\n10.0.1.0/24\nWeb Tier\nPublic Access',
-            'x': positions['subnet_frontend'][0],
-            'y': positions['subnet_frontend'][1],
+            'x': subnet_frontend_x,
+            'y': subnet_frontend_y,
             'width': 200,
             'height': 100,
             'metadata': {
@@ -1003,13 +1204,15 @@ def create_azure_diagram_structure(components, description):
         frontend_subnet_id = f'node_{node_id}'
         node_id += 1
         
-        # Backend subnet
+        # Backend subnet - Positioned inside VNet
+        subnet_backend_x = vnet_x + 300
+        subnet_backend_y = vnet_y + 80
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_subnet',
             'text': 'Backend Subnet\n10.0.2.0/24\nApplication Tier\nInternal Only',
-            'x': positions['subnet_backend'][0],
-            'y': positions['subnet_backend'][1],
+            'x': subnet_backend_x,
+            'y': subnet_backend_y,
             'width': 200,
             'height': 100,
             'metadata': {
@@ -1023,13 +1226,15 @@ def create_azure_diagram_structure(components, description):
         backend_subnet_id = f'node_{node_id}'
         node_id += 1
         
-        # Data subnet
+        # Data subnet - Positioned inside VNet
+        subnet_data_x = vnet_x + 175
+        subnet_data_y = vnet_y + 250
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_subnet',
             'text': 'Data Subnet\n10.0.3.0/24\nDatabase Tier\nHighly Restricted',
-            'x': positions['subnet_data'][0],
-            'y': positions['subnet_data'][1],
+            'x': subnet_data_x,
+            'y': subnet_data_y,
             'width': 200,
             'height': 100,
             'metadata': {
@@ -1044,39 +1249,41 @@ def create_azure_diagram_structure(components, description):
         data_subnet_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar subnets al VNet
+        # NEW: Conectar subnets al VNet con más detalle
         edges.extend([
             {
                 'id': f'edge_{len(edges)}', 
                 'from': vnet_id, 
                 'to': frontend_subnet_id,
-                'label': 'VNet Integration',
-                'metadata': {'type': 'VNet integration', 'routing': 'System routes'}
+                'label': 'VNet Integration\nFrontend Subnet',
+                'metadata': {'type': 'VNet integration', 'routing': 'System routes', 'subnet': '10.0.1.0/24'}
             },
             {
                 'id': f'edge_{len(edges)}', 
                 'from': vnet_id, 
                 'to': backend_subnet_id,
-                'label': 'VNet Integration',
-                'metadata': {'type': 'VNet integration', 'routing': 'System routes'}
+                'label': 'VNet Integration\nBackend Subnet',
+                'metadata': {'type': 'VNet integration', 'routing': 'System routes', 'subnet': '10.0.2.0/24'}
             },
             {
                 'id': f'edge_{len(edges)}', 
                 'from': vnet_id, 
                 'to': data_subnet_id,
-                'label': 'VNet Integration',
-                'metadata': {'type': 'VNet integration', 'routing': 'System routes'}
+                'label': 'VNet Integration\nData Subnet',
+                'metadata': {'type': 'VNet integration', 'routing': 'System routes', 'subnet': '10.0.3.0/24'}
             }
         ])
     
-    # App Services con detalles de configuración
+    # App Services con detalles de configuración - Positioned inside frontend subnet
     if components['app_service']:
+        app_service_x = subnet_frontend_x + 20
+        app_service_y = subnet_frontend_y + 60
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_app_service',
             'text': 'App Service\nWeb App\nP1v2 Plan\nAlways On',
-            'x': positions['app_service'][0],
-            'y': positions['app_service'][1],
+            'x': app_service_x,
+            'y': app_service_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1091,28 +1298,31 @@ def create_azure_diagram_structure(components, description):
         app_service_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet frontend
+        # NEW: Conectar al subnet frontend con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': frontend_subnet_id,
                 'to': app_service_id,
-                'label': 'VNet Integration',
+                'label': 'VNet Integration\nWeb App Deployment',
                 'metadata': {
                     'type': 'VNet integration',
                     'subnet': 'Frontend subnet',
-                    'features': ['Private endpoints', 'Service endpoints']
+                    'features': ['Private endpoints', 'Service endpoints'],
+                    'purpose': 'Web application hosting'
                 }
             })
     
-    # Web Apps adicionales
+    # Web Apps adicionales - Positioned inside frontend subnet
     if components['app_service']:
+        web_app_x = subnet_frontend_x + 180
+        web_app_y = subnet_frontend_y + 60
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_web_app',
             'text': 'Web App\nAPI Gateway\nP1v2 Plan\nCORS Enabled',
-            'x': positions['web_app'][0],
-            'y': positions['web_app'][1],
+            'x': web_app_x,
+            'y': web_app_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1127,28 +1337,31 @@ def create_azure_diagram_structure(components, description):
         web_app_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet frontend
+        # NEW: Conectar al subnet frontend con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': frontend_subnet_id,
                 'to': web_app_id,
-                'label': 'VNet Integration',
+                'label': 'VNet Integration\nAPI Gateway Deployment',
                 'metadata': {
                     'type': 'VNet integration',
                     'subnet': 'Frontend subnet',
-                    'features': ['Private endpoints', 'Service endpoints']
+                    'features': ['Private endpoints', 'Service endpoints'],
+                    'purpose': 'API gateway hosting'
                 }
             })
     
-    # API Apps con detalles técnicos
+    # API Apps con detalles técnicos - Positioned inside backend subnet
     if components['api_management']:
+        api_app_x = subnet_backend_x + 20
+        api_app_y = subnet_backend_y + 60
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_api_app',
             'text': 'API App\nBackend Service\nP1v2 Plan\nInternal API',
-            'x': positions['api_app'][0],
-            'y': positions['api_app'][1],
+            'x': api_app_x,
+            'y': api_app_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1163,28 +1376,31 @@ def create_azure_diagram_structure(components, description):
         api_app_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet backend
+        # NEW: Conectar al subnet backend con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': backend_subnet_id,
                 'to': api_app_id,
-                'label': 'VNet Integration',
+                'label': 'VNet Integration\nBackend API Deployment',
                 'metadata': {
                     'type': 'VNet integration',
                     'subnet': 'Backend subnet',
-                    'features': ['Private endpoints', 'Service endpoints']
+                    'features': ['Private endpoints', 'Service endpoints'],
+                    'purpose': 'Backend API hosting'
                 }
             })
     
-    # Function Apps con detalles de serverless
+    # Function Apps con detalles de serverless - Positioned inside backend subnet
     if components['api_management']:
+        function_app_x = subnet_backend_x + 180
+        function_app_y = subnet_backend_y + 60
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_function',
             'text': 'Function App\nServerless\nConsumption Plan\nEvent-driven',
-            'x': positions['function_app'][0],
-            'y': positions['function_app'][1],
+            'x': function_app_x,
+            'y': function_app_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1199,28 +1415,31 @@ def create_azure_diagram_structure(components, description):
         function_app_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet backend
+        # NEW: Conectar al subnet backend con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': backend_subnet_id,
                 'to': function_app_id,
-                'label': 'VNet Integration',
+                'label': 'VNet Integration\nFunction App Deployment',
                 'metadata': {
                     'type': 'VNet integration',
                     'subnet': 'Backend subnet',
-                    'features': ['Private endpoints', 'Service endpoints']
+                    'features': ['Private endpoints', 'Service endpoints'],
+                    'purpose': 'Serverless function hosting'
                 }
             })
     
-    # SQL Database con especificaciones técnicas
+    # SQL Database con especificaciones técnicas - Positioned inside data subnet
     if components['database']:
+        sql_x = subnet_data_x + 20
+        sql_y = subnet_data_y + 60
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_sql',
             'text': 'Azure SQL\nDatabase\nS1 Standard\n99.99% SLA',
-            'x': positions['sql_database'][0],
-            'y': positions['sql_database'][1],
+            'x': sql_x,
+            'y': sql_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1236,28 +1455,31 @@ def create_azure_diagram_structure(components, description):
         sql_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet data
+        # NEW: Conectar al subnet data con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': data_subnet_id,
                 'to': sql_id,
-                'label': 'Private Endpoint',
+                'label': 'Private Endpoint\nDatabase Access',
                 'metadata': {
                     'type': 'Private endpoint',
                     'subnet': 'Data subnet',
-                    'security': 'No public internet access'
+                    'security': 'No public internet access',
+                    'purpose': 'Secure database connectivity'
                 }
             })
     
-    # Storage Account con detalles de almacenamiento
+    # Storage Account con detalles de almacenamiento - Positioned inside data subnet
     if components['storage']:
+        storage_x = subnet_data_x + 180
+        storage_y = subnet_data_y + 60
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_storage',
             'text': 'Storage Account\nGeneral Purpose v2\nLRS Redundancy\nHot Tier',
-            'x': positions['storage_account'][0],
-            'y': positions['storage_account'][1],
+            'x': storage_x,
+            'y': storage_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1273,28 +1495,31 @@ def create_azure_diagram_structure(components, description):
         storage_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet data
+        # NEW: Conectar al subnet data con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': data_subnet_id,
                 'to': storage_id,
-                'label': 'Service Endpoint',
+                'label': 'Service Endpoint\nStorage Access',
                 'metadata': {
                     'type': 'Service endpoint',
                     'subnet': 'Data subnet',
-                    'security': 'Restricted to VNet only'
+                    'security': 'Restricted to VNet only',
+                    'purpose': 'Secure storage access'
                 }
             })
     
-    # Key Vault con detalles de seguridad
+    # Key Vault con detalles de seguridad - Positioned inside data subnet
     if components['security']:
+        key_vault_x = subnet_data_x + 100
+        key_vault_y = subnet_data_y + 180
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_key_vault',
             'text': 'Key Vault\nPremium SKU\nSecrets & Keys\nHSM Backed',
-            'x': positions['key_vault'][0],
-            'y': positions['key_vault'][1],
+            'x': key_vault_x,
+            'y': key_vault_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1309,28 +1534,31 @@ def create_azure_diagram_structure(components, description):
         key_vault_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet data
+        # NEW: Conectar al subnet data con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': data_subnet_id,
                 'to': key_vault_id,
-                'label': 'Private Endpoint',
+                'label': 'Private Endpoint\nKey Vault Access',
                 'metadata': {
                     'type': 'Private endpoint',
                     'subnet': 'Data subnet',
-                    'security': 'No public internet access'
+                    'security': 'No public internet access',
+                    'purpose': 'Secure secret management'
                 }
             })
     
-    # Monitoring con detalles de observabilidad
+    # Monitoring con detalles de observabilidad - Positioned inside data subnet
     if components['monitoring']:
+        monitoring_x = subnet_data_x + 100
+        monitoring_y = subnet_data_y + 280
         nodes.append({
             'id': f'node_{node_id}',
             'type': 'azure_monitoring',
             'text': 'Log Analytics\nWorkspace\n90-day Retention\nReal-time Alerts',
-            'x': positions['monitoring'][0],
-            'y': positions['monitoring'][1],
+            'x': monitoring_x,
+            'y': monitoring_y,
             'width': 140,
             'height': 70,
             'metadata': {
@@ -1345,17 +1573,18 @@ def create_azure_diagram_structure(components, description):
         monitoring_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar al subnet data
+        # NEW: Conectar al subnet data con más detalle
         if components['network']:
             edges.append({
                 'id': f'edge_{len(edges)}',
                 'from': data_subnet_id,
                 'to': monitoring_id,
-                'label': 'Service Endpoint',
+                'label': 'Service Endpoint\nMonitoring Access',
                 'metadata': {
                     'type': 'Service endpoint',
                     'subnet': 'Data subnet',
-                    'security': 'Restricted to VNet only'
+                    'security': 'Restricted to VNet only',
+                    'purpose': 'Centralized monitoring'
                 }
             })
     
@@ -1400,7 +1629,7 @@ def create_azure_diagram_structure(components, description):
         vpn_id = f'node_{node_id}'
         node_id += 1
         
-        # Conectar on-premises al VPN
+        # NEW: Conectar on-premises al VPN con más detalle
         edges.append({
             'id': f'edge_{len(edges)}',
             'from': onprem_id,
@@ -1410,11 +1639,12 @@ def create_azure_diagram_structure(components, description):
                 'type': 'Site-to-Site VPN',
                 'protocol': 'IPSec/IKEv2',
                 'encryption': 'AES-256',
-                'authentication': 'Pre-shared key'
+                'authentication': 'Pre-shared key',
+                'purpose': 'Secure cross-premises connectivity'
             }
         })
         
-        # Conectar VPN al VNet
+        # NEW: Conectar VPN al VNet con más detalle
         edges.append({
             'id': f'edge_{len(edges)}',
             'from': vpn_id,
@@ -1423,11 +1653,12 @@ def create_azure_diagram_structure(components, description):
             'metadata': {
                 'type': 'Gateway subnet',
                 'address_space': '10.0.3.0/27',
-                'purpose': 'VPN Gateway deployment'
+                'purpose': 'VPN Gateway deployment',
+                'routing': 'BGP routes propagation'
             }
         })
     
-    # Conectar componentes principales con detalles técnicos
+    # NEW: Enhanced connections between main components with comprehensive flow
     if components['load_balancer'] and components['app_service']:
         edges.append({
             'id': f'edge_{len(edges)}',
@@ -1438,10 +1669,28 @@ def create_azure_diagram_structure(components, description):
                 'type': 'Load balancing',
                 'ports': '80, 443',
                 'health_check': 'HTTP probe enabled',
-                'distribution': 'Round-robin'
+                'distribution': 'Round-robin',
+                'purpose': 'Web application load balancing'
             }
         })
+        
+        # NEW: Load balancer to web app
+        if 'web_app_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': lb_id,
+                'to': web_app_id,
+                'label': 'Load Balanced\nAPI Gateway\nPort 80/443',
+                'metadata': {
+                    'type': 'Load balancing',
+                    'ports': '80, 443',
+                    'health_check': 'HTTP probe enabled',
+                    'distribution': 'Round-robin',
+                    'purpose': 'API gateway load balancing'
+                }
+            })
     
+    # NEW: Enhanced application tier connections
     if components['app_service'] and components['database']:
         edges.append({
             'id': f'edge_{len(edges)}',
@@ -1452,10 +1701,28 @@ def create_azure_diagram_structure(components, description):
                 'type': 'Database connection',
                 'protocol': 'TDS over SSL',
                 'connection_pooling': 'Enabled',
-                'timeout': '30 seconds'
+                'timeout': '30 seconds',
+                'purpose': 'Web app database access'
             }
         })
+        
+        # NEW: Web app to database
+        if 'web_app_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': web_app_id,
+                'to': sql_id,
+                'label': 'Database Connection\nAPI Database Access\nSSL Required',
+                'metadata': {
+                    'type': 'Database connection',
+                    'protocol': 'TDS over SSL',
+                    'connection_pooling': 'Enabled',
+                    'timeout': '30 seconds',
+                    'purpose': 'API gateway database access'
+                }
+            })
     
+    # NEW: Enhanced storage connections
     if components['app_service'] and components['storage']:
         edges.append({
             'id': f'edge_{len(edges)}',
@@ -1467,9 +1734,95 @@ def create_azure_diagram_structure(components, description):
                 'method': 'Service endpoint',
                 'subnet': 'Data subnet',
                 'security': 'VNet restricted',
-                'protocol': 'HTTPS'
+                'protocol': 'HTTPS',
+                'purpose': 'Web app file storage'
             }
         })
+        
+        # NEW: Web app to storage
+        if 'web_app_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': web_app_id,
+                'to': storage_id,
+                'label': 'Storage Access\nAPI File Storage\nPrivate Network',
+                'metadata': {
+                    'type': 'Storage access',
+                    'method': 'Service endpoint',
+                    'subnet': 'Data subnet',
+                    'security': 'VNet restricted',
+                    'protocol': 'HTTPS',
+                    'purpose': 'API gateway file storage'
+                }
+            })
+    
+    # NEW: Enhanced backend tier connections
+    if components['api_management'] and components['database']:
+        if 'api_app_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': api_app_id,
+                'to': sql_id,
+                'label': 'Database Connection\nBackend API Database\nSSL Required',
+                'metadata': {
+                    'type': 'Database connection',
+                    'protocol': 'TDS over SSL',
+                    'connection_pooling': 'Enabled',
+                    'timeout': '30 seconds',
+                    'purpose': 'Backend API database access'
+                }
+            })
+    
+    # NEW: Enhanced function app connections
+    if components['api_management'] and components['storage']:
+        if 'function_app_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': function_app_id,
+                'to': storage_id,
+                'label': 'Storage Access\nFunction App Storage\nEvent Triggers',
+                'metadata': {
+                    'type': 'Storage access',
+                    'method': 'Service endpoint',
+                    'subnet': 'Backend subnet',
+                    'security': 'VNet restricted',
+                    'protocol': 'HTTPS',
+                    'purpose': 'Serverless function storage access'
+                }
+            })
+    
+    # NEW: Cross-tier communication
+    if components['app_service'] and components['api_management']:
+        if 'api_app_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': app_service_id,
+                'to': api_app_id,
+                'label': 'Internal API Call\nFrontend to Backend\nVNet Internal',
+                'metadata': {
+                    'type': 'Internal API call',
+                    'protocol': 'HTTP/HTTPS',
+                    'network': 'VNet internal',
+                    'security': 'NSG protected',
+                    'purpose': 'Frontend-backend communication'
+                }
+            })
+    
+    # NEW: Security and monitoring connections
+    if components['security'] and components['monitoring']:
+        if 'monitoring_id' in locals():
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': firewall_id,
+                'to': monitoring_id,
+                'label': 'Security Logs\nFirewall Monitoring\nReal-time Alerts',
+                'metadata': {
+                    'type': 'Security monitoring',
+                    'data': 'Firewall logs and alerts',
+                    'retention': '90 days',
+                    'purpose': 'Security event monitoring'
+                }
+            })
     
     # Añadir caja de especificaciones técnicas (organized position)
     specs_x, specs_y = get_grid_position(8, 0, 0, 0)
@@ -1498,7 +1851,9 @@ def create_azure_diagram_structure(components, description):
             'estimated_cost': '$1,500 - $3,000/month',
             'deployment_template': 'ARM Template available',
             'backup_strategy': 'Daily backups with 7-day retention',
-            'disaster_recovery': 'Geo-redundant storage enabled'
+            'total_connections': len(edges),
+            'network_segments': ['Frontend', 'Backend', 'Data', 'Management'],
+            'security_layers': ['Perimeter', 'Network', 'Application', 'Data']
         }
     }
 
@@ -1826,101 +2181,182 @@ def upload_file():
                 # Guardar archivo
                 file.save(filepath)
                 
-                # Procesar documento
-                # processor = DocumentProcessor()
-                # content = processor.process_document(filepath)
+                # Procesar documento según el tipo
+                file_extension = filename.rsplit('.', 1)[1].lower()
+                file_content = ""
                 
-                # if content.get('type') == 'error':
-                #     cleanup_temp_files(filepath)
-                #     return jsonify({'error': content['message']}), 400
+                if file_extension in ['txt', 'json', 'csv']:
+                    # Archivos de texto - intentar diferentes codificaciones
+                    encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+                    for encoding in encodings:
+                        try:
+                            with open(filepath, 'r', encoding=encoding) as f:
+                                file_content = f.read()
+                            print(f"Archivo leído exitosamente con codificación: {encoding}")
+                            break
+                        except UnicodeDecodeError:
+                            continue
+                        except Exception as e:
+                            print(f"Error leyendo archivo con {encoding}: {str(e)}")
+                            continue
+                    
+                    if not file_content:
+                        # Último intento: leer como bytes y decodificar
+                        try:
+                            with open(filepath, 'rb') as f:
+                                raw_content = f.read()
+                                # Intentar detectar codificación
+                                try:
+                                    import chardet
+                                    detected = chardet.detect(raw_content)
+                                    if detected['confidence'] > 0.7:
+                                        file_content = raw_content.decode(detected['encoding'])
+                                    else:
+                                        # Fallback a latin-1
+                                        file_content = raw_content.decode('latin-1', errors='ignore')
+                                except ImportError:
+                                    # Si chardet no está disponible, usar latin-1
+                                    file_content = raw_content.decode('latin-1', errors='ignore')
+                        except Exception as e:
+                            print(f"Error en fallback de codificación: {str(e)}")
+                            file_content = "Error leyendo archivo"
                 
-                # Generar diagrama
-                # generator = DiagramGenerator()
-                # diagram_result = generator.create_diagram_from_content(content)
+                elif file_extension == 'pdf':
+                    # Procesar PDF
+                    try:
+                        import PyPDF2
+                        with open(filepath, 'rb') as f:
+                            pdf_reader = PyPDF2.PdfReader(f)
+                            file_content = ""
+                            for page in pdf_reader.pages:
+                                file_content += page.extract_text() + "\n"
+                    except ImportError:
+                        file_content = "PDF detectado pero PyPDF2 no está disponible"
+                    except Exception as e:
+                        file_content = f"Error procesando PDF: {str(e)}"
                 
-                # if diagram_result.get('error'):
-                #     cleanup_temp_files(filepath)
-                #     return jsonify({'error': diagram_result['error']}), 500
+                elif file_extension in ['docx']:
+                    # Procesar DOCX
+                    try:
+                        from docx import Document
+                        doc = Document(filepath)
+                        file_content = ""
+                        for paragraph in doc.paragraphs:
+                            file_content += paragraph.text + "\n"
+                    except ImportError:
+                        file_content = "DOCX detectado pero python-docx no está disponible"
+                    except Exception as e:
+                        file_content = f"Error procesando DOCX: {str(e)}"
                 
-                # Limpiar archivo temporal
-                # cleanup_temp_files(filepath)
+                elif file_extension in ['xlsx', 'xls']:
+                    # Procesar Excel
+                    try:
+                        import pandas as pd
+                        df = pd.read_excel(filepath)
+                        file_content = df.to_string()
+                    except ImportError:
+                        file_content = "Excel detectado pero pandas no está disponible"
+                    except Exception as e:
+                        file_content = f"Error procesando Excel: {str(e)}"
                 
-                # Asegurar que la respuesta tenga todos los campos necesarios
-                # response_data = {
-                #     'success': True,
-                #     'message': 'Diagrama generado exitosamente',
-                #     'diagram_data': diagram_result.get('diagram_data', ''),
-                #     'mermaid_code': diagram_result.get('mermaid_code', ''),
-                #     'drawio_url': diagram_result.get('drawio_url', ''),
-                #     'download_url': diagram_result.get('download_url', ''),
-                #     'title': diagram_result.get('title', 'Diagrama Generado'),
-                #     'type': diagram_result.get('type', 'generic')
-                # }
-                
-                # return jsonify(response_data)
-                
-                # Fallback para archivos de texto o JSON
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    file_content = f.read()
+                else:
+                    # Otros tipos de archivo
+                    file_content = f"Archivo de tipo {file_extension} - contenido no procesable"
                 
                 # Generar diagrama basado en el contenido del archivo
-                # Para simplificar, vamos a generar un diagrama de flujo básico
-                # basado en las palabras clave encontradas en el archivo.
-                # Esto es un ejemplo y puede ser mejorado.
-                
                 nodes = []
                 edges = []
                 
-                # Tokenizar el contenido en palabras
-                words = file_content.split()
-                
-                # Crear nodos básicos basados en las palabras
-                for i, word in enumerate(words):
-                    node_id = f"node_{i+1}"
+                if file_content and file_content != "Error leyendo archivo":
+                    # Tokenizar el contenido en palabras
+                    words = file_content.split()
+                    
+                    # Crear nodos básicos basados en las palabras (máximo 20 para evitar sobrecarga)
+                    max_nodes = min(20, len(words))
+                    for i in range(max_nodes):
+                        word = words[i]
+                        if len(word) > 2:  # Solo palabras de más de 2 caracteres
+                            node_id = f"node_{i+1}"
+                            nodes.append({
+                                'id': node_id,
+                                'type': 'rectangle',
+                                'text': word.capitalize(),
+                                'x': 100 + (i * 150),
+                                'y': 100 + (i * 50),
+                                'width': 120,
+                                'height': 60
+                            })
+                            
+                            # Conectar nodos secuencialmente
+                            if i > 0:
+                                edges.append({
+                                    'id': f"edge_{i}",
+                                    'from': f"node_{i}",
+                                    'to': node_id,
+                                    'label': 'Siguiente'
+                                })
+                else:
+                    # Crear nodo de error
                     nodes.append({
-                        'id': node_id,
+                        'id': 'error_node',
                         'type': 'rectangle',
-                        'text': word.capitalize(),
-                        'x': 100 + (i * 150),
-                        'y': 100 + (i * 50),
-                        'width': 120,
+                        'text': 'Error procesando archivo',
+                        'x': 100,
+                        'y': 100,
+                        'width': 200,
                         'height': 60
                     })
-                    
-                    # Conectar nodos secuencialmente
-                    if i > 0:
-                        edges.append({
-                            'id': f"edge_{i}",
-                            'from': f"node_{i}",
-                            'to': node_id
-                        })
                 
-                # Asegurar que la respuesta tenga todos los campos necesarios
-                response_data = {
-                    'success': True,
-                    'message': 'Diagrama generado exitosamente',
-                    'diagram_data': {
-                        'type': 'flowchart', # Forced to flowchart for fallback
-                        'nodes': nodes,
-                        'edges': edges
-                    },
-                    'mermaid_code': 'graph TD\n' + '\n'.join([f"{edge['from']} --> {edge['to']}" for edge in edges]),
-                    'drawio_url': 'https://app.diagrams.net/?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Untitled%20Diagram.drawio#Uhttps://raw.githubusercontent.com/jgraph/drawio-diagrams/master/examples/basic.drawio',
-                    'download_url': 'https://app.diagrams.net/?lightbox=1&highlight=0000ff&edit=_blank&layers=1&nav=1&title=Untitled%20Diagram.drawio#Uhttps://raw.githubusercontent.com/jgraph/drawio-diagrams/master/examples/basic.drawio',
-                    'title': f"Diagrama de {file.filename}",
-                    'type': 'flowchart'
+                # Crear diagrama
+                diagram_data = {
+                    'type': 'flowchart',
+                    'nodes': nodes,
+                    'edges': edges
                 }
                 
+                # Crear ID único para el diagrama
+                diagram_id = str(uuid.uuid4())
+                
+                # Guardar diagrama generado
+                diagrams[diagram_id] = {
+                    'id': diagram_id,
+                    'title': f'Diagrama de {filename}',
+                    'type': 'file_generated',
+                    'data': diagram_data,
+                    'description': f'Generado desde archivo: {filename}',
+                    'created_at': datetime.now().isoformat(),
+                    'updated_at': datetime.now().isoformat(),
+                    'version': 1,
+                    'ai_generated': False,
+                    'source_file': filename
+                }
+                
+                # Limpiar archivo temporal
                 cleanup_temp_files(filepath)
+                
+                # Respuesta exitosa
+                response_data = {
+                    'success': True,
+                    'message': 'Diagrama generado exitosamente desde archivo',
+                    'diagram_id': diagram_id,
+                    'diagram_data': diagram_data,
+                    'filename': filename,
+                    'total_nodes': len(nodes),
+                    'total_edges': len(edges)
+                }
+                
                 return jsonify(response_data)
                 
             except Exception as e:
+                # Limpiar archivo temporal en caso de error
                 cleanup_temp_files(filepath)
+                print(f"Error procesando archivo: {str(e)}")
                 return jsonify({'error': f'Error procesando archivo: {str(e)}'}), 500
-        
-        return jsonify({'error': 'Tipo de archivo no permitido'}), 400
-        
+        else:
+            return jsonify({'error': 'Tipo de archivo no permitido'}), 400
+            
     except Exception as e:
+        print(f"Error en upload: {str(e)}")
         return jsonify({'error': f'Error interno: {str(e)}'}), 500
 
 @app.route('/process_text', methods=['POST'])
@@ -1993,6 +2429,19 @@ def export_diagram(diagram_id):
         filename = f"{diagram['title']}_{diagram_id}.{export_format}"
         filepath = os.path.join(config.OUTPUT_FOLDER, filename)
         
+        if export_format == 'svg':
+            # Generar SVG real
+            svg_content = generate_svg_from_diagram(diagram)
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(svg_content)
+        elif export_format == 'png':
+            # Generar PNG real
+            generate_png_from_diagram(diagram, filepath)
+        else:
+            # JSON como fallback
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(diagram, f, ensure_ascii=False, indent=2)
+        
         # Añadir metadatos de exportación
         export_metadata = {
             'exported_at': datetime.now().isoformat(),
@@ -2002,11 +2451,6 @@ def export_diagram(diagram_id):
         }
         diagram['export_metadata'] = export_metadata
         
-        # Aquí implementarías la lógica de exportación según el formato
-        # Por ahora, solo guardamos el diagrama como JSON
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(diagram, f, ensure_ascii=False, indent=2)
-        
         return jsonify({
             'success': True,
             'download_url': f'/download/{filename}',
@@ -2014,7 +2458,162 @@ def export_diagram(diagram_id):
         })
         
     except Exception as e:
+        print(f"Error exportando diagrama: {str(e)}")
         return jsonify({'error': f'Error exportando diagrama: {str(e)}'}), 500
+
+def generate_svg_from_diagram(diagram):
+    """Genera contenido SVG real del diagrama"""
+    try:
+        # Calcular dimensiones del canvas
+        if not diagram['data'].get('nodes'):
+            return '<svg width="800" height="600"><text x="400" y="300" text-anchor="middle">Diagrama vacío</text></svg>'
+        
+        nodes = diagram['data']['nodes']
+        edges = diagram['data'].get('edges', [])
+        
+        # Calcular bounding box
+        min_x = min(node.get('x', 0) for node in nodes)
+        max_x = max(node.get('x', 0) + node.get('width', 120) for node in nodes)
+        min_y = min(node.get('y', 0) for node in nodes)
+        max_y = max(node.get('y', 0) + node.get('height', 60) for node in nodes)
+        
+        # Añadir margen
+        margin = 50
+        width = max_x - min_x + 2 * margin
+        height = max_y - min_y + 2 * margin
+        
+        svg_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<svg width="{width}" height="{height}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#0d6efd"/>
+        </marker>
+    </defs>
+    <g transform="translate({-min_x + margin}, {-min_y + margin})">'''
+        
+        # Renderizar nodos
+        for node in nodes:
+            node_x = node.get('x', 0)
+            node_y = node.get('y', 0)
+            node_width = node.get('width', 120)
+            node_height = node.get('height', 60)
+            node_text = node.get('text', node.get('id', ''))
+            node_type = node.get('type', 'rectangle')
+            
+            if node_type == 'network_box':
+                # Caja de red con borde azul
+                svg_content += f'''
+        <rect x="{node_x}" y="{node_y}" width="{node_width}" height="{node_height}" 
+              fill="rgba(230, 243, 255, 0.3)" stroke="#0078d4" stroke-width="2" rx="8"/>
+        <text x="{node_x + node_width/2}" y="{node_y + 20}" text-anchor="middle" 
+              font-family="Arial" font-size="12" font-weight="bold" fill="#0078d4">{node_text}</text>'''
+            elif node_type == 'azure_icon':
+                # Icono Azure con borde azul
+                svg_content += f'''
+        <rect x="{node_x}" y="{node_y}" width="{node_width}" height="{node_height}" 
+              fill="white" stroke="#0078d4" stroke-width="2" rx="8"/>
+        <text x="{node_x + node_width/2}" y="{node_y + node_height/2}" text-anchor="middle" 
+              font-family="Arial" font-size="10" fill="#333">{node_text}</text>'''
+            else:
+                # Nodo genérico
+                svg_content += f'''
+        <rect x="{node_x}" y="{node_y}" width="{node_width}" height="{node_height}" 
+              fill="white" stroke="#666" stroke-width="1" rx="4"/>
+        <text x="{node_x + node_width/2}" y="{node_y + node_height/2}" text-anchor="middle" 
+              font-family="Arial" font-size="12" fill="#333">{node_text}</text>'''
+        
+        # Renderizar edges (conexiones)
+        for edge in edges:
+            from_node = next((n for n in nodes if n['id'] == edge['from']), None)
+            to_node = next((n for n in nodes if n['id'] == edge['to']), None)
+            
+            if from_node and to_node:
+                from_x = from_node.get('x', 0) + from_node.get('width', 120) / 2
+                from_y = from_node.get('y', 0) + from_node.get('height', 60) / 2
+                to_x = to_node.get('x', 0) + to_node.get('width', 120) / 2
+                to_y = to_node.get('y', 0) + to_node.get('height', 60) / 2
+                
+                # Línea con flecha
+                svg_content += f'''
+        <line x1="{from_x}" y1="{from_y}" x2="{to_x}" y2="{to_y}" 
+              stroke="#0d6efd" stroke-width="2" marker-end="url(#arrowhead)"/>'''
+                
+                # Etiqueta de la conexión si existe
+                if edge.get('label'):
+                    label_x = (from_x + to_x) / 2
+                    label_y = (from_y + to_y) / 2 - 10
+                    svg_content += f'''
+        <text x="{label_x}" y="{label_y}" text-anchor="middle" 
+              font-family="Arial" font-size="10" fill="#666">{edge['label']}</text>'''
+        
+        svg_content += '''
+    </g>
+</svg>'''
+        
+        return svg_content
+        
+    except Exception as e:
+        print(f"Error generando SVG: {str(e)}")
+        return f'<svg width="800" height="600"><text x="400" y="300" text-anchor="middle">Error generando SVG: {str(e)}</text></svg>'
+
+def generate_png_from_diagram(diagram, filepath):
+    """Genera PNG del diagrama usando cairosvg"""
+    try:
+        # Primero generar SVG
+        svg_content = generate_svg_from_diagram(diagram)
+        
+        # Convertir SVG a PNG usando cairosvg
+        try:
+            import cairosvg
+            cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), write_to=filepath)
+        except ImportError:
+            # Fallback: usar reportlab para generar PNG básico
+            from reportlab.pdfgen import canvas
+            from reportlab.lib.pagesizes import letter
+            
+            # Crear PDF temporal
+            pdf_path = filepath.replace('.png', '.pdf')
+            c = canvas.Canvas(pdf_path, pagesize=letter)
+            c.drawString(100, 750, f"Diagrama: {diagram.get('title', 'Sin título')}")
+            
+            # Renderizar nodos básicos
+            y_pos = 700
+            for node in diagram['data'].get('nodes', []):
+                c.drawString(100, y_pos, f"- {node.get('text', node.get('id', ''))}")
+                y_pos -= 20
+            
+            c.save()
+            
+            # Convertir PDF a PNG (requiere poppler-utils)
+            try:
+                import subprocess
+                subprocess.run(['pdftoppm', '-png', pdf_path, filepath.replace('.png', '')], check=True)
+                # Renombrar archivo generado
+                import glob
+                png_files = glob.glob(filepath.replace('.png', '') + '-*.png')
+                if png_files:
+                    import shutil
+                    shutil.move(png_files[0], filepath)
+            except:
+                # Si no se puede convertir, usar el PDF
+                filepath = pdf_path
+            
+    except Exception as e:
+        print(f"Error generando PNG: {str(e)}")
+        # Crear PNG básico de error
+        from PIL import Image, ImageDraw, ImageFont
+        try:
+            img = Image.new('RGB', (800, 600), color='white')
+            draw = ImageDraw.Draw(img)
+            draw.text((400, 300), f"Error generando PNG: {str(e)}", fill='red', anchor='mm')
+            img.save(filepath)
+        except:
+            # Último fallback: archivo de texto
+            with open(filepath.replace('.png', '.txt'), 'w', encoding='utf-8') as f:
+                f.write(f"Error generando PNG: {str(e)}\n")
+                f.write(f"Diagrama: {diagram.get('title', 'Sin título')}\n")
+                for node in diagram['data'].get('nodes', []):
+                    f.write(f"- {node.get('text', node.get('id', ''))}\n")
 
 @app.route('/download/<filename>')
 def download_file(filename):

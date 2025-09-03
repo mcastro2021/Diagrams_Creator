@@ -289,6 +289,8 @@ function createNodeElement(node) {
     nodeElement.style.top = (node.y || 100) + 'px';
     nodeElement.style.width = (node.width || 120) + 'px';
     nodeElement.style.height = (node.height || 60) + 'px';
+    nodeElement.style.position = 'absolute';
+    nodeElement.style.zIndex = '100';
     
     // Aplicar estilos personalizados si existen
     if (node.style) {
@@ -311,19 +313,25 @@ function createNodeElement(node) {
         nodeElement.style.borderRadius = '8px';
         nodeElement.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
     } else if (node.type === 'network_box') {
-        // Caja de red (VNet, Subnet, etc.)
+        // Caja de red (VNet, Subnet, etc.) - Mejorada para contener elementos
         nodeElement.innerHTML = `
-            <div class="network-box-header" style="background: rgba(0,120,212,0.1); padding: 4px 8px; border-bottom: 1px solid #0078d4; font-size: 11px; font-weight: bold; color: #0078d4;">
+            <div class="network-box-header" style="background: rgba(0,120,212,0.1); padding: 4px 8px; border-bottom: 1px solid #0078d4; font-size: 11px; font-weight: bold; color: #0078d4; text-align: center;">
                 ${node.text || node.id}
             </div>
-            <div class="network-box-content" style="padding: 8px; height: calc(100% - 24px); position: relative;">
-                <!-- Contenido de la red -->
+            <div class="network-box-content" style="padding: 8px; height: calc(100% - 24px); position: relative; overflow: hidden;">
+                <!-- Los elementos internos se posicionarán aquí -->
             </div>
         `;
         nodeElement.style.backgroundColor = 'rgba(230, 243, 255, 0.3)';
         nodeElement.style.border = '2px solid #0078d4';
         nodeElement.style.borderRadius = '8px';
-        nodeElement.style.position = 'relative';
+        nodeElement.style.position = 'absolute';
+        nodeElement.style.overflow = 'visible';
+        nodeElement.style.zIndex = '50';
+        
+        // Añadir clase CSS para estilos adicionales
+        nodeElement.classList.add('network-container');
+        
     } else if (node.type === 'text') {
         // Nodo de texto puro
         nodeElement.innerHTML = `
@@ -348,26 +356,23 @@ function createNodeElement(node) {
                 ${node.text || node.id}
             </div>
         `;
+        nodeElement.style.backgroundColor = '#ffffff';
+        nodeElement.style.border = '1px solid #ccc';
+        nodeElement.style.borderRadius = '4px';
     }
     
-    // Eventos
-    nodeElement.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectNode(nodeElement);
-    });
+    // Estilos comunes para todos los nodos
+    nodeElement.style.boxSizing = 'border-box';
+    nodeElement.style.cursor = 'pointer';
+    nodeElement.style.userSelect = 'none';
     
-    nodeElement.addEventListener('mousedown', (e) => {
-        e.stopPropagation();
-        startDragging(nodeElement, e);
-    });
-    
-    // Doble clic para editar texto
-    nodeElement.addEventListener('dblclick', (e) => {
-        e.stopPropagation();
-        editNodeText(nodeElement, node);
-    });
+    // Eventos del nodo
+    nodeElement.addEventListener('click', () => selectNode(nodeElement));
+    nodeElement.addEventListener('mousedown', (e) => startDragging(nodeElement, e));
     
     canvas.appendChild(nodeElement);
+    
+    console.log(`📦 Nodo creado: ${node.id} (${node.type}) en (${node.x}, ${node.y})`);
 }
 
 // Crear elemento de conexión
@@ -385,38 +390,37 @@ function createConnectionElement(edge, nodes) {
     connectionElement.className = 'diagram-connection';
     connectionElement.id = edge.id;
     
-    // Calcular posiciones
+    // Calcular posiciones relativas al canvas
     const fromRect = fromNode.getBoundingClientRect();
     const toRect = toNode.getBoundingClientRect();
     const canvasRect = canvas.getBoundingClientRect();
     
+    // Posiciones absolutas dentro del canvas
     const fromX = fromRect.left - canvasRect.left + fromRect.width / 2;
     const fromY = fromRect.top - canvasRect.top + fromRect.height / 2;
     const toX = toRect.left - canvasRect.left + toRect.width / 2;
     const toY = toRect.top - canvasRect.top + toRect.height / 2;
     
-    // Crear SVG para la línea
+    // Crear SVG para la línea con flecha
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.style.position = 'absolute';
-    svg.style.left = Math.min(fromX, toX) + 'px';
-    svg.style.top = Math.min(fromY, toY) + 'px';
-    svg.style.width = Math.abs(toX - fromX) + 'px';
-    svg.style.height = Math.abs(toY - fromY) + 'px';
+    svg.style.left = '0';
+    svg.style.top = '0';
+    svg.style.width = '100%';
+    svg.style.height = '100%';
     svg.style.pointerEvents = 'none';
+    svg.style.zIndex = '1000';
     
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', fromX < toX ? 0 : Math.abs(toX - fromX));
-    line.setAttribute('y1', fromY < toY ? 0 : Math.abs(toY - fromY));
-    line.setAttribute('x2', fromX < toX ? Math.abs(toX - fromX) : 0);
-    line.setAttribute('y2', fromY < toY ? Math.abs(toY - fromY) : 0);
-    line.setAttribute('stroke', '#0d6efd');
-    line.setAttribute('stroke-width', '2');
-    line.setAttribute('marker-end', 'url(#arrowhead)');
+    // Calcular dimensiones del SVG para cubrir toda la conexión
+    const svgWidth = Math.max(Math.abs(toX - fromX), 100);
+    const svgHeight = Math.max(Math.abs(toY - fromY), 100);
+    svg.setAttribute('width', svgWidth);
+    svg.setAttribute('height', svgHeight);
     
-    // Agregar marcador de flecha
+    // Definiciones para la flecha
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-    marker.setAttribute('id', 'arrowhead');
+    marker.setAttribute('id', `arrowhead-${edge.id}`);
     marker.setAttribute('markerWidth', '10');
     marker.setAttribute('markerHeight', '7');
     marker.setAttribute('refX', '9');
@@ -430,10 +434,75 @@ function createConnectionElement(edge, nodes) {
     marker.appendChild(polygon);
     defs.appendChild(marker);
     svg.appendChild(defs);
+    
+    // Crear la línea de conexión
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', fromX);
+    line.setAttribute('y1', fromY);
+    line.setAttribute('x2', toX);
+    line.setAttribute('y2', toY);
+    line.setAttribute('stroke', '#0d6efd');
+    line.setAttribute('stroke-width', '3');
+    line.setAttribute('marker-end', `url(#arrowhead-${edge.id})`);
+    line.setAttribute('stroke-dasharray', edge.type === 'dashed' ? '5,5' : 'none');
+    
     svg.appendChild(line);
     
+    // Añadir etiqueta de la conexión si existe
+    if (edge.label) {
+        const labelX = (fromX + toX) / 2;
+        const labelY = (fromY + toY) / 2 - 15;
+        
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', labelX);
+        label.setAttribute('y', labelY);
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('font-family', 'Arial');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#333');
+        label.setAttribute('font-weight', 'bold');
+        
+        // Dividir el texto en múltiples líneas si es necesario
+        const lines = edge.label.split('\n');
+        lines.forEach((lineText, index) => {
+            const tspan = document.createElementNS('http://www.w3.org/2000/svg', 'tspan');
+            tspan.setAttribute('x', labelX);
+            tspan.setAttribute('dy', index === 0 ? '0' : '1.2em');
+            tspan.textContent = lineText;
+            label.appendChild(tspan);
+        });
+        
+        // Fondo para la etiqueta
+        const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        const labelWidth = Math.max(...lines.map(l => l.length)) * 8;
+        const labelHeight = lines.length * 16;
+        labelBg.setAttribute('x', labelX - labelWidth / 2 - 5);
+        labelBg.setAttribute('y', labelY - 12);
+        labelBg.setAttribute('width', labelWidth + 10);
+        labelBg.setAttribute('height', labelHeight + 8);
+        labelBg.setAttribute('fill', 'white');
+        labelBg.setAttribute('stroke', '#ccc');
+        labelBg.setAttribute('stroke-width', '1');
+        labelBg.setAttribute('rx', '3');
+        
+        svg.insertBefore(labelBg, label);
+        svg.appendChild(label);
+    }
+    
     connectionElement.appendChild(svg);
+    
+    // Posicionar el elemento de conexión
+    connectionElement.style.position = 'absolute';
+    connectionElement.style.left = '0';
+    connectionElement.style.top = '0';
+    connectionElement.style.width = '100%';
+    connectionElement.style.height = '100%';
+    connectionElement.style.pointerEvents = 'none';
+    connectionElement.style.zIndex = '1000';
+    
     canvas.appendChild(connectionElement);
+    
+    console.log(`🔗 Conexión creada: ${edge.from} -> ${edge.to} (${edge.label || 'sin etiqueta'})`);
 }
 
 // Seleccionar nodo
