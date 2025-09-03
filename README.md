@@ -1,248 +1,224 @@
-# Conversor de Documentos a Diagramas
+# Eraser.io Clone - Editor de Diagramas con IA 🤖
 
-Una aplicación web que convierte automáticamente documentos (Excel, PDF, Word, etc.) y texto libre en diagramas profesionales usando la API de draw.io.
+Una aplicación web completa que replica la funcionalidad de [Eraser.io](https://app.eraser.io/), incluyendo la generación automática de diagramas usando Inteligencia Artificial.
 
-## 🚀 Características
+## ✨ Características Principales
 
-- **Soporte múltiple de formatos**: PDF, Excel (.xlsx), Word (.docx), CSV, TXT, JSON
-- **Procesamiento inteligente**: Analiza la estructura del contenido y genera diagramas apropiados
-- **Integración con draw.io**: Genera diagramas compatibles con la plataforma draw.io
-- **Interfaz moderna**: Diseño responsive con drag & drop para archivos
-- **Generación automática**: Crea diagramas de flujo, tablas y estructuras según el contenido
-- **Edición en línea**: Abre diagramas directamente en draw.io para edición
-- **Descarga de archivos**: Exporta diagramas en formato XML
+### 🎨 Editor de Diagramas Completo
+- **Herramientas de dibujo**: Seleccionar, mover, conectar, texto, formas
+- **Múltiples tipos de diagramas**: Flujo, secuencia, clases UML, ER, redes, mapas mentales, arquitectura
+- **Canvas interactivo**: Arrastrar y soltar elementos, conexiones automáticas
+- **Menú contextual**: Editar, duplicar, eliminar elementos
 
-## 📋 Requisitos
+### 🤖 Generación de Diagramas con IA
+- **Descripción en lenguaje natural**: Describe el diagrama que quieres crear
+- **Detección automática de tipo**: La IA detecta el tipo de diagrama más apropiado
+- **Generación inteligente**: Crea diagramas lógicos y bien estructurados
+- **Fallback automático**: Si la IA falla, genera un diagrama básico
 
-- Python 3.7 o superior
-- pip (gestor de paquetes de Python)
+### 📁 Gestión de Proyectos
+- **Crear diagramas**: Desde plantillas o desde cero
+- **Guardar y abrir**: Sistema de archivos integrado
+- **Exportar**: Múltiples formatos de salida
+- **Historial**: Lista de diagramas creados
 
-## 🛠️ Instalación
+## 🚀 Instalación
 
-1. **Clona el repositorio:**
-   ```bash
-   git clone <url-del-repositorio>
-   cd Diagrams_Creator
-   ```
+### Prerrequisitos
+- Python 3.8+
+- API Key de OpenAI (para funcionalidad de IA)
 
-2. **Instala las dependencias:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Pasos de instalación
 
-3. **Ejecuta la aplicación:**
-   ```bash
-   python app.py
-   ```
-
-4. **Abre tu navegador y ve a:**
-   ```
-   http://localhost:5000
-   ```
-
-## 🎯 Uso
-
-### Subir Documentos
-
-1. **Arrastra y suelta** un archivo en el área de subida
-2. **O haz clic** para seleccionar un archivo
-3. **Haz clic en "Procesar Documento"**
-4. **Espera** a que se procese y se genere el diagrama
-5. **Edita** el diagrama en draw.io o **descarga** el archivo XML
-
-### Escribir Texto
-
-1. **Escribe** tu texto en el área de texto
-2. **Usa formato estructurado** para mejores resultados:
-   ```
-   1. INICIO
-      - Punto de partida
-   2. PROCESO
-      - Lógica principal
-   3. FINAL
-      - Resultado
-   ```
-3. **Haz clic en "Generar Diagrama"**
-
-## 📁 Estructura del Proyecto
-
-```
-Diagrams_Creator/
-├── app.py                 # Aplicación principal Flask
-├── document_processor.py  # Procesador de documentos
-├── diagram_generator.py   # Generador de diagramas
-├── requirements.txt       # Dependencias de Python
-├── templates/
-│   └── index.html        # Interfaz web
-├── uploads/              # Archivos temporales (se crea automáticamente)
-├── outputs/              # Diagramas generados (se crea automáticamente)
-└── README.md             # Este archivo
+1. **Clonar el repositorio**
+```bash
+git clone <url-del-repositorio>
+cd Diagrams_Creator
 ```
 
-## 🔧 Configuración
-
-### Variables de Entorno
-
-Crea un archivo `.env` en la raíz del proyecto:
-
-```env
-FLASK_ENV=development
-FLASK_DEBUG=1
-MAX_FILE_SIZE=16777216  # 16MB en bytes
+2. **Crear entorno virtual**
+```bash
+python -m venv venv
+# En Windows:
+venv\Scripts\activate
+# En macOS/Linux:
+source venv/bin/activate
 ```
 
-### Personalización
-
-- **Tamaño máximo de archivo**: Modifica `MAX_CONTENT_LENGTH` en `app.py`
-- **Formatos soportados**: Edita `ALLOWED_EXTENSIONS` en `app.py`
-- **Estilos de diagramas**: Modifica los métodos en `diagram_generator.py`
-
-## 📊 Tipos de Diagramas Generados
-
-### Texto
-- **Diagramas de flujo** con títulos y secciones
-- **Jerarquías** basadas en estructura del texto
-- **Conectores** automáticos entre elementos
-
-### Excel/CSV
-- **Tablas visuales** con encabezados y datos
-- **Múltiples hojas** como diagramas separados
-- **Limitación inteligente** de filas para legibilidad
-
-### JSON
-- **Estructuras de objetos** y arrays
-- **Propiedades anidadas** con profundidad limitada
-- **Tipos de datos** identificados automáticamente
-
-### PDF/Word
-- **Extracción de texto** estructurado
-- **Análisis de párrafos** y títulos
-- **Generación de flujos** basados en contenido
-
-## 🌐 API Endpoints
-
-### POST /upload
-Sube y procesa un archivo.
-
-**Parámetros:**
-- `file`: Archivo a procesar
-
-**Respuesta:**
-```json
-{
-  "success": true,
-  "content": {...},
-  "diagram": {...}
-}
+3. **Instalar dependencias**
+```bash
+pip install -r requirements.txt
 ```
 
-### POST /text
-Procesa texto libre.
+4. **Configurar variables de entorno**
+```bash
+# Copiar el archivo de ejemplo
+cp env_example.txt .env
 
-**Parámetros:**
-```json
-{
-  "text": "Texto a procesar"
-}
+# Editar .env y agregar tu API key de OpenAI
+OPENAI_API_KEY=tu-api-key-real-aqui
 ```
 
-**Respuesta:**
-```json
-{
-  "success": true,
-  "diagram": {...}
-}
+5. **Ejecutar la aplicación**
+```bash
+python app.py
 ```
 
-### GET /download/<filename>
-Descarga un archivo generado.
+La aplicación estará disponible en: http://localhost:5000
 
-## 🎨 Personalización de Diagramas
+## 🔑 Configuración de OpenAI
 
-### Colores y Estilos
+Para usar la funcionalidad de generación de diagramas con IA:
 
-Los diagramas usan un esquema de colores consistente:
-
-- **Títulos**: Azul claro (#dae8fc)
-- **Contenido**: Amarillo claro (#fff2cc)
-- **Arrays**: Verde claro (#d5e8d4)
-- **Objetos**: Azul claro (#dae8fc)
-- **Tipos básicos**: Rojo claro (#f8cecc)
-
-### Estructura XML
-
-Los diagramas se generan en formato XML compatible con draw.io:
-
-```xml
-<mxfile host="app.diagrams.net">
-  <diagram id="diagram_id" name="Nombre del Diagrama">
-    <mxGraphModel>
-      <!-- Elementos del diagrama -->
-    </mxGraphModel>
-  </diagram>
-</mxfile>
+1. Ve a [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Crea una nueva API key
+3. Agrega la key a tu archivo `.env`:
+```bash
+OPENAI_API_KEY=sk-tu-api-key-aqui
 ```
 
-## 🚨 Solución de Problemas
+## 💡 Uso de la Aplicación
 
-### Error: "Formato de archivo no soportado"
-- Verifica que el archivo tenga una extensión válida
-- Los formatos soportados son: .pdf, .docx, .xlsx, .csv, .txt, .json
+### Generar Diagrama con IA
 
-### Error: "Error procesando documento"
-- Verifica que el archivo no esté corrupto
-- Asegúrate de que el archivo sea legible
-- Revisa los logs del servidor para más detalles
+1. **Desde el sidebar**: Escribe una descripción en el campo "Generar con IA"
+2. **Desde el header**: Haz clic en "Generar con IA" para abrir el modal completo
+3. **Ejemplos de descripciones**:
+   - "Un diagrama de flujo para el proceso de login de usuario"
+   - "Diagrama de secuencia de una aplicación web con frontend, backend y base de datos"
+   - "Mapa mental sobre conceptos de inteligencia artificial"
 
-### Error: "Error generando diagrama"
-- Verifica que el contenido del documento sea válido
-- Asegúrate de que haya suficiente contenido para generar un diagrama
+### Crear Diagrama Manualmente
 
-### Problemas de rendimiento
-- Los archivos grandes pueden tardar más en procesarse
-- Considera dividir archivos muy grandes en partes más pequeñas
+1. Selecciona una plantilla del sidebar
+2. Usa las herramientas del toolbar para agregar elementos
+3. Arrastra y conecta elementos según necesites
+4. Guarda tu trabajo
+
+### Editar Diagramas Existentes
+
+1. Abre un diagrama guardado
+2. Usa las herramientas de edición
+3. Guarda los cambios
+
+## 🎯 Tipos de Diagramas Soportados
+
+- **Flowchart**: Diagramas de flujo y procesos
+- **Sequence**: Diagramas de secuencia UML
+- **Class**: Diagramas de clases UML
+- **ER**: Diagramas entidad-relación
+- **Network**: Arquitectura de redes
+- **Mindmap**: Mapas mentales
+- **Architecture**: Arquitectura de sistemas
+
+## 🔧 API Endpoints
+
+### Generación de IA
+- `POST /generate_ai_diagram` - Genera diagrama usando IA
+
+### Gestión de Diagramas
+- `POST /create_diagram` - Crea nuevo diagrama
+- `GET /diagram/<id>` - Obtiene diagrama por ID
+- `PUT /diagram/<id>` - Actualiza diagrama
+- `GET /diagrams` - Lista todos los diagramas
+
+### Plantillas
+- `GET /templates` - Obtiene plantillas disponibles
+
+### Exportación
+- `POST /export/<id>` - Exporta diagrama a diferentes formatos
+
+## 🎨 Interfaz de Usuario
+
+### Header
+- Botón principal "Generar con IA" con gradiente atractivo
+- Acciones estándar: Nuevo, Abrir, Guardar, Exportar
+
+### Sidebar
+- **Sección de IA**: Generador rápido de diagramas
+- **Plantillas**: Tipos de diagramas predefinidos
+- **Elementos**: Herramientas de dibujo básicas
+
+### Toolbar
+- **Seleccionar**: Modo de selección y edición
+- **Pan**: Navegación por el canvas
+- **Conectar**: Crear conexiones entre elementos
+- **Texto**: Agregar texto
+- **Formas**: Insertar formas básicas
+
+### Canvas
+- Área de trabajo de 2000x2000 píxeles
+- Elementos arrastrables y editables
+- Conexiones automáticas entre nodos
+
+## 🚀 Características Avanzadas
+
+### Detección Automática de Tipo
+La IA analiza tu descripción y determina automáticamente el tipo de diagrama más apropiado:
+- Palabras clave como "flujo", "proceso" → Flowchart
+- "Secuencia", "interacción" → Sequence
+- "Clase", "UML" → Class
+- "Entidad", "base de datos" → ER
+- "Red", "router" → Network
+- "Mapa mental", "ideas" → Mindmap
+- "Arquitectura", "componentes" → Architecture
+
+### Generación Inteligente
+- Crea nodos con posiciones lógicas
+- Conecta elementos de forma coherente
+- Usa tipos de nodos apropiados para cada contexto
+- Genera diagramas visualmente atractivos
+
+### Sistema de Fallback
+Si la IA falla por cualquier razón:
+- Genera un diagrama básico basado en palabras clave
+- Mantiene la funcionalidad de la aplicación
+- Proporciona feedback útil al usuario
+
+## 🎯 Casos de Uso
+
+### Para Desarrolladores
+- Documentar arquitecturas de sistemas
+- Crear diagramas de flujo de aplicaciones
+- Diseñar diagramas de base de datos
+- Planificar flujos de usuario
+
+### Para Analistas de Negocio
+- Mapear procesos empresariales
+- Crear diagramas de flujo organizacionales
+- Visualizar workflows complejos
+- Documentar procedimientos
+
+### Para Educadores
+- Crear diagramas explicativos
+- Generar mapas mentales para conceptos
+- Visualizar relaciones entre ideas
+- Crear material didáctico
 
 ## 🔒 Seguridad
 
-- **Validación de archivos**: Solo se aceptan formatos específicos
-- **Límite de tamaño**: Archivos limitados a 16MB por defecto
-- **Limpieza automática**: Los archivos temporales se eliminan después del procesamiento
-- **Sanitización**: Los nombres de archivo se limpian para evitar inyecciones
+- Validación de entrada en todos los endpoints
+- Sanitización de datos de usuario
+- Manejo seguro de archivos
+- Límites de tamaño de archivo
 
-## 🚀 Despliegue
+## 🚧 Limitaciones Actuales
 
-### Producción
+- Los diagramas se almacenan en memoria (se pierden al reiniciar)
+- Exportación limitada a formato JSON
+- No hay persistencia de datos
+- Sin autenticación de usuarios
 
-Para desplegar en producción:
+## 🔮 Próximas Características
 
-1. **Configura un servidor WSGI:**
-   ```bash
-   pip install gunicorn
-   gunicorn -w 4 -b 0.0.0.0:5000 app:app
-   ```
+- [ ] Base de datos para persistencia
+- [ ] Autenticación de usuarios
+- [ ] Colaboración en tiempo real
+- [ ] Más formatos de exportación
+- [ ] Historial de versiones
+- [ ] Plantillas personalizables
 
-2. **Usa un proxy reverso** como Nginx
-
-3. **Configura variables de entorno** apropiadas
-
-4. **Habilita HTTPS** para seguridad
-
-### Docker
-
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 5000
-
-CMD ["python", "app.py"]
-```
-
-## 🤝 Contribuciones
+## 🤝 Contribuir
 
 1. Fork el proyecto
 2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
@@ -250,26 +226,24 @@ CMD ["python", "app.py"]
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📝 Licencia
+## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
 ## 🙏 Agradecimientos
 
-- **draw.io** por proporcionar la plataforma de diagramas
-- **Flask** por el framework web
-- **Font Awesome** por los iconos
-- **Comunidad Python** por las librerías utilizadas
+- [Eraser.io](https://app.eraser.io/) por la inspiración
+- [OpenAI](https://openai.com/) por la API de IA
+- [Font Awesome](https://fontawesome.com/) por los iconos
+- Comunidad de desarrolladores de código abierto
 
 ## 📞 Soporte
 
 Si tienes problemas o preguntas:
-
-1. Revisa la sección de solución de problemas
+1. Revisa la documentación
 2. Busca en los issues existentes
 3. Crea un nuevo issue con detalles del problema
-4. Incluye logs de error y pasos para reproducir
 
 ---
 
-**¡Disfruta creando diagramas automáticamente! 🎉**
+**¡Disfruta creando diagramas increíbles con IA! 🎨✨**

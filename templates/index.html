@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Documentos a Diagramas</title>
+    <title>Eraser.io Clone - Editor de Diagramas con IA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -13,178 +13,498 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
             color: #333;
+            overflow: hidden;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        /* Header */
         .header {
-            text-align: center;
-            margin-bottom: 40px;
+            background: white;
+            border-bottom: 1px solid #e1e5e9;
+            padding: 0 20px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
             color: white;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        .btn-primary:hover {
+            background: #1d4ed8;
         }
 
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
         }
 
-        .upload-section {
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-ai {
+            background: linear-gradient(45deg, #8b5cf6, #06b6d4);
+            color: white;
+            border: none;
+        }
+
+        .btn-ai:hover {
+            background: linear-gradient(45deg, #7c3aed, #0891b2);
+            transform: translateY(-1px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            width: 280px;
+            height: calc(100vh - 60px);
             background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            border-right: 1px solid #e1e5e9;
+            overflow-y: auto;
+            z-index: 100;
         }
 
-        .upload-tabs {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #eee;
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .tab {
-            flex: 1;
-            padding: 15px 20px;
-            text-align: center;
+        .sidebar-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .template-item {
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .template-item:hover {
+            border-color: #2563eb;
+            background: #f8fafc;
+        }
+
+        .template-item i {
+            font-size: 24px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .template-item .name {
+            font-size: 12px;
             font-weight: 500;
+            color: #475569;
         }
 
-        .tab.active {
-            border-bottom-color: #667eea;
-            color: #667eea;
-        }
-
-        .tab:hover {
-            background: #f8f9fa;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .file-upload-area {
-            border: 3px dashed #ddd;
-            border-radius: 15px;
-            padding: 60px 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: #fafafa;
-        }
-
-        .file-upload-area:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-        }
-
-        .file-upload-area.dragover {
-            border-color: #667eea;
-            background: #e8f2ff;
-            transform: scale(1.02);
-        }
-
-        .upload-icon {
-            font-size: 4rem;
-            color: #667eea;
+        .ai-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
             margin-bottom: 20px;
         }
 
-        .upload-text {
-            font-size: 1.2rem;
-            color: #666;
+        .ai-section h4 {
+            color: #7c3aed;
+            font-size: 14px;
+            font-weight: 600;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .upload-hint {
-            color: #999;
-            font-size: 0.9rem;
+        .ai-section p {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
 
-        .file-input {
-            display: none;
-        }
-
-        .text-input-area {
-            margin-top: 20px;
-        }
-
-        .text-input {
+        .ai-input {
             width: 100%;
-            min-height: 200px;
-            padding: 20px;
-            border: 2px solid #eee;
-            border-radius: 15px;
-            font-size: 1rem;
-            font-family: inherit;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 10px;
             resize: vertical;
-            transition: border-color 0.3s ease;
+            min-height: 60px;
         }
 
-        .text-input:focus {
+        .ai-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #8b5cf6;
         }
 
-        .process-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        .ai-generate-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background: linear-gradient(45deg, #8b5cf6, #06b6d4);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            border-radius: 50px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.2s;
         }
 
-        .process-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        .ai-generate-btn:hover {
+            background: linear-gradient(45deg, #7c3aed, #0891b2);
         }
 
-        .process-btn:disabled {
+        .ai-generate-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
+        /* Toolbar */
+        .toolbar {
+            position: fixed;
+            left: 280px;
+            top: 60px;
+            width: 60px;
+            height: calc(100vh - 60px);
+            background: white;
+            border-right: 1px solid #e1e5e9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 15px;
+        }
+
+        .tool-item {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .tool-item:hover {
+            border-color: #2563eb;
+            background: #f8fafc;
+        }
+
+        .tool-item.active {
+            border-color: #2563eb;
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .tool-item i {
+            font-size: 18px;
+            color: #64748b;
+        }
+
+        .tool-item.active i {
+            color: #2563eb;
+        }
+
+        /* Canvas */
+        .canvas-container {
+            position: fixed;
+            left: 340px;
+            top: 60px;
+            right: 0;
+            bottom: 0;
+            background: #f8f9fa;
+            overflow: auto;
+        }
+
+        .canvas {
+            width: 2000px;
+            height: 2000px;
+            background: white;
+            position: relative;
+            margin: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Diagram Elements */
+        .diagram-node {
+            position: absolute;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            background: white;
+            cursor: move;
+            user-select: none;
+            min-width: 80px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .diagram-node:hover {
+            border-color: #2563eb;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .diagram-node.selected {
+            border-color: #2563eb;
+            background: #dbeafe;
+        }
+
+        .diagram-node.rectangle {
+            border-radius: 6px;
+        }
+
+        .diagram-node.circle {
+            border-radius: 50%;
+        }
+
+        .diagram-node.diamond {
+            transform: rotate(45deg);
+        }
+
+        .diagram-node.diamond .content {
+            transform: rotate(-45deg);
+        }
+
+        .diagram-node.actor {
+            border-radius: 20px;
+        }
+
+        .diagram-node.class {
+            border-radius: 6px;
+        }
+
+        .diagram-node.entity {
+            border-radius: 6px;
+            background: #fef3c7;
+        }
+
+        .diagram-node.router {
+            border-radius: 6px;
+            background: #dbeafe;
+        }
+
+        .diagram-node.switch {
+            border-radius: 6px;
+            background: #dcfce7;
+        }
+
+        .diagram-node.pc {
+            border-radius: 6px;
+            background: #f3e8ff;
+        }
+
+        /* Connections */
+        .connection {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-line {
+            stroke: #64748b;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .connection-line:hover {
+            stroke: #2563eb;
+            stroke-width: 3;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            z-index: 1000;
+            min-width: 150px;
+        }
+
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #475569;
+            transition: background 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background: #f1f5f9;
+        }
+
+        .context-menu-item.danger {
+            color: #dc2626;
+        }
+
+        .context-menu-item.danger:hover {
+            background: #fef2f2;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        /* Loading */
         .loading {
             display: none;
             text-align: center;
-            margin: 20px 0;
+            padding: 20px;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #8b5cf6;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 15px;
         }
 
         @keyframes spin {
@@ -192,557 +512,847 @@
             100% { transform: rotate(360deg); }
         }
 
-        .result-section {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            display: none;
-        }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
 
-        .result-section.show {
-            display: block;
-        }
+            .sidebar.open {
+                transform: translateX(0);
+            }
 
-        .result-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+            .toolbar {
+                left: 0;
+            }
 
-        .result-header h2 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .result-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 1px solid #f5c6cb;
-            display: none;
-        }
-
-        .success-message {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 1px solid #c3e6cb;
-            display: none;
-        }
-
-        .file-info {
-            background: #e9ecef;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            font-size: 0.9rem;
-        }
-
-        .diagram-info {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid #2196f3;
-        }
-
-        .diagram-info h3 {
-            color: #1976d2;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .diagram-info p {
-            margin: 8px 0;
-            color: #424242;
-        }
-
-        .diagram-info strong {
-            color: #1976d2;
+            .canvas-container {
+                left: 60px;
+            }
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
+            .toolbar {
+                transform: translateX(-100%);
             }
-            
-            .upload-section, .result-section {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .result-actions {
-                flex-direction: column;
-                align-items: center;
+
+            .canvas-container {
+                left: 0;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1><i class="fas fa-project-diagram"></i> Conversor de Documentos a Diagramas</h1>
-            <p>Convierte automáticamente documentos y texto en diagramas profesionales</p>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-pen-fancy"></i>
+            Eraser.io Clone con IA
         </div>
+        <div class="header-actions">
+            <button class="btn btn-ai" onclick="showAIDiagramModal()">
+                <i class="fas fa-magic"></i> Generar con IA
+            </button>
+            <button class="btn btn-secondary" onclick="showNewDiagramModal()">
+                <i class="fas fa-plus"></i> Nuevo
+            </button>
+            <button class="btn btn-secondary" onclick="showOpenModal()">
+                <i class="fas fa-folder-open"></i> Abrir
+            </button>
+            <button class="btn btn-primary" onclick="saveDiagram()">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+            <button class="btn btn-secondary" onclick="exportDiagram()">
+                <i class="fas fa-download"></i> Exportar
+            </button>
+        </div>
+    </div>
 
-        <div class="upload-section">
-            <div class="upload-tabs">
-                <div class="tab active" onclick="switchTab('file')">
-                    <i class="fas fa-file-upload"></i> Subir Archivo
-                </div>
-                <div class="tab" onclick="switchTab('text')">
-                    <i class="fas fa-keyboard"></i> Escribir Texto
-                </div>
-            </div>
-
-            <div id="file-tab" class="tab-content active">
-                <div class="file-upload-area" onclick="document.getElementById('file-input').click()" 
-                     ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="upload-text">Arrastra y suelta archivos aquí o haz clic para seleccionar</div>
-                    <div class="upload-hint">Soporta: PDF, Excel, Word, CSV, TXT, JSON</div>
-                </div>
-                <input type="file" id="file-input" class="file-input" accept=".pdf,.docx,.xlsx,.csv,.txt,.json" onchange="handleFileSelect(event)">
-            </div>
-
-            <div id="text-tab" class="tab-content">
-                <div class="text-input-area">
-                    <textarea class="text-input" id="text-input" placeholder="Escribe o pega tu texto aquí..."></textarea>
-                </div>
-            </div>
-
-            <div style="text-align: center;">
-                <button class="process-btn" onclick="processContent()" id="process-btn">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-section">
+            <h3>Generar con IA</h3>
+            <div class="ai-section">
+                <h4>
+                    <i class="fas fa-robot"></i>
+                    Generador de Diagramas IA
+                </h4>
+                <p>Describe el diagrama que quieres crear y la IA lo generará automáticamente.</p>
+                <textarea 
+                    class="ai-input" 
+                    id="aiDescription" 
+                    placeholder="Ej: Un diagrama de flujo para el proceso de login de usuario..."
+                ></textarea>
+                <button class="ai-generate-btn" onclick="generateAIDiagram()" id="aiGenerateBtn">
                     <i class="fas fa-magic"></i> Generar Diagrama
                 </button>
+                <div class="loading" id="aiLoading">
+                    <div class="spinner"></div>
+                    <p>Generando diagrama con IA...</p>
+                </div>
             </div>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>Procesando documento...</p>
-            </div>
-
-            <div class="error-message" id="error-message"></div>
-            <div class="success-message" id="success-message"></div>
         </div>
 
-        <div class="result-section" id="result-section">
-            <div class="result-header">
-                <h2><i class="fas fa-check-circle"></i> Diagrama Generado</h2>
-                <p>Tu diagrama ha sido creado exitosamente</p>
+        <div class="sidebar-section">
+            <h3>Plantillas</h3>
+            <div class="template-grid" id="template-grid">
+                <!-- Templates will be loaded here -->
             </div>
-
-            <div class="result-actions">
-                <button class="action-btn btn-primary" onclick="viewMermaidCode()">
-                    <i class="fas fa-code"></i> Ver Código Mermaid
-                </button>
-                <button class="action-btn btn-secondary" onclick="openInMermaidEditor()">
-                    <i class="fas fa-external-link-alt"></i> Abrir en Mermaid Live
-                </button>
-                <button class="action-btn btn-success" onclick="downloadDiagram()">
-                    <i class="fas fa-download"></i> Descargar
-                </button>
-                <button class="action-btn btn-info" onclick="createNew()">
-                    <i class="fas fa-plus"></i> Nuevo Diagrama
-                </button>
-                <button class="action-btn btn-primary" onclick="convertToSVG()">
-                    <i class="fas fa-image"></i> Convertir a SVG
-                </button>
-            </div>
-
-            <div class="file-info" id="file-info"></div>
-            
-            <div class="diagram-info" id="diagram-info" style="display: none;">
-                <h3>Detalles del Diagrama</h3>
-                <div id="diagram-details"></div>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>Elementos</h3>
+            <div class="template-grid">
+                <div class="template-item" onclick="addElement('rectangle')">
+                    <i class="fas fa-square"></i>
+                    <div class="name">Rectángulo</div>
+                </div>
+                <div class="template-item" onclick="addElement('circle')">
+                    <i class="fas fa-circle"></i>
+                    <div class="name">Círculo</div>
+                </div>
+                <div class="template-item" onclick="addElement('diamond')">
+                    <i class="fas fa-diamond"></i>
+                    <div class="name">Diamante</div>
+                </div>
+                <div class="template-item" onclick="addElement('text')">
+                    <i class="fas fa-font"></i>
+                    <div class="name">Texto</div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="tool-item active" onclick="selectTool('select')" data-tool="select">
+            <i class="fas fa-mouse-pointer"></i>
+        </div>
+        <div class="tool-item" onclick="selectTool('pan')" data-tool="pan">
+            <i class="fas fa-hand-paper"></i>
+        </div>
+        <div class="tool-item" onclick="selectTool('connect')" data-tool="connect">
+            <i class="fas fa-link"></i>
+        </div>
+        <div class="tool-item" onclick="selectTool('text')" data-tool="text">
+            <i class="fas fa-font"></i>
+        </div>
+        <div class="tool-item" onclick="selectTool('shape')" data-tool="shape">
+            <i class="fas fa-shapes"></i>
+        </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-container">
+        <div class="canvas" id="canvas">
+            <!-- Diagram elements will be added here -->
+        </div>
+    </div>
+
+    <!-- AI Diagram Modal -->
+    <div class="modal" id="aiDiagramModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-robot"></i> Generar Diagrama con IA
+                </h3>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Título del Diagrama</label>
+                <input type="text" class="form-input" id="aiDiagramTitle" placeholder="Mi Diagrama IA">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Descripción del Diagrama</label>
+                <textarea class="form-textarea" id="aiDiagramDescription" placeholder="Describe detalladamente el diagrama que quieres crear. Por ejemplo: 'Un diagrama de flujo que muestre el proceso de login de usuario, desde que ingresa sus credenciales hasta que accede al sistema, incluyendo validaciones y manejo de errores.'"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tipo de Diagrama (Opcional)</label>
+                <select class="form-input" id="aiDiagramType">
+                    <option value="auto">Detectar automáticamente</option>
+                    <option value="flowchart">Diagrama de Flujo</option>
+                    <option value="sequence">Diagrama de Secuencia</option>
+                    <option value="class">Diagrama de Clases</option>
+                    <option value="er">Diagrama ER</option>
+                    <option value="network">Diagrama de Red</option>
+                    <option value="mindmap">Mapa Mental</option>
+                    <option value="architecture">Arquitectura</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('aiDiagramModal')">Cancelar</button>
+                <button class="btn btn-ai" onclick="generateAIDiagramFromModal()" id="aiModalGenerateBtn">
+                    <i class="fas fa-magic"></i> Generar con IA
+                </button>
+            </div>
+            <div class="loading" id="aiModalLoading">
+                <div class="spinner"></div>
+                <p>Generando diagrama con IA...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Diagram Modal -->
+    <div class="modal" id="newDiagramModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nuevo Diagrama</h3>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Título</label>
+                <input type="text" class="form-input" id="diagramTitle" placeholder="Mi Diagrama">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Tipo</label>
+                <select class="form-input" id="diagramType">
+                    <option value="flowchart">Diagrama de Flujo</option>
+                    <option value="sequence">Diagrama de Secuencia</option>
+                    <option value="class">Diagrama de Clases</option>
+                    <option value="er">Diagrama ER</option>
+                    <option value="network">Diagrama de Red</option>
+                    <option value="mindmap">Mapa Mental</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('newDiagramModal')">Cancelar</button>
+                <button class="btn btn-primary" onclick="createNewDiagram()">Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Open Diagram Modal -->
+    <div class="modal" id="openModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Abrir Diagrama</h3>
+            </div>
+            <div id="diagramsList">
+                <!-- Diagrams will be listed here -->
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('openModal')">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu" style="display: none;">
+        <div class="context-menu-item" onclick="editElement()">
+            <i class="fas fa-edit"></i> Editar
+        </div>
+        <div class="context-menu-item" onclick="duplicateElement()">
+            <i class="fas fa-copy"></i> Duplicar
+        </div>
+        <div class="context-menu-item danger" onclick="deleteElement()">
+            <i class="fas fa-trash"></i> Eliminar
+        </div>
+    </div>
+
     <script>
-        let currentTab = 'file';
-        let currentDiagramData = null;
-        let currentMermaidCode = null;
+        // Global variables
+        let currentDiagram = null;
+        let currentTool = 'select';
+        let selectedElement = null;
+        let isDragging = false;
+        let dragStart = { x: 0, y: 0 };
+        let isConnecting = false;
+        let connectionStart = null;
+        let elements = [];
+        let connections = [];
+        let nextId = 1;
 
-        function switchTab(tabName) {
-            // Ocultar todas las pestañas
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            
-            // Mostrar pestaña seleccionada
-            document.getElementById(tabName + '-tab').classList.add('active');
-            document.querySelectorAll('.tab')[tabName === 'file' ? 0 : 1].classList.add('active');
-            
-            currentTab = tabName;
-        }
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTemplates();
+            setupCanvas();
+            setupEventListeners();
+        });
 
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                showFileInfo(file);
-            }
-        }
-
-        function handleDrop(event) {
-            event.preventDefault();
-            const file = event.dataTransfer.files[0];
-            if (file) {
-                document.getElementById('file-input').files = event.dataTransfer.files;
-                showFileInfo(file);
-            }
-            document.querySelector('.file-upload-area').classList.remove('dragover');
-        }
-
-        function handleDragOver(event) {
-            event.preventDefault();
-            document.querySelector('.file-upload-area').classList.add('dragover');
-        }
-
-        function handleDragLeave(event) {
-            event.preventDefault();
-            document.querySelector('.file-upload-area').classList.remove('dragover');
-        }
-
-        function showFileInfo(file) {
-            const fileInfo = document.getElementById('file-info');
-            fileInfo.innerHTML = `
-                <strong>Archivo seleccionado:</strong> ${file.name}<br>
-                <strong>Tamaño:</strong> ${(file.size / 1024).toFixed(2)} KB<br>
-                <strong>Tipo:</strong> ${file.type || 'No especificado'}
-            `;
-            fileInfo.style.display = 'block';
-        }
-
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            document.getElementById('success-message').style.display = 'none';
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            document.getElementById('error-message').style.display = 'none';
-        }
-
-        function hideMessages() {
-            document.getElementById('error-message').style.display = 'none';
-            document.getElementById('success-message').style.display = 'none';
-        }
-
-        async function processContent() {
-            hideMessages();
-            
-            const processBtn = document.getElementById('process-btn');
-            const loading = document.getElementById('loading');
-            
-            processBtn.disabled = true;
-            loading.style.display = 'block';
-            
-            try {
-                let response;
-                
-                if (currentTab === 'file') {
-                    const fileInput = document.getElementById('file-input');
-                    if (!fileInput.files[0]) {
-                        throw new Error('Por favor selecciona un archivo');
+        function loadTemplates() {
+            fetch('/templates')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const templateGrid = document.getElementById('template-grid');
+                        templateGrid.innerHTML = '';
+                        
+                        data.templates.forEach(template => {
+                            const templateItem = document.createElement('div');
+                            templateItem.className = 'template-item';
+                            templateItem.onclick = () => createDiagramFromTemplate(template.id);
+                            templateItem.innerHTML = `
+                                <i class="${template.icon}"></i>
+                                <div class="name">${template.name}</div>
+                            `;
+                            templateGrid.appendChild(templateItem);
+                        });
                     }
-                    
-                    const formData = new FormData();
-                    formData.append('file', fileInput.files[0]);
-                    
-                    response = await fetch('/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-                } else {
-                    const textInput = document.getElementById('text-input');
-                    const text = textInput.value.trim();
-                    
-                    if (!text) {
-                        throw new Error('Por favor escribe algún texto');
-                    }
-                    
-                    response = await fetch('/process_text', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ text: text })
-                    });
+                })
+                .catch(error => console.error('Error loading templates:', error));
+        }
+
+        function setupCanvas() {
+            const canvas = document.getElementById('canvas');
+            
+            // Add initial elements
+            addElement('rectangle', 100, 100, 'Inicio');
+            addElement('rectangle', 100, 200, 'Proceso');
+            addElement('rectangle', 100, 300, 'Fin');
+            
+            // Add connections
+            addConnection('start', 'process');
+            addConnection('process', 'end');
+        }
+
+        function setupEventListeners() {
+            const canvas = document.getElementById('canvas');
+            
+            // Canvas events
+            canvas.addEventListener('mousedown', handleMouseDown);
+            canvas.addEventListener('mousemove', handleMouseMove);
+            canvas.addEventListener('mouseup', handleMouseUp);
+            canvas.addEventListener('click', handleCanvasClick);
+            canvas.addEventListener('contextmenu', handleContextMenu);
+            
+            // Global events
+            document.addEventListener('click', handleGlobalClick);
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        function handleMouseDown(event) {
+            const rect = event.target.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            if (event.target.classList.contains('diagram-node')) {
+                if (currentTool === 'select') {
+                    selectElement(event.target);
+                    isDragging = true;
+                    dragStart = { x: x - event.target.offsetLeft, y: y - event.target.offsetTop };
                 }
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Error HTTP: ${response.status}`);
-                }
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showSuccess(result.message);
-                    showResult(result);
-                } else {
-                    throw new Error(result.error || 'Error desconocido');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showError(`Error: ${error.message}`);
-            } finally {
-                processBtn.disabled = false;
-                loading.style.display = 'none';
+            } else if (currentTool === 'connect') {
+                // Start connection
+                isConnecting = true;
+                connectionStart = { x, y };
             }
         }
 
-        function showResult(result) {
-            // Debug: mostrar en consola qué se está recibiendo
-            console.log('Resultado recibido:', result);
+        function handleMouseMove(event) {
+            if (isDragging && selectedElement) {
+                const rect = event.target.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                selectedElement.style.left = (x - dragStart.x) + 'px';
+                selectedElement.style.top = (y - dragStart.y) + 'px';
+                
+                updateConnections();
+            }
+        }
+
+        function handleMouseUp(event) {
+            isDragging = false;
+            isConnecting = false;
+            connectionStart = null;
+        }
+
+        function handleCanvasClick(event) {
+            if (event.target === document.getElementById('canvas')) {
+                if (currentTool === 'shape') {
+                    const rect = event.target.getBoundingClientRect();
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    addElement('rectangle', x, y, 'Nuevo');
+                }
+            }
+        }
+
+        function handleContextMenu(event) {
+            event.preventDefault();
+            if (event.target.classList.contains('diagram-node')) {
+                selectElement(event.target);
+                showContextMenu(event.clientX, event.clientY);
+            }
+        }
+
+        function handleGlobalClick(event) {
+            if (!event.target.closest('#contextMenu')) {
+                hideContextMenu();
+            }
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Delete' && selectedElement) {
+                deleteElement();
+            }
+        }
+
+        function selectTool(tool) {
+            currentTool = tool;
             
-            // Verificar que result tenga los datos necesarios
-            if (!result || !result.diagram_data) {
-                console.error('Error: result o diagram_data es undefined');
-                showError('Error: No se recibieron datos del diagrama');
+            // Update toolbar
+            document.querySelectorAll('.tool-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+            
+            // Update cursor
+            const canvas = document.getElementById('canvas');
+            if (tool === 'pan') {
+                canvas.style.cursor = 'grab';
+            } else if (tool === 'connect') {
+                canvas.style.cursor = 'crosshair';
+            } else {
+                canvas.style.cursor = 'default';
+            }
+        }
+
+        function addElement(type, x = 100, y = 100, text = 'Elemento') {
+            const element = document.createElement('div');
+            element.className = `diagram-node ${type}`;
+            element.id = `element-${nextId}`;
+            element.style.left = x + 'px';
+            element.style.top = y + 'px';
+            element.innerHTML = `<div class="content">${text}</div>`;
+            
+            document.getElementById('canvas').appendChild(element);
+            
+            elements.push({
+                id: `element-${nextId}`,
+                type: type,
+                x: x,
+                y: y,
+                text: text
+            });
+            
+            nextId++;
+            return element;
+        }
+
+        function addConnection(fromId, toId) {
+            const fromElement = document.getElementById(fromId);
+            const toElement = document.getElementById(toId);
+            
+            if (!fromElement || !toElement) return;
+            
+            const connection = document.createElement('svg');
+            connection.className = 'connection';
+            connection.style.position = 'absolute';
+            connection.style.left = '0';
+            connection.style.top = '0';
+            connection.style.width = '100%';
+            connection.style.height = '100%';
+            connection.style.pointerEvents = 'none';
+            
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.className = 'connection-line';
+            
+            connection.appendChild(line);
+            document.getElementById('canvas').appendChild(connection);
+            
+            connections.push({
+                id: `connection-${nextId}`,
+                from: fromId,
+                to: toId,
+                element: connection,
+                line: line
+            });
+            
+            nextId++;
+            updateConnections();
+        }
+
+        function updateConnections() {
+            connections.forEach(conn => {
+                const fromElement = document.getElementById(conn.from);
+                const toElement = document.getElementById(conn.to);
+                
+                if (fromElement && toElement) {
+                    const fromRect = fromElement.getBoundingClientRect();
+                    const toRect = toElement.getBoundingClientRect();
+                    const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                    
+                    const fromX = fromRect.left - canvasRect.left + fromRect.width / 2;
+                    const fromY = fromRect.top - canvasRect.top + fromRect.height / 2;
+                    const toX = toRect.left - canvasRect.left + toRect.width / 2;
+                    const toY = toRect.top - canvasRect.top + toRect.height / 2;
+                    
+                    conn.line.setAttribute('x1', fromX);
+                    conn.line.setAttribute('y1', fromY);
+                    conn.line.setAttribute('x2', toX);
+                    conn.line.setAttribute('y2', toY);
+                }
+            });
+        }
+
+        function selectElement(element) {
+            if (selectedElement) {
+                selectedElement.classList.remove('selected');
+            }
+            selectedElement = element;
+            element.classList.add('selected');
+        }
+
+        function showContextMenu(x, y) {
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+        }
+
+        function hideContextMenu() {
+            document.getElementById('contextMenu').style.display = 'none';
+        }
+
+        function editElement() {
+            if (selectedElement) {
+                const newText = prompt('Editar texto:', selectedElement.querySelector('.content').textContent);
+                if (newText !== null) {
+                    selectedElement.querySelector('.content').textContent = newText;
+                    // Update elements array
+                    const elementIndex = elements.findIndex(el => el.id === selectedElement.id);
+                    if (elementIndex !== -1) {
+                        elements[elementIndex].text = newText;
+                    }
+                }
+            }
+            hideContextMenu();
+        }
+
+        function duplicateElement() {
+            if (selectedElement) {
+                const rect = selectedElement.getBoundingClientRect();
+                const canvasRect = document.getElementById('canvas').getBoundingClientRect();
+                const x = rect.left - canvasRect.left + 50;
+                const y = rect.top - canvasRect.top + 50;
+                
+                const elementIndex = elements.findIndex(el => el.id === selectedElement.id);
+                if (elementIndex !== -1) {
+                    const originalElement = elements[elementIndex];
+                    addElement(originalElement.type, x, y, originalElement.text + ' (copia)');
+                }
+            }
+            hideContextMenu();
+        }
+
+        function deleteElement() {
+            if (selectedElement) {
+                // Remove connections
+                connections = connections.filter(conn => {
+                    if (conn.from === selectedElement.id || conn.to === selectedElement.id) {
+                        conn.element.remove();
+                        return false;
+                    }
+                    return true;
+                });
+                
+                // Remove element
+                selectedElement.remove();
+                elements = elements.filter(el => el.id !== selectedElement.id);
+                selectedElement = null;
+                
+                updateConnections();
+            }
+            hideContextMenu();
+        }
+
+        function showAIDiagramModal() {
+            document.getElementById('aiDiagramModal').classList.add('show');
+        }
+
+        function showNewDiagramModal() {
+            document.getElementById('newDiagramModal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function generateAIDiagram() {
+            const description = document.getElementById('aiDescription').value.trim();
+            if (!description) {
+                showError('Por favor describe el diagrama que quieres crear');
                 return;
             }
             
-            currentDiagramData = result.diagram_data;
-            currentMermaidCode = result.mermaid_code || result.diagram_data;
-            
-            // Debug: verificar campos individuales
-            console.log('Title:', result.title);
-            console.log('Type:', result.type);
-            console.log('Diagram data length:', result.diagram_data ? result.diagram_data.length : 'undefined');
-            
-            // Mostrar información del diagrama de forma segura
-            const title = result.title || 'Diagrama';
-            const type = result.type || 'genérico';
-            
-            // Mostrar detalles del diagrama
-            const diagramInfo = document.getElementById('diagram-info');
-            const diagramDetails = document.getElementById('diagram-details');
-            
-            let instructions = 'Descarga el archivo y ábrelo en Draw.io Desktop o Mermaid Live Editor';
-            if (type === 'azure_architecture') {
-                instructions = 'Diagrama de arquitectura Azure generado. Puedes ver el SVG, editar el código Mermaid, o descargarlo.';
-            } else if (type === 'mermaid_code') {
-                instructions = 'Código Mermaid generado. Cópialo en Mermaid Live Editor o descárgalo como archivo .mmd';
-            }
-            
-            diagramDetails.innerHTML = `
-                <p><strong>Tipo:</strong> ${type}</p>
-                <p><strong>Título:</strong> ${title}</p>
-                <p><strong>Formato:</strong> ${result.diagram_data.startsWith('<svg') ? 'SVG (Mermaid)' : 'Código Mermaid'}</p>
-                <p><strong>Tamaño:</strong> ${(result.diagram_data.length / 1024).toFixed(2)} KB</p>
-                <p><strong>Instrucciones:</strong> ${instructions}</p>
-            `;
-            diagramInfo.style.display = 'block';
-            
-            // Mostrar sección de resultados
-            document.getElementById('result-section').classList.add('show');
-            
-            // Scroll a resultados
-            document.getElementById('result-section').scrollIntoView({ behavior: 'smooth' });
+            generateAIDiagramWithDescription(description, 'auto');
         }
 
-        function openInDrawIO() {
-            if (currentDiagramData) {
-                // Crear un archivo temporal y descargarlo
-                const blob = new Blob([currentDiagramData], { type: 'application/xml' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'diagrama.drawio';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                // Mostrar instrucciones
-                showSuccess('Archivo descargado. Ábrelo en Draw.io Desktop para editarlo.');
+        function generateAIDiagramFromModal() {
+            const title = document.getElementById('aiDiagramTitle').value.trim() || 'Diagrama Generado por IA';
+            const description = document.getElementById('aiDiagramDescription').value.trim();
+            const type = document.getElementById('aiDiagramType').value;
+            
+            if (!description) {
+                showError('Por favor describe el diagrama que quieres crear');
+                return;
             }
+            
+            generateAIDiagramWithDescription(description, type, title);
         }
 
-        function downloadDiagram() {
-            if (currentDiagramData) {
-                let filename = 'diagrama';
-                let mimeType = 'text/plain';
-                
-                // Determinar tipo de archivo basado en el contenido
-                if (currentDiagramData.startsWith('<svg')) {
-                    filename += '.svg';
-                    mimeType = 'image/svg+xml';
-                } else if (currentDiagramData.startsWith('graph')) {
-                    filename += '.mmd';
-                    mimeType = 'text/plain';
+        function generateAIDiagramWithDescription(description, type, title = 'Diagrama Generado por IA') {
+            // Show loading
+            const loading = document.getElementById('aiLoading');
+            const generateBtn = document.getElementById('aiGenerateBtn');
+            const modalLoading = document.getElementById('aiModalLoading');
+            const modalGenerateBtn = document.getElementById('aiModalGenerateBtn');
+            
+            if (loading) loading.style.display = 'block';
+            if (generateBtn) generateBtn.disabled = true;
+            if (modalLoading) modalLoading.style.display = 'block';
+            if (modalGenerateBtn) modalGenerateBtn.disabled = true;
+            
+            fetch('/generate_ai_diagram', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    description: description,
+                    type: type,
+                    title: title
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentDiagram = data.diagram;
+                    loadDiagram(data.diagram);
+                    closeModal('aiDiagramModal');
+                    showSuccess('¡Diagrama generado exitosamente con IA!');
+                    
+                    // Clear input
+                    if (document.getElementById('aiDescription')) {
+                        document.getElementById('aiDescription').value = '';
+                    }
                 } else {
-                    filename += '.txt';
-                    mimeType = 'text/plain';
+                    showError('Error generando diagrama: ' + data.error);
                 }
-                
-                const blob = new Blob([currentDiagramData], { type: mimeType });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                showSuccess(`Archivo ${filename} descargado exitosamente`);
-            }
+            })
+            .catch(error => {
+                showError('Error generando diagrama: ' + error.message);
+            })
+            .finally(() => {
+                // Hide loading
+                if (loading) loading.style.display = 'none';
+                if (generateBtn) generateBtn.disabled = false;
+                if (modalLoading) modalLoading.style.display = 'none';
+                if (modalGenerateBtn) modalGenerateBtn.disabled = false;
+            });
         }
 
-        function convertToSVG() {
-            if (currentMermaidCode && currentMermaidCode.startsWith('graph')) {
-                showSuccess('Convirtiendo Mermaid a SVG...');
-                
-                // Crear un enlace para abrir en Mermaid Live Editor con opción de exportar SVG
-                const mermaidUrl = `https://mermaid.live/edit#/${encodeURIComponent(currentMermaidCode)}`;
-                window.open(mermaidUrl, '_blank');
-                
-                showSuccess('Abierto en Mermaid Live Editor. Usa "Export SVG" para descargar como SVG.');
-            } else {
-                showError('No hay código Mermaid válido para convertir.');
-            }
-        }
-
-        function createNew() {
-            // Limpiar formularios
-            document.getElementById('file-input').value = '';
-            document.getElementById('text-input').value = '';
-            document.getElementById('file-info').style.display = 'none';
-            document.getElementById('diagram-info').style.display = 'none';
+        function createNewDiagram() {
+            const title = document.getElementById('diagramTitle').value || 'Nuevo Diagrama';
+            const type = document.getElementById('diagramType').value;
             
-            // Ocultar resultados
-            document.getElementById('result-section').classList.remove('show');
-            
-            // Limpiar mensajes
-            hideMessages();
-            
-            // Cambiar a pestaña de archivo
-            switchTab('file');
-            
-            // Scroll al inicio
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function viewMermaidCode() {
-            if (currentMermaidCode) {
-                const mermaidCodeDiv = document.createElement('div');
-                mermaidCodeDiv.style.whiteSpace = 'pre-wrap';
-                mermaidCodeDiv.style.padding = '15px';
-                mermaidCodeDiv.style.backgroundColor = '#f8f9fa';
-                mermaidCodeDiv.style.borderRadius = '10px';
-                mermaidCodeDiv.style.fontFamily = 'monospace';
-                mermaidCodeDiv.style.fontSize = '0.9rem';
-                mermaidCodeDiv.style.overflowX = 'auto';
-                mermaidCodeDiv.textContent = currentMermaidCode;
-
-                const modal = document.createElement('div');
-                modal.style.position = 'fixed';
-                modal.style.top = '0';
-                modal.style.left = '0';
-                modal.style.width = '100%';
-                modal.style.height = '100%';
-                modal.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                modal.style.display = 'flex';
-                modal.style.justifyContent = 'center';
-                modal.style.alignItems = 'center';
-                modal.style.zIndex = '1000';
-                modal.innerHTML = `
-                    <div style="background: white; padding: 20px; border-radius: 10px; max-width: 90%; max-height: 90%; overflow: auto;">
-                        <h3>Código Mermaid</h3>
-                        <div>${mermaidCodeDiv.outerHTML}</div>
-                        <button onclick="closeMermaidCodeModal()" class="action-btn btn-primary" style="margin-top: 10px;">
-                            <i class="fas fa-times"></i> Cerrar
-                        </button>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            } else {
-                showError('No hay código Mermaid disponible para mostrar.');
-            }
-        }
-
-        function closeMermaidCodeModal() {
-            document.body.removeChild(document.querySelector('.modal-content'));
-        }
-
-        function openInMermaidEditor() {
-            if (currentMermaidCode) {
-                const mermaidUrl = `https://mermaid.live/edit#/${encodeURIComponent(currentMermaidCode)}`;
-                window.open(mermaidUrl, '_blank');
-                showSuccess('Abriendo en Mermaid Live Editor...');
-            } else {
-                showError('No hay código Mermaid disponible para abrir.');
-            }
-        }
-
-        // Verificar conexión al cargar la página
-        window.addEventListener('load', async () => {
-            try {
-                const response = await fetch('/health');
-                if (!response.ok) {
-                    throw new Error('Servidor no responde correctamente');
+            fetch('/create_diagram', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    type: type
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentDiagram = data.diagram;
+                    loadDiagram(data.diagram);
+                    closeModal('newDiagramModal');
+                    showSuccess('Diagrama creado exitosamente');
+                } else {
+                    showError('Error creando diagrama: ' + data.error);
                 }
-                console.log('Conexión al servidor establecida');
-            } catch (error) {
-                console.error('Error de conexión:', error);
-                showError('No se puede conectar al servidor. Asegúrate de que esté ejecutándose.');
+            })
+            .catch(error => {
+                showError('Error creando diagrama: ' + error.message);
+            });
+        }
+
+        function loadDiagram(diagram) {
+            // Clear current canvas
+            document.getElementById('canvas').innerHTML = '';
+            elements = [];
+            connections = [];
+            nextId = 1;
+            
+            // Load diagram data
+            if (diagram.data && diagram.data.nodes) {
+                diagram.data.nodes.forEach(node => {
+                    addElement(node.type, node.x, node.y, node.text);
+                });
+            }
+            
+            if (diagram.data && diagram.data.edges) {
+                diagram.data.edges.forEach(edge => {
+                    addConnection(edge.from, edge.to);
+                });
+            }
+        }
+
+        function saveDiagram() {
+            if (!currentDiagram) {
+                showError('No hay diagrama activo para guardar');
+                return;
+            }
+            
+            // Collect current diagram data
+            const diagramData = {
+                nodes: elements.map(el => ({
+                    id: el.id,
+                    type: el.type,
+                    x: parseInt(el.style.left),
+                    y: parseInt(el.style.top),
+                    text: el.querySelector('.content').textContent
+                })),
+                edges: connections.map(conn => ({
+                    id: conn.id,
+                    from: conn.from,
+                    to: conn.to
+                }))
+            };
+            
+            fetch(`/diagram/${currentDiagram.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    data: diagramData,
+                    title: currentDiagram.title
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentDiagram = data.diagram;
+                    showSuccess('Diagrama guardado exitosamente');
+                } else {
+                    showError('Error guardando diagrama: ' + data.error);
+                }
+            })
+            .catch(error => {
+                showError('Error guardando diagrama: ' + error.message);
+            });
+        }
+
+        function showOpenModal() {
+            fetch('/diagrams')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const diagramsList = document.getElementById('diagramsList');
+                        diagramsList.innerHTML = '';
+                        
+                        if (data.diagrams.length === 0) {
+                            diagramsList.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 20px;">No hay diagramas guardados</p>';
+                        } else {
+                            data.diagrams.forEach(diagram => {
+                                const diagramItem = document.createElement('div');
+                                diagramItem.style.padding = '15px';
+                                diagramItem.style.border = '1px solid #e2e8f0';
+                                diagramItem.style.borderRadius = '8px';
+                                diagramItem.style.marginBottom = '10px';
+                                diagramItem.style.cursor = 'pointer';
+                                diagramItem.onclick = () => openDiagram(diagram);
+                                diagramItem.innerHTML = `
+                                    <div style="font-weight: 600; color: #374151;">${diagram.title}</div>
+                                    <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">
+                                        ${diagram.type} • ${new Date(diagram.updated_at).toLocaleDateString()}
+                                        ${diagram.ai_generated ? ' • 🤖 IA' : ''}
+                                    </div>
+                                `;
+                                diagramsList.appendChild(diagramItem);
+                            });
+                        }
+                        
+                        document.getElementById('openModal').classList.add('show');
+                    }
+                })
+                .catch(error => {
+                    showError('Error cargando diagramas: ' + error.message);
+                });
+        }
+
+        function openDiagram(diagram) {
+            currentDiagram = diagram;
+            loadDiagram(diagram);
+            closeModal('openModal');
+            showSuccess('Diagrama abierto: ' + diagram.title);
+        }
+
+        function exportDiagram() {
+            if (!currentDiagram) {
+                showError('No hay diagrama activo para exportar');
+                return;
+            }
+            
+            fetch(`/export/${currentDiagram.id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    format: 'svg'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Download file
+                    const link = document.createElement('a');
+                    link.href = data.download_url;
+                    link.download = data.filename;
+                    link.click();
+                    showSuccess('Diagrama exportado exitosamente');
+                } else {
+                    showError('Error exportando diagrama: ' + data.error);
+                }
+            })
+            .catch(error => {
+                showError('Error exportando diagrama: ' + error.message);
+            });
+        }
+
+        function createDiagramFromTemplate(templateType) {
+            document.getElementById('diagramType').value = templateType;
+            showNewDiagramModal();
+        }
+
+        function showSuccess(message) {
+            // Simple success notification
+            alert('✅ ' + message);
+        }
+
+        function showError(message) {
+            // Simple error notification
+            alert('❌ ' + message);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch(event.key) {
+                    case 's':
+                        event.preventDefault();
+                        saveDiagram();
+                        break;
+                    case 'n':
+                        event.preventDefault();
+                        showNewDiagramModal();
+                        break;
+                    case 'o':
+                        event.preventDefault();
+                        showOpenModal();
+                        break;
+                    case 'g':
+                        event.preventDefault();
+                        showAIDiagramModal();
+                        break;
+                }
             }
         });
     </script>

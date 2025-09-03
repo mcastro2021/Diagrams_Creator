@@ -1,33 +1,18 @@
-# Configuración del entorno para Conversor de Documentos a Diagramas
+# Variables de entorno para Eraser.io Clone con IA
 
-# Entorno de ejecución (development, production, testing)
+# Configuración de OpenAI (requerida para generación de diagramas con IA)
+# Obtén tu API key en: https://platform.openai.com/api-keys
+OPENAI_API_KEY=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
+
+# Configuración de la aplicación
 FLASK_ENV=development
-
-# Modo debug (True/False)
 FLASK_DEBUG=True
-
-# Clave secreta para sesiones (cambiar en producción)
-SECRET_KEY=your-secret-key-here
+SECRET_KEY=tu-clave-secreta-aqui
 
 # Configuración de archivos
-MAX_FILE_SIZE=16777216  # 16MB en bytes
+MAX_CONTENT_LENGTH=16777216
 UPLOAD_FOLDER=uploads
 OUTPUT_FOLDER=outputs
-
-# Configuración de draw.io
-DRAWIO_URL=https://app.diagrams.net/
-DRAWIO_API_URL=https://app.diagrams.net/api/1/save
-
-# Configuración de procesamiento
-MAX_TEXT_LENGTH=100000  # 100KB
-MAX_DIAGRAM_ELEMENTS=100
-
-# Configuración de seguridad
-CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:5000
-
-# Configuración de logging
-LOG_LEVEL=INFO
-LOG_FILE=app.log
 
 # Configuración del servidor
 HOST=0.0.0.0
