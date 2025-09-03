@@ -117,49 +117,12 @@ def generate_diagram_with_ai(description, diagram_type='auto'):
         if diagram_type == 'auto':
             diagram_type = detect_diagram_type(description)
         
-        # Crear prompt para OpenAI
-        system_prompt = f"""Eres un experto en diagramas y visualización de datos. 
-        Necesito que generes un diagrama de tipo '{diagram_type}' basado en la siguiente descripción.
+        # Crear prompt específico para Azure si se detecta
+        if 'azure' in description.lower() or 'cloud' in description.lower() or 'microsoft' in description.lower():
+            return generate_azure_architecture_diagram(description)
         
-        El diagrama debe ser retornado en formato JSON con la siguiente estructura:
-        {{
-            "type": "{diagram_type}",
-            "nodes": [
-                {{
-                    "id": "unique_id",
-                    "type": "node_type",
-                    "text": "texto del nodo",
-                    "x": posicion_x,
-                    "y": posicion_y,
-                    "width": ancho,
-                    "height": alto
-                }}
-            ],
-            "edges": [
-                {{
-                    "id": "edge_id",
-                    "from": "id_nodo_origen",
-                    "to": "id_nodo_destino",
-                    "text": "texto de la conexión (opcional)"
-                }}
-            ]
-        }}
-        
-        Tipos de nodos disponibles:
-        - rectangle: para procesos, pasos, entidades
-        - circle: para puntos de inicio/fin, decisiones
-        - diamond: para decisiones, condiciones
-        - actor: para usuarios, personas
-        - class: para clases UML
-        - entity: para entidades de base de datos
-        - router: para dispositivos de red
-        - switch: para switches de red
-        - pc: para computadoras, endpoints
-        
-        Asegúrate de que el diagrama sea lógico, bien estructurado y represente fielmente la descripción proporcionada.
-        Usa posiciones x,y que permitan una visualización clara y organizada.
-        """
-        
+        # Crear prompt para OpenAI según el tipo
+        system_prompt = get_system_prompt_for_type(diagram_type)
         user_prompt = f"Genera un diagrama de {diagram_type} para: {description}"
         
         # Llamar a OpenAI
@@ -210,6 +173,845 @@ def generate_diagram_with_ai(description, diagram_type='auto'):
         print(f"Error en OpenAI: {str(e)}")
         # Fallback: generar diagrama básico
         return generate_fallback_diagram(description, diagram_type)
+
+def generate_azure_architecture_diagram(description):
+    """Genera un diagrama de arquitectura Azure específico y detallado"""
+    try:
+        # Analizar la descripción para extraer componentes específicos
+        description_lower = description.lower()
+        
+        # Detectar componentes de Azure mencionados
+        components = {
+            'virtual_machines': any(word in description_lower for word in ['vm', 'virtual machine', 'máquina virtual', 'servidor']),
+            'app_service': any(word in description_lower for word in ['app service', 'web app', 'aplicación web', 'web service']),
+            'database': any(word in description_lower for word in ['database', 'sql', 'cosmos', 'base de datos', 'db']),
+            'storage': any(word in description_lower for word in ['storage', 'blob', 'file', 'almacenamiento']),
+            'network': any(word in description_lower for word in ['network', 'vnet', 'red', 'subnet']),
+            'security': any(word in description_lower for word in ['security', 'firewall', 'seguridad', 'waf']),
+            'monitoring': any(word in description_lower for word in ['monitoring', 'log analytics', 'monitoreo', 'logs']),
+            'cdn': any(word in description_lower for word in ['cdn', 'content delivery', 'distribución de contenido']),
+            'load_balancer': any(word in description_lower for word in ['load balancer', 'balanceador', 'carga']),
+            'api_management': any(word in description_lower for word in ['api', 'api management', 'gateway', 'puerta de enlace']),
+            'hub_spoke': any(word in description_lower for word in ['hub and spoke', 'hub-spoke', 'hub & spoke', 'topología hub', 'hub spoke']),
+            'multiple_subscriptions': any(word in description_lower for word in ['múltiples suscripciones', '4 suscripciones', 'varias suscripciones', 'subscriptions', 'suscripciones']),
+            'enterprise': any(word in description_lower for word in ['empresarial', 'enterprise', 'corporativo', 'corporation'])
+        }
+        
+        # Si se detecta hub and spoke o múltiples suscripciones, generar topología compleja
+        if components['hub_spoke'] or components['multiple_subscriptions'] or components['enterprise']:
+            return generate_hub_spoke_architecture(description, components)
+        
+        # Crear diagrama de Azure con componentes detectados
+        azure_diagram = create_azure_diagram_structure(components, description)
+        
+        return {
+            'success': True,
+            'type': 'azure_architecture',
+            'data': azure_diagram
+        }
+        
+    except Exception as e:
+        print(f"Error generando diagrama Azure: {str(e)}")
+        return generate_fallback_diagram(description, 'azure_architecture')
+
+def generate_hub_spoke_architecture(description, components):
+    """Genera una topología hub and spoke con múltiples suscripciones"""
+    try:
+        # Determinar número de suscripciones
+        num_subscriptions = 4  # Por defecto
+        if '4' in description:
+            num_subscriptions = 4
+        elif '3' in description:
+            num_subscriptions = 3
+        elif '5' in description:
+            num_subscriptions = 5
+        
+        print(f"🏗️ Generando topología Hub and Spoke con {num_subscriptions} suscripciones...")
+        
+        # Crear diagrama hub and spoke
+        hub_spoke_diagram = create_hub_spoke_structure(num_subscriptions, components)
+        
+        return {
+            'success': True,
+            'type': 'azure_hub_spoke',
+            'data': hub_spoke_diagram
+        }
+        
+    except Exception as e:
+        print(f"Error generando hub and spoke: {str(e)}")
+        return generate_fallback_diagram(description, 'azure_architecture')
+
+def create_hub_spoke_structure(num_subscriptions, components):
+    """Crea la estructura hub and spoke con múltiples suscripciones"""
+    
+    # Posiciones base para organizar el diagrama
+    positions = {
+        'internet': {'x': 500, 'y': 50, 'width': 120, 'height': 60},
+        'hub_vnet': {'x': 400, 'y': 150, 'width': 300, 'height': 200},
+        'hub_firewall': {'x': 500, 'y': 200, 'width': 120, 'height': 60},
+        'hub_bastion': {'x': 400, 'y': 250, 'width': 120, 'height': 60},
+        'hub_vpn': {'x': 600, 'y': 250, 'width': 120, 'height': 60},
+        'hub_express_route': {'x': 500, 'y': 320, 'width': 120, 'height': 60},
+        'hub_monitoring': {'x': 400, 'y': 400, 'width': 120, 'height': 60},
+        'hub_key_vault': {'x': 600, 'y': 400, 'width': 120, 'height': 60},
+        'hub_shared_services': {'x': 500, 'y': 480, 'width': 120, 'height': 60}
+    }
+    
+    nodes = []
+    edges = []
+    node_id = 1
+    
+    # Agregar nodos del hub
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'internet',
+        'text': 'Internet',
+        'x': positions['internet']['x'],
+        'y': positions['internet']['y'],
+        'width': positions['internet']['width'],
+        'height': positions['internet']['height']
+    })
+    internet_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub VNet
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_vnet',
+        'text': 'Hub VNet\n10.0.0.0/16\nSuscripción Hub',
+        'x': positions['hub_vnet']['x'],
+        'y': positions['hub_vnet']['y'],
+        'width': positions['hub_vnet']['width'],
+        'height': positions['hub_vnet']['height']
+    })
+    hub_vnet_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub Firewall
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_firewall',
+        'text': 'Azure Firewall\nHub',
+        'x': positions['hub_firewall']['x'],
+        'y': positions['hub_firewall']['y'],
+        'width': positions['hub_firewall']['width'],
+        'height': positions['hub_firewall']['height']
+    })
+    hub_firewall_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub Bastion
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_bastion',
+        'text': 'Bastion Host\nHub',
+        'x': positions['hub_bastion']['x'],
+        'y': positions['hub_bastion']['y'],
+        'width': positions['hub_bastion']['width'],
+        'height': positions['hub_bastion']['height']
+    })
+    hub_bastion_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub VPN Gateway
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_vpn_gateway',
+        'text': 'VPN Gateway\nHub',
+        'x': positions['hub_vpn']['x'],
+        'y': positions['hub_vpn']['y'],
+        'width': positions['hub_vpn']['width'],
+        'height': positions['hub_vpn']['height']
+    })
+    hub_vpn_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub Express Route
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_express_route',
+        'text': 'Express Route\nHub',
+        'x': positions['hub_express_route']['x'],
+        'y': positions['hub_express_route']['y'],
+        'width': positions['hub_express_route']['width'],
+        'height': positions['hub_express_route']['height']
+    })
+    hub_express_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub Monitoring
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_monitoring',
+        'text': 'Log Analytics\nHub',
+        'x': positions['hub_monitoring']['x'],
+        'y': positions['hub_monitoring']['y'],
+        'width': positions['hub_monitoring']['width'],
+        'height': positions['hub_monitoring']['height']
+    })
+    hub_monitoring_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub Key Vault
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_key_vault',
+        'text': 'Key Vault\nHub',
+        'x': positions['hub_key_vault']['x'],
+        'y': positions['hub_key_vault']['y'],
+        'width': positions['hub_key_vault']['width'],
+        'height': positions['hub_key_vault']['height']
+    })
+    hub_key_vault_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Hub Shared Services
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_shared_services',
+        'text': 'Shared Services\nHub',
+        'x': positions['hub_shared_services']['x'],
+        'y': positions['hub_shared_services']['y'],
+        'width': positions['hub_shared_services']['width'],
+        'height': positions['hub_shared_services']['height']
+    })
+    hub_shared_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Conectar Internet al Hub
+    edges.append({
+        'id': f'edge_{len(edges)}',
+        'from': internet_id,
+        'to': hub_firewall_id
+    })
+    
+    # Conectar componentes del Hub
+    edges.extend([
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_firewall_id},
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_bastion_id},
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_vpn_id},
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_express_id},
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_monitoring_id},
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_key_vault_id},
+        {'id': f'edge_{len(edges)}', 'from': hub_vnet_id, 'to': hub_shared_id}
+    ])
+    
+    # Generar nodos de spoke para cada suscripción
+    spoke_spacing = 800 // (num_subscriptions + 1)
+    for i in range(num_subscriptions):
+        spoke_x = 100 + (i + 1) * spoke_spacing
+        spoke_y = 600
+        
+        # Spoke VNet
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_vnet',
+            'text': f'Spoke VNet {i+1}\n10.{i+1}.0.0/16\nSuscripción {i+1}',
+            'x': spoke_x - 100,
+            'y': spoke_y,
+            'width': 200,
+            'height': 150
+        })
+        spoke_vnet_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Spoke App Service
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_app_service',
+            'text': f'App Service\nSpoke {i+1}',
+            'x': spoke_x - 70,
+            'y': spoke_y + 170,
+            'width': 140,
+            'height': 70
+        })
+        spoke_app_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Spoke SQL Database
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_sql',
+            'text': f'SQL Database\nSpoke {i+1}',
+            'x': spoke_x + 30,
+            'y': spoke_y + 170,
+            'width': 140,
+            'height': 70
+        })
+        spoke_sql_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar Spoke al Hub
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': hub_vnet_id,
+            'to': spoke_vnet_id
+        })
+        
+        # Conectar componentes del Spoke
+        edges.extend([
+            {'id': f'edge_{len(edges)}', 'from': spoke_vnet_id, 'to': spoke_app_id},
+            {'id': f'edge_{len(edges)}', 'from': spoke_vnet_id, 'to': spoke_sql_id},
+            {'id': f'edge_{len(edges)}', 'from': spoke_app_id, 'to': spoke_sql_id}
+        ])
+    
+    # Agregar título del diagrama
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'diagram_title',
+        'text': f'Topología Hub and Spoke\n{num_subscriptions} Suscripciones Azure',
+        'x': 400,
+        'y': 20,
+        'width': 400,
+        'height': 40
+    })
+    
+    return {
+        'type': 'azure_hub_spoke',
+        'nodes': nodes,
+        'edges': edges
+    }
+
+def create_azure_diagram_structure(components, description):
+    """Crea la estructura del diagrama de Azure basado en los componentes detectados"""
+    
+    # Posiciones base para organizar el diagrama
+    positions = {
+        'internet': {'x': 400, 'y': 50, 'width': 120, 'height': 60},
+        'cdn': {'x': 200, 'y': 50, 'width': 120, 'height': 60},
+        'firewall': {'x': 400, 'y': 150, 'width': 120, 'height': 60},
+        'load_balancer': {'x': 400, 'y': 250, 'width': 120, 'height': 60},
+        'app_gateway': {'x': 400, 'y': 350, 'width': 120, 'height': 60},
+        'vnet': {'x': 200, 'y': 200, 'width': 600, 'height': 400},
+        'subnet_frontend': {'x': 250, 'y': 250, 'width': 200, 'height': 100},
+        'subnet_backend': {'x': 500, 'y': 250, 'width': 200, 'height': 100},
+        'subnet_data': {'x': 350, 'y': 400, 'width': 200, 'height': 100},
+        'app_service': {'x': 280, 'y': 280, 'width': 140, 'height': 70},
+        'web_app': {'x': 280, 'y': 360, 'width': 140, 'height': 70},
+        'api_app': {'x': 530, 'y': 280, 'width': 140, 'height': 70},
+        'function_app': {'x': 530, 'y': 360, 'width': 140, 'height': 70},
+        'sql_database': {'x': 380, 'y': 420, 'width': 140, 'height': 70},
+        'storage_account': {'x': 380, 'y': 500, 'width': 140, 'height': 70},
+        'key_vault': {'x': 600, 'y': 420, 'width': 140, 'height': 70},
+        'monitoring': {'x': 600, 'y': 500, 'width': 140, 'height': 70},
+        'on_premises': {'x': 50, 'y': 300, 'width': 120, 'height': 60},
+        'vpn_gateway': {'x': 150, 'y': 300, 'width': 80, 'height': 60}
+    }
+    
+    nodes = []
+    edges = []
+    node_id = 1
+    
+    # Agregar nodos según los componentes detectados
+    if components['cdn']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_cdn',
+            'text': 'Azure CDN',
+            'x': positions['cdn']['x'],
+            'y': positions['cdn']['y'],
+            'width': positions['cdn']['width'],
+            'height': positions['cdn']['height']
+        })
+        node_id += 1
+    
+    # Internet siempre está presente
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'internet',
+        'text': 'Internet',
+        'x': positions['internet']['x'],
+        'y': positions['internet']['y'],
+        'width': positions['internet']['width'],
+        'height': positions['internet']['height']
+    })
+    internet_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Firewall/WAF
+    if components['security']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_firewall',
+            'text': 'Azure Firewall\nWAF',
+            'x': positions['firewall']['x'],
+            'y': positions['firewall']['y'],
+            'width': positions['firewall']['width'],
+            'height': positions['firewall']['height']
+        })
+        firewall_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar internet al firewall
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': internet_id,
+            'to': firewall_id
+        })
+    
+    # Load Balancer
+    if components['load_balancer']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_load_balancer',
+            'text': 'Load Balancer',
+            'x': positions['load_balancer']['x'],
+            'y': positions['load_balancer']['y'],
+            'width': positions['load_balancer']['width'],
+            'height': positions['load_balancer']['height']
+        })
+        lb_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al firewall o internet
+        if components['security']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': firewall_id,
+                'to': lb_id
+            })
+        else:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': internet_id,
+                'to': lb_id
+            })
+    
+    # Virtual Network
+    nodes.append({
+        'id': f'node_{node_id}',
+        'type': 'azure_vnet',
+        'text': 'Virtual Network\n10.0.0.0/16',
+        'x': positions['vnet']['x'],
+        'y': positions['vnet']['y'],
+        'width': positions['vnet']['width'],
+        'height': positions['vnet']['height']
+    })
+    vnet_id = f'node_{node_id}'
+    node_id += 1
+    
+    # Subnets
+    if components['network']:
+        # Frontend subnet
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_subnet',
+            'text': 'Frontend Subnet\n10.0.1.0/24',
+            'x': positions['subnet_frontend']['x'],
+            'y': positions['subnet_frontend']['y'],
+            'width': positions['subnet_frontend']['width'],
+            'height': positions['subnet_frontend']['height']
+        })
+        frontend_subnet_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Backend subnet
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_subnet',
+            'text': 'Backend Subnet\n10.0.2.0/24',
+            'x': positions['subnet_backend']['x'],
+            'y': positions['subnet_backend']['y'],
+            'width': positions['subnet_backend']['width'],
+            'height': positions['subnet_backend']['height']
+        })
+        backend_subnet_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Data subnet
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_subnet',
+            'text': 'Data Subnet\n10.0.3.0/24',
+            'x': positions['subnet_data']['x'],
+            'y': positions['subnet_data']['y'],
+            'width': positions['subnet_data']['width'],
+            'height': positions['subnet_data']['height']
+        })
+        data_subnet_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar subnets al VNet
+        edges.extend([
+            {'id': f'edge_{len(edges)}', 'from': vnet_id, 'to': frontend_subnet_id},
+            {'id': f'edge_{len(edges)}', 'from': vnet_id, 'to': backend_subnet_id},
+            {'id': f'edge_{len(edges)}', 'from': vnet_id, 'to': data_subnet_id}
+        ])
+    
+    # App Services
+    if components['app_service']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_app_service',
+            'text': 'App Service\nWeb App',
+            'x': positions['app_service']['x'],
+            'y': positions['app_service']['y'],
+            'width': positions['app_service']['width'],
+            'height': positions['app_service']['height']
+        })
+        app_service_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet frontend
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': frontend_subnet_id,
+                'to': app_service_id
+            })
+    
+    # Web Apps adicionales
+    if components['app_service']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_web_app',
+            'text': 'Web App\nAPI',
+            'x': positions['web_app']['x'],
+            'y': positions['web_app']['y'],
+            'width': positions['web_app']['width'],
+            'height': positions['web_app']['height']
+        })
+        web_app_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet frontend
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': frontend_subnet_id,
+                'to': web_app_id
+            })
+    
+    # API Apps
+    if components['api_management']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_api_app',
+            'text': 'API App\nBackend',
+            'x': positions['api_app']['x'],
+            'y': positions['api_app']['y'],
+            'width': positions['api_app']['width'],
+            'height': positions['api_app']['height']
+        })
+        api_app_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet backend
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': backend_subnet_id,
+                'to': api_app_id
+            })
+    
+    # Function Apps
+    if components['api_management']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_function',
+            'text': 'Function App\nServerless',
+            'x': positions['function_app']['x'],
+            'y': positions['function_app']['y'],
+            'width': positions['function_app']['width'],
+            'height': positions['function_app']['height']
+        })
+        function_app_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet backend
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': backend_subnet_id,
+                'to': function_app_id
+            })
+    
+    # SQL Database
+    if components['database']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_sql',
+            'text': 'Azure SQL\nDatabase',
+            'x': positions['sql_database']['x'],
+            'y': positions['sql_database']['y'],
+            'width': positions['sql_database']['width'],
+            'height': positions['sql_database']['height']
+        })
+        sql_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet data
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': data_subnet_id,
+                'to': sql_id
+            })
+    
+    # Storage Account
+    if components['storage']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_storage',
+            'text': 'Storage Account\nBlob & File',
+            'x': positions['storage_account']['x'],
+            'y': positions['storage_account']['y'],
+            'width': positions['storage_account']['width'],
+            'height': positions['storage_account']['height']
+        })
+        storage_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet data
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': data_subnet_id,
+                'to': storage_id
+            })
+    
+    # Key Vault
+    if components['security']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_key_vault',
+            'text': 'Key Vault\nSecrets',
+            'x': positions['key_vault']['x'],
+            'y': positions['key_vault']['y'],
+            'width': positions['key_vault']['width'],
+            'height': positions['key_vault']['height']
+        })
+        key_vault_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet data
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': data_subnet_id,
+                'to': key_vault_id
+            })
+    
+    # Monitoring
+    if components['monitoring']:
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_monitoring',
+            'text': 'Log Analytics\nMonitoring',
+            'x': positions['monitoring']['x'],
+            'y': positions['monitoring']['y'],
+            'width': positions['monitoring']['width'],
+            'height': positions['monitoring']['height']
+        })
+        monitoring_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar al subnet data
+        if components['network']:
+            edges.append({
+                'id': f'edge_{len(edges)}',
+                'from': data_subnet_id,
+                'to': monitoring_id
+            })
+    
+    # On-Premises connection
+    if 'on-premises' in description.lower() or 'local' in description.lower():
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'on_premises',
+            'text': 'On-Premises\nNetwork',
+            'x': positions['on_premises']['x'],
+            'y': positions['on_premises']['y'],
+            'width': positions['on_premises']['width'],
+            'height': positions['on_premises']['height']
+        })
+        onprem_id = f'node_{node_id}'
+        node_id += 1
+        
+        # VPN Gateway
+        nodes.append({
+            'id': f'node_{node_id}',
+            'type': 'azure_vpn_gateway',
+            'text': 'VPN Gateway',
+            'x': positions['vpn_gateway']['x'],
+            'y': positions['vpn_gateway']['y'],
+            'width': positions['vpn_gateway']['width'],
+            'height': positions['vpn_gateway']['height']
+        })
+        vpn_id = f'node_{node_id}'
+        node_id += 1
+        
+        # Conectar on-premises al VPN
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': onprem_id,
+            'to': vpn_id
+        })
+        
+        # Conectar VPN al VNet
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': vpn_id,
+            'to': vnet_id
+        })
+    
+    # Conectar componentes principales
+    if components['load_balancer'] and components['app_service']:
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': lb_id,
+            'to': app_service_id
+        })
+    
+    if components['app_service'] and components['database']:
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': app_service_id,
+            'to': sql_id
+        })
+    
+    if components['app_service'] and components['storage']:
+        edges.append({
+            'id': f'edge_{len(edges)}',
+            'from': app_service_id,
+            'to': storage_id
+        })
+    
+    return {
+        'type': 'azure_architecture',
+        'nodes': nodes,
+        'edges': edges
+    }
+
+def get_system_prompt_for_type(diagram_type):
+    """Retorna el prompt del sistema según el tipo de diagrama"""
+    base_prompts = {
+        'flowchart': """Eres un experto en diagramas de flujo. 
+        Genera un diagrama de flujo lógico y bien estructurado con la siguiente estructura JSON:
+        {
+            "type": "flowchart",
+            "nodes": [
+                {
+                    "id": "unique_id",
+                    "type": "start|process|decision|end",
+                    "text": "texto descriptivo",
+                    "x": posicion_x,
+                    "y": posicion_y,
+                    "width": 120,
+                    "height": 60
+                }
+            ],
+            "edges": [
+                {
+                    "id": "edge_id",
+                    "from": "id_nodo_origen",
+                    "to": "id_nodo_destino",
+                    "text": "texto de la conexión (opcional)"
+                }
+            ]
+        }
+        
+        Usa tipos de nodos apropiados:
+        - start: para el inicio del proceso
+        - process: para pasos o acciones
+        - decision: para decisiones o condiciones
+        - end: para el final del proceso
+        
+        Organiza los nodos en un flujo lógico de arriba hacia abajo o de izquierda a derecha.""",
+        
+        'sequence': """Eres un experto en diagramas de secuencia UML.
+        Genera un diagrama de secuencia con la siguiente estructura JSON:
+        {
+            "type": "sequence",
+            "nodes": [
+                {
+                    "id": "unique_id",
+                    "type": "actor|system|database|external",
+                    "text": "nombre del componente",
+                    "x": posicion_x,
+                    "y": posicion_y,
+                    "width": 100,
+                    "height": 120
+                }
+            ],
+            "edges": [
+                {
+                    "id": "edge_id",
+                    "from": "id_nodo_origen",
+                    "to": "id_nodo_destino",
+                    "text": "acción o mensaje"
+                }
+            ]
+        }
+        
+        Usa tipos de nodos apropiados:
+        - actor: para usuarios o sistemas externos
+        - system: para componentes del sistema
+        - database: para bases de datos
+        - external: para servicios externos""",
+        
+        'class': """Eres un experto en diagramas de clases UML.
+        Genera un diagrama de clases con la siguiente estructura JSON:
+        {
+            "type": "class",
+            "nodes": [
+                {
+                    "id": "unique_id",
+                    "type": "class|interface|abstract",
+                    "text": "NombreClase\\n+atributo1: tipo\\n+atributo2: tipo\\n\\n+metodo1()\\n+metodo2()",
+                    "x": posicion_x,
+                    "y": posicion_y,
+                    "width": 150,
+                    "height": 100
+                }
+            ],
+            "edges": [
+                {
+                    "id": "edge_id",
+                    "from": "id_nodo_origen",
+                    "to": "id_nodo_destino",
+                    "text": "herencia|implementa|asociación"
+                }
+            ]
+        }
+        
+        Usa tipos de nodos apropiados:
+        - class: para clases regulares
+        - interface: para interfaces
+        - abstract: para clases abstractas""",
+        
+        'er': """Eres un experto en diagramas entidad-relación.
+        Genera un diagrama ER con la siguiente estructura JSON:
+        {
+            "type": "er",
+            "nodes": [
+                {
+                    "id": "unique_id",
+                    "type": "entity|relationship|attribute",
+                    "text": "NombreEntidad\\n+atributo1\\n+atributo2\\n+atributo3",
+                    "x": posicion_x,
+                    "y": posicion_y,
+                    "width": 140,
+                    "height": 80
+                }
+            ],
+            "edges": [
+                {
+                    "id": "edge_id",
+                    "from": "id_nodo_origen",
+                    "to": "id_nodo_destino",
+                    "text": "1:N|N:M|1:1"
+                }
+            ]
+        }
+        
+        Usa tipos de nodos apropiados:
+        - entity: para entidades principales
+        - relationship: para relaciones
+        - attribute: para atributos clave"""
+    }
+    
+    return base_prompts.get(diagram_type, base_prompts['flowchart'])
 
 def detect_diagram_type(description):
     """Detecta automáticamente el tipo de diagrama basado en la descripción"""

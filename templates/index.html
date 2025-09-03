@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Eraser.io Clone - Editor de Diagramas con IA</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="azure-styles.css" rel="stylesheet">
+    <script src="azure-icons.js"></script>
     <style>
         * {
             margin: 0;
@@ -285,19 +287,23 @@
         .diagram-node {
             position: absolute;
             border: 2px solid #e2e8f0;
-            border-radius: 6px;
+            border-radius: 8px;
             background: white;
             cursor: move;
             user-select: none;
-            min-width: 80px;
-            min-height: 40px;
+            min-width: 120px;
+            min-height: 80px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             color: #475569;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
+            padding: 16px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            overflow: hidden;
         }
 
         .diagram-node:hover {
@@ -353,6 +359,30 @@
             border-radius: 6px;
             background: #f3e8ff;
         }
+        
+        /* Estilos para iconos de Azure */
+        .azure-icon {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .azure-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+        
+        .text-line {
+            margin: 2px 0;
+            line-height: 1.3;
+            font-size: 11px;
+        }
+        
+        .content {
+            line-height: 1.4;
+            font-size: 12px;
+        }
 
         /* Connections */
         .connection {
@@ -368,6 +398,30 @@
         }
 
         .connection-line:hover {
+            stroke: #2563eb;
+            stroke-width: 3;
+        }
+        
+        /* Conexiones SVG con flechas */
+        .connection-svg {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .connection-svg svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .connection-svg line {
+            stroke: #374151;
+            stroke-width: 2;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+        
+        .connection-svg:hover line {
             stroke: #2563eb;
             stroke-width: 3;
         }
@@ -913,8 +967,23 @@
             element.id = `element-${nextId}`;
             element.style.left = x + 'px';
             element.style.top = y + 'px';
-            element.innerHTML = `<div class="content">${text}</div>`;
             
+            // Agregar icono de Azure si existe
+            let iconHtml = '';
+            if (typeof getAzureIcon === 'function' && AzureIcons[type]) {
+                iconHtml = `<div class="azure-icon">${getAzureIcon(type)}</div>`;
+            }
+            
+            // Manejar texto con saltos de línea para nodos Azure
+            let textHtml = '';
+            if (text.includes('\n')) {
+                const lines = text.split('\n');
+                textHtml = lines.map(line => `<div class="text-line">${line}</div>`).join('');
+            } else {
+                textHtml = `<div class="content">${text}</div>`;
+            }
+            
+            element.innerHTML = iconHtml + textHtml;
             document.getElementById('canvas').appendChild(element);
             
             elements.push({
@@ -935,28 +1004,43 @@
             
             if (!fromElement || !toElement) return;
             
-            const connection = document.createElement('svg');
-            connection.className = 'connection';
-            connection.style.position = 'absolute';
-            connection.style.left = '0';
-            connection.style.top = '0';
-            connection.style.width = '100%';
-            connection.style.height = '100%';
-            connection.style.pointerEvents = 'none';
-            
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.className = 'connection-line';
-            
-            connection.appendChild(line);
-            document.getElementById('canvas').appendChild(connection);
-            
-            connections.push({
-                id: `connection-${nextId}`,
-                from: fromId,
-                to: toId,
-                element: connection,
-                line: line
-            });
+            // Usar la función mejorada de Azure si está disponible
+            if (typeof createArrowConnection === 'function') {
+                const connection = createArrowConnection(fromElement, toElement);
+                connection.classList.add('connection-svg');
+                document.getElementById('canvas').appendChild(connection);
+                
+                connections.push({
+                    id: `connection-${nextId}`,
+                    from: fromId,
+                    to: toId,
+                    element: connection
+                });
+            } else {
+                // Fallback a la implementación original
+                const connection = document.createElement('svg');
+                connection.className = 'connection';
+                connection.style.position = 'absolute';
+                connection.style.left = '0';
+                connection.style.top = '0';
+                connection.style.width = '100%';
+                connection.style.height = '100%';
+                connection.style.pointerEvents = 'none';
+                
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.className = 'connection-line';
+                
+                connection.appendChild(line);
+                document.getElementById('canvas').appendChild(connection);
+                
+                connections.push({
+                    id: `connection-${nextId}`,
+                    from: fromId,
+                    to: toId,
+                    element: connection,
+                    line: line
+                });
+            }
             
             nextId++;
             updateConnections();
@@ -1179,6 +1263,9 @@
             connections = [];
             nextId = 1;
             
+            // Store current diagram for connections
+            window.currentDiagram = diagram;
+            
             // Load diagram data
             if (diagram.data && diagram.data.nodes) {
                 diagram.data.nodes.forEach(node => {
@@ -1186,11 +1273,16 @@
                 });
             }
             
-            if (diagram.data && diagram.data.edges) {
-                diagram.data.edges.forEach(edge => {
-                    addConnection(edge.from, edge.to);
-                });
-            }
+            // Wait a bit for elements to render, then add connections
+            setTimeout(() => {
+                if (typeof updateAllConnections === 'function') {
+                    updateAllConnections();
+                } else if (diagram.data && diagram.data.edges) {
+                    diagram.data.edges.forEach(edge => {
+                        addConnection(edge.from, edge.to);
+                    });
+                }
+            }, 100);
         }
 
         function saveDiagram() {
