@@ -12,6 +12,8 @@ import uuid
 from datetime import datetime
 import openai
 from config import get_config, validate_config, print_config_summary
+from libs_handler import get_available_libraries, serve_lib_file, parse_library_content
+from icon_mapping import map_azure_icon_to_libs, get_icon_from_libs
 
 # Obtener configuración
 config = get_config()
@@ -39,6 +41,8 @@ diagrams = {}  # {diagram_id: diagram_data}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
+
+
 
 def cleanup_temp_files(filepath, max_retries=3):
     """Limpia archivos temporales con reintentos"""
@@ -120,10 +124,14 @@ def generate_diagram_with_ai(description, diagram_type='auto'):
         
         print(f"📊 Tipo de diagrama detectado: {diagram_type}")
         
-        # Crear prompt específico para Azure si se detecta
-        if ('azure' in description.lower() or 'cloud' in description.lower() or 
-            'microsoft' in description.lower() or 'suscripciones' in description.lower() or
-            'subscriptions' in description.lower()):
+        # Crear prompt específico para Azure solo si se detecta explícitamente
+        description_lower = description.lower()
+        is_azure_specific = (
+            'azure' in description_lower and 
+            ('hub and spoke' in description_lower or 'suscripciones' in description_lower or 'subscriptions' in description_lower)
+        )
+        
+        if is_azure_specific:
             print("🔵 Generando diagrama Azure especializado...")
             return generate_azure_architecture_diagram(description)
         
@@ -300,6 +308,11 @@ def create_hub_spoke_structure(num_subscriptions, components):
     
     # 2. Azure Virtual Network Manager (Top center, above hub)
     vnet_manager_x, vnet_manager_y = get_grid_position(1, 6, -75, 0)
+    
+    # Obtener icono desde la carpeta Libs
+    vnet_icon = get_icon_from_libs("10061-icon-service-Virtual-Networks.svg")
+    icon_path = vnet_icon['path'] if vnet_icon else "/libs/integration/azure.xml"
+    
     nodes.append({
         "id": "azure_vnet_manager",
         "type": "azure_icon",
@@ -308,7 +321,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": vnet_manager_y,
         "width": 150,
         "height": 100,
-        "icon": "/icons/Azure/networking/10061-icon-service-Virtual-Networks.svg",
+        "icon": icon_path,
         "metadata": {
             "service": "Virtual Network Manager",
             "purpose": "Centralized network policy management",
@@ -347,7 +360,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": vm1_y,
         "width": 90,
         "height": 70,
-        "icon": "/icons/Azure/compute/10021-icon-service-Virtual-Machine.svg",
+        "icon": "/libs/integration/azure.xml",
         "metadata": {
             "os": "Windows Server 2022",
             "specs": "4 vCPU, 16 GB RAM, 128 GB SSD",
@@ -365,7 +378,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": vm2_y,
         "width": 90,
         "height": 70,
-        "icon": "/icons/Azure/compute/10021-icon-service-Virtual-Machine.svg",
+        "icon": "/libs/integration/azure.xml",
         "metadata": {
             "os": "Ubuntu 22.04 LTS",
             "specs": "2 vCPU, 8 GB RAM, 64 GB SSD",
@@ -376,6 +389,11 @@ def create_hub_spoke_structure(num_subscriptions, components):
     # Secure Connection with organized positioning - Positioned inside the container
     secure_conn_x = cross_premises_x + 70
     secure_conn_y = cross_premises_y + 180
+    
+    # Obtener icono de conexión segura desde la carpeta Libs
+    secure_icon = get_icon_from_libs("10063-icon-service-Virtual-Network-Gateways.svg")
+    secure_icon_path = secure_icon['path'] if secure_icon else "/libs/integration/azure.xml"
+    
     nodes.append({
         "id": "secure_connection",
         "type": "azure_icon",
@@ -384,7 +402,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": secure_conn_y,
         "width": 90,
         "height": 70,
-        "icon": "/icons/Azure/networking/10063-icon-service-Virtual-Network-Gateways.svg",
+        "icon": secure_icon_path,
         "metadata": {
             "type": "ExpressRoute Circuit",
             "bandwidth": "1 Gbps",
@@ -424,7 +442,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": bastion_y,
         "width": 100,
         "height": 80,
-        "icon": "/icons/Azure/networking/02422-icon-service-Bastions.svg",
+        "icon": "/libs/integration/azure.xml",
         "metadata": {
             "service": "Azure Bastion",
             "purpose": "Secure RDP/SSH access",
@@ -443,7 +461,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": firewall_y,
         "width": 100,
         "height": 80,
-        "icon": "/icons/Azure/networking/10084-icon-service-Firewalls.svg",
+        "icon": "/libs/integration/azure.xml",
         "metadata": {
             "sku": "Premium",
             "features": ["Threat Intelligence", "TLS Inspection", "Web Categories"],
@@ -462,7 +480,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": vpn_gateway_y,
         "width": 100,
         "height": 80,
-        "icon": "/icons/Azure/networking/10079-icon-service-ExpressRoute-Circuits.svg",
+        "icon": "/libs/integration/azure.xml",
         "metadata": {
             "sku": "VpnGw2AZ",
             "bandwidth": "1.25 Gbps",
@@ -481,7 +499,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
         "y": monitor_y,
         "width": 100,
         "height": 80,
-        "icon": "/icons/Azure/monitor/00001-icon-service-Monitor.svg",
+        "icon": "/libs/integration/azure.xml",
         "metadata": {
             "services": ["Log Analytics", "Application Insights", "Network Watcher"],
             "retention": "90 days",
@@ -549,7 +567,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
                 "y": vm_y,
                 "width": 40,
                 "height": 40,
-                "icon": "/icons/Azure/compute/10021-icon-service-Virtual-Machine.svg",
+                "icon": "/libs/integration/azure.xml",
                 "metadata": {
                     "tier": vm_tier,
                     "specs": vm_specs,
@@ -618,7 +636,7 @@ def create_hub_spoke_structure(num_subscriptions, components):
                 "y": vm_y,
                 "width": 40,
                 "height": 40,
-                "icon": "/icons/Azure/compute/10021-icon-service-Virtual-Machine.svg",
+                "icon": "/libs/integration/azure.xml",
                 "metadata": {
                     "environment": vm_env,
                     "specs": vm_specs,
@@ -2568,22 +2586,23 @@ def generate_png_from_diagram(diagram, filepath):
             import cairosvg
             cairosvg.svg2png(bytestring=svg_content.encode('utf-8'), write_to=filepath)
             print(f"✅ PNG generado exitosamente: {filepath}")
+            return filepath
         except ImportError:
             print("⚠️ cairosvg no disponible, usando fallback...")
             # Fallback: usar PIL para generar PNG básico
             try:
                 from PIL import Image, ImageDraw, ImageFont
                 # Crear imagen PNG básica
-                img = Image.new('RGB', (800, 600), color='white')
+                img = Image.new('RGB', (1200, 800), color='white')
                 draw = ImageDraw.Draw(img)
                 
                 # Título del diagrama
                 try:
-                    font = ImageFont.truetype("arial.ttf", 20)
+                    font = ImageFont.truetype("arial.ttf", 24)
                 except:
                     font = ImageFont.load_default()
                 
-                draw.text((400, 50), f"Diagrama: {diagram.get('title', 'Sin título')}", 
+                draw.text((600, 50), f"Diagrama: {diagram.get('title', 'Sin título')}", 
                          fill='black', anchor='mm', font=font)
                 
                 # Renderizar nodos básicos
@@ -2606,6 +2625,7 @@ def generate_png_from_diagram(diagram, filepath):
                 
                 img.save(filepath)
                 print(f"✅ PNG generado con PIL: {filepath}")
+                return filepath
                 
             except ImportError:
                 print("⚠️ PIL no disponible, usando reportlab...")
@@ -2627,12 +2647,13 @@ def generate_png_from_diagram(diagram, filepath):
                     
                     c.save()
                     print(f"⚠️ PDF generado como fallback: {pdf_path}")
-                    filepath = pdf_path
+                    return pdf_path
                     
                 except ImportError:
                     print("⚠️ reportlab no disponible, usando archivo de texto...")
                     # Último fallback: archivo de texto
-                    with open(filepath.replace('.png', '.txt'), 'w', encoding='utf-8') as f:
+                    txt_path = filepath.replace('.png', '.txt')
+                    with open(txt_path, 'w', encoding='utf-8') as f:
                         f.write(f"Diagrama: {diagram.get('title', 'Sin título')}\n")
                         f.write("=" * 50 + "\n\n")
                         f.write("NODOS:\n")
@@ -2645,14 +2666,15 @@ def generate_png_from_diagram(diagram, filepath):
                                 f.write(f" ({edge['label']})")
                             f.write("\n")
                     
-                    print(f"⚠️ Archivo de texto generado como fallback: {filepath.replace('.png', '.txt')}")
-                    filepath = filepath.replace('.png', '.txt')
+                    print(f"⚠️ Archivo de texto generado como fallback: {txt_path}")
+                    return txt_path
             
     except Exception as e:
         print(f"Error generando PNG: {str(e)}")
         # Crear archivo de texto de error
+        error_path = filepath.replace('.png', '_error.txt')
         try:
-            with open(filepath.replace('.png', '_error.txt'), 'w', encoding='utf-8') as f:
+            with open(error_path, 'w', encoding='utf-8') as f:
                 f.write(f"Error generando PNG: {str(e)}\n")
                 f.write(f"Diagrama: {diagram.get('title', 'Sin título')}\n")
                 f.write("=" * 50 + "\n")
@@ -2661,8 +2683,8 @@ def generate_png_from_diagram(diagram, filepath):
         except:
             pass
         
-        print(f"⚠️ Archivo de error generado: {filepath.replace('.png', '_error.txt')}")
-        filepath = filepath.replace('.png', '_error.txt')
+        print(f"⚠️ Archivo de error generado: {error_path}")
+        return error_path
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -2735,6 +2757,82 @@ def get_available_icons():
         
     except Exception as e:
         print(f"Error cargando iconos: {str(e)}")
+        return jsonify({'error': f'Error cargando iconos: {str(e)}'}), 500
+
+@app.route('/api/icons/libs', methods=['GET'])
+def get_available_icons_from_libs():
+    """Obtiene todos los iconos disponibles desde la carpeta Libs y subcarpetas"""
+    try:
+        icons = {}
+        libs_path = 'Libs'
+        
+        if not os.path.exists(libs_path):
+            return jsonify({'error': 'Carpeta Libs no encontrada'}), 404
+        
+        # Cargar iconos desde archivos XML en la carpeta Libs y subcarpetas
+        for root, dirs, files in os.walk(libs_path):
+            for filename in files:
+                if filename.endswith('.xml'):
+                    # Construir ruta relativa desde Libs
+                    relative_path = os.path.relpath(os.path.join(root, filename), libs_path)
+                    library_name = relative_path.replace('.xml', '')
+                    icons[library_name] = []
+                    
+                    # Leer el archivo XML y extraer información de iconos
+                    xml_path = os.path.join(root, filename)
+                    try:
+                        with open(xml_path, 'r', encoding='utf-8') as f:
+                            content = f.read()
+                        
+                        # Buscar patrones de iconos en el XML
+                        import re
+                        
+                        # Buscar entradas de iconos (patrón común en drawio-libs)
+                        icon_matches = re.findall(r'"title":\s*"([^"]+)"', content)
+                        width_matches = re.findall(r'"w":\s*(\d+)', content)
+                        height_matches = re.findall(r'"h":\s*(\d+)', content)
+                        data_matches = re.findall(r'"data":\s*"([^"]+)"', content)
+                        
+                        # Combinar información de iconos
+                        for i in range(min(len(icon_matches), len(width_matches), len(height_matches))):
+                            icon_info = {
+                                'name': icon_matches[i],
+                                'title': icon_matches[i],
+                                'width': int(width_matches[i]),
+                                'height': int(height_matches[i]),
+                                'provider': library_name.split('/')[0] if '/' in library_name else library_name,
+                                'category': library_name.split('/')[-1] if '/' in library_name else library_name,
+                                'library': library_name,
+                                'path': f'/libs/{relative_path}',
+                                'type': 'drawio-icon'
+                            }
+                            
+                            if i < len(data_matches):
+                                icon_info['data'] = data_matches[i]
+                            
+                            icons[library_name].append(icon_info)
+                        
+                        print(f"📦 Biblioteca {library_name}: {len(icons[library_name])} iconos")
+                        
+                    except Exception as e:
+                        print(f"Error procesando {filename}: {str(e)}")
+                        icons[library_name] = []
+        
+        # Contar total de iconos
+        total_icons = sum(len(icon_list) for icon_list in icons.values())
+        
+        print(f"📦 Total de iconos cargados desde Libs: {total_icons} desde {len(icons)} bibliotecas")
+        
+        return jsonify({
+            'success': True,
+            'icons': icons,
+            'total_icons': total_icons,
+            'libraries': list(icons.keys()),
+            'source': 'Libs'
+        })
+        
+    except Exception as e:
+        print(f"Error cargando iconos desde Libs: {str(e)}")
         return jsonify({'error': f'Error cargando iconos: {str(e)}'}), 500
 
 @app.route('/icons/<path:filename>')
@@ -3102,6 +3200,32 @@ def generate_mermaid_code(diagram_data, diagram_type):
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'healthy', 'message': 'Aplicación funcionando correctamente'})
+
+@app.route('/api/libs', methods=['GET'])
+def api_get_libraries():
+    """API endpoint para obtener todas las bibliotecas disponibles"""
+    result = get_available_libraries()
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return jsonify(result)
+
+@app.route('/libs/<path:filename>')
+def api_serve_lib_file(filename):
+    """Sirve archivos de bibliotecas de iconos desde la carpeta Libs"""
+    result = serve_lib_file(filename)
+    if isinstance(result, tuple):
+        return jsonify(result[0]), result[1]
+    return result
+
+@app.route('/api/libs/<library_name>/parse', methods=['GET'])
+def api_parse_library(library_name):
+    """Parsea el contenido de una biblioteca específica"""
+    filename = f"{library_name}.xml"
+    result = parse_library_content(filename)
+    if result:
+        return jsonify(result)
+    else:
+        return jsonify({'error': 'Biblioteca no encontrada o error al parsear'}), 404
 
 if __name__ == '__main__':
     print("🚀 Iniciando Diagramas Creator - Editor de Diagramas con IA...")

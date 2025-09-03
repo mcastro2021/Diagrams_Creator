@@ -72,8 +72,8 @@ body {
 
 /* Canvas del diagrama */
 .diagram-canvas {
-    min-height: 800px;
-    min-width: 1200px;
+    min-height: 1200px;
+    min-width: 1600px;
     background-color: white;
     border: 2px dashed #dee2e6;
     border-radius: var(--border-radius);
@@ -755,10 +755,11 @@ body {
 /* Scroll horizontal y vertical para el canvas */
 .diagram-canvas-container {
     overflow: auto;
-    max-height: 80vh;
+    max-height: 85vh;
     max-width: 100%;
     border: 1px solid #dee2e6;
     border-radius: var(--border-radius);
+    background: #f8f9fa;
 }
 
 /* Ajustes para el contenedor principal */

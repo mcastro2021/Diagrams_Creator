@@ -22,18 +22,45 @@ class IconsPanel {
     
     async loadIcons() {
         try {
-            const response = await fetch('/api/icons');
+            // Usar la nueva API de la carpeta Libs
+            const response = await fetch('/api/icons/libs');
             const data = await response.json();
             
             if (data.success) {
                 this.icons = data.icons;
-                console.log('📦 Panel de iconos inicializado:', data.total_icons, 'iconos');
+                console.log('📦 Panel de iconos inicializado desde Libs:', data.total_icons, 'iconos desde', data.libraries.length, 'bibliotecas');
                 
                 // Crear índice de búsqueda para búsqueda más rápida
                 this.createSearchIndex();
+            } else {
+                // Fallback a la API original si la nueva falla
+                console.log('⚠️ Fallback a API original de iconos...');
+                const fallbackResponse = await fetch('/api/icons');
+                const fallbackData = await fallbackResponse.json();
+                
+                if (fallbackData.success) {
+                    this.icons = fallbackData.icons;
+                    console.log('📦 Panel de iconos inicializado (fallback):', fallbackData.total_icons, 'iconos');
+                    this.createSearchIndex();
+                }
             }
         } catch (error) {
-            console.error('Error cargando iconos:', error);
+            console.error('Error cargando iconos desde Libs:', error);
+            
+            // Fallback a la API original
+            try {
+                console.log('🔄 Intentando fallback a API original...');
+                const fallbackResponse = await fetch('/api/icons');
+                const fallbackData = await fallbackResponse.json();
+                
+                if (fallbackData.success) {
+                    this.icons = fallbackData.icons;
+                    console.log('📦 Panel de iconos inicializado (fallback):', fallbackData.total_icons, 'iconos');
+                    this.createSearchIndex();
+                }
+            } catch (fallbackError) {
+                console.error('Error en fallback también:', fallbackError);
+            }
         }
     }
     
@@ -41,9 +68,9 @@ class IconsPanel {
         // Crear índice de búsqueda para búsqueda más eficiente
         this.searchIndex = {};
         
-        Object.entries(this.icons).forEach(([providerName, provider]) => {
-            Object.entries(provider).forEach(([categoryName, categoryIcons]) => {
-                categoryIcons.forEach(icon => {
+        Object.entries(this.icons).forEach(([libraryName, iconList]) => {
+            if (Array.isArray(iconList)) {
+                iconList.forEach(icon => {
                     // Indexar por nombre
                     const nameWords = icon.name.toLowerCase().split('-');
                     nameWords.forEach(word => {
@@ -52,18 +79,28 @@ class IconsPanel {
                     });
                     
                     // Indexar por categoría
-                    if (!this.searchIndex[categoryName.toLowerCase()]) {
-                        this.searchIndex[categoryName.toLowerCase()] = [];
+                    if (icon.category) {
+                        if (!this.searchIndex[icon.category.toLowerCase()]) {
+                            this.searchIndex[icon.category.toLowerCase()] = [];
+                        }
+                        this.searchIndex[icon.category.toLowerCase()].push(icon);
                     }
-                    this.searchIndex[categoryName.toLowerCase()].push(icon);
                     
                     // Indexar por proveedor
-                    if (!this.searchIndex[providerName.toLowerCase()]) {
-                        this.searchIndex[providerName.toLowerCase()] = [];
+                    if (icon.provider) {
+                        if (!this.searchIndex[icon.provider.toLowerCase()]) {
+                            this.searchIndex[icon.provider.toLowerCase()] = [];
+                        }
+                        this.searchIndex[icon.provider.toLowerCase()].push(icon);
                     }
-                    this.searchIndex[providerName.toLowerCase()].push(icon);
+                    
+                    // Indexar por biblioteca
+                    if (!this.searchIndex[libraryName.toLowerCase()]) {
+                        this.searchIndex[libraryName.toLowerCase()] = [];
+                    }
+                    this.searchIndex[libraryName.toLowerCase()].push(icon);
                 });
-            });
+            }
         });
     }
     
@@ -410,26 +447,26 @@ class IconsPanel {
         
         let iconsToShow = [];
         
-        // Filtrar iconos según los criterios
-        Object.entries(this.icons).forEach(([providerName, provider]) => {
-            if (this.currentProvider !== 'all' && providerName !== this.currentProvider) {
-                return;
-            }
-            
-            Object.entries(provider).forEach(([categoryName, categoryIcons]) => {
-                if (this.currentCategory !== 'all' && categoryName !== this.currentCategory) {
+        // Nueva estructura: this.icons[libraryName] = [icon1, icon2, ...]
+        Object.entries(this.icons).forEach(([libraryName, iconList]) => {
+            if (Array.isArray(iconList)) {
+                // Filtrar por biblioteca si se especifica
+                if (this.currentProvider !== 'all' && libraryName !== this.currentProvider) {
                     return;
                 }
                 
-                categoryIcons.forEach(icon => {
+                iconList.forEach(icon => {
+                    // Filtrar por búsqueda
                     if (this.searchQuery === '' || 
                         icon.name.toLowerCase().includes(this.searchQuery) ||
-                        categoryName.toLowerCase().includes(this.searchQuery) ||
-                        providerName.toLowerCase().includes(this.searchQuery)) {
+                        (icon.title && icon.title.toLowerCase().includes(this.searchQuery)) ||
+                        (icon.provider && icon.provider.toLowerCase().includes(this.searchQuery)) ||
+                        (icon.category && icon.category.toLowerCase().includes(this.searchQuery)) ||
+                        libraryName.toLowerCase().includes(this.searchQuery)) {
                         iconsToShow.push(icon);
                     }
                 });
-            });
+            }
         });
         
         // Mostrar mensaje si no hay iconos
@@ -531,7 +568,12 @@ class IconsPanel {
     createIconElement(icon) {
         const iconDiv = document.createElement('div');
         iconDiv.className = 'icon-item';
-        iconDiv.title = `${icon.name} (${icon.provider}/${icon.category})`;
+        
+        // Usar provider y category si están disponibles, sino usar library
+        const provider = icon.provider || icon.library?.split('/')[0] || 'Unknown';
+        const category = icon.category || icon.library?.split('/')[-1] || 'Unknown';
+        
+        iconDiv.title = `${icon.name} (${provider}/${category})`;
         
         const isFavorite = this.favoriteIcons.some(fav => fav.path === icon.path);
         
@@ -545,7 +587,7 @@ class IconsPanel {
             </div>
             <div class="icon-name">${this.formatIconName(icon.name)}</div>
             <div class="icon-meta">
-                <small class="text-muted">${icon.provider} • ${this.formatCategoryName(icon.category)}</small>
+                <small class="text-muted">${provider} • ${category}</small>
             </div>
         `;
         
