@@ -541,7 +541,7 @@ class DiagramGenerator:
         except:
             # Si falla el formateo, devolver original
             return xml_str
-wa    
+
     def export_diagram(self, xml_file_path: str, export_format: str) -> str:
         """Exportar diagrama a diferentes formatos"""
         try:
