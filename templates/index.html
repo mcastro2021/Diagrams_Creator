@@ -3,25 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diagramas Creator - Editor de Diagramas con IA</title>
+    <title>Diagrams Creator - Generador de Diagramas con IA</title>
     
-    <!-- Bootstrap CSS -->
+    <!-- CSS Framework y estilos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    
-    <!-- Mermaid.js para diagramas -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
 </head>
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
+        <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <i class="fas fa-project-diagram me-2"></i>
-                Diagramas Creator
+                Diagrams Creator
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -29,236 +24,330 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">
-                            <i class="fas fa-question-circle me-1"></i>Ayuda
-                        </a>
+                        <a class="nav-link" href="#about">Acerca de</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Características</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#help">Ayuda</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Container -->
     <div class="container-fluid mt-4">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="card">
+            <!-- Sidebar con librerías de iconos -->
+            <div class="col-lg-3 col-md-4">
+                <div class="card shadow-sm">
                     <div class="card-header">
                         <h5 class="mb-0">
-                            <i class="fas fa-tools me-2"></i>Herramientas
+                            <i class="fas fa-icons me-2"></i>
+                            Librerías de Iconos
                         </h5>
                     </div>
                     <div class="card-body">
-                        <!-- AI Diagram Generator -->
+                        <!-- Búsqueda de iconos -->
                         <div class="mb-3">
-                            <h6>Generar con IA</h6>
-                            <button class="btn btn-success btn-sm w-100 mb-2" data-bs-toggle="modal" data-bs-target="#aiModal">
-                                <i class="fas fa-magic me-1"></i>Generar Diagrama IA
-                            </button>
-                        </div>
-
-                        <!-- Templates -->
-                        <div class="mb-3">
-                            <h6>Plantillas</h6>
-                            <div id="templatesList">
-                                <!-- Templates se cargarán dinámicamente -->
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="iconSearch" 
+                                    placeholder="Buscar iconos (ej: firewall, azure, aws...)"
+                                >
+                                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                Busca entre 5,000+ iconos en 61 librerías
                             </div>
                         </div>
-
-                        <!-- File Upload -->
+                        
+                        <!-- Selector de librería -->
                         <div class="mb-3">
-                            <h6>Subir Archivo</h6>
-                            <input type="file" id="fileInput" class="form-control form-control-sm mb-2" accept=".txt,.pdf,.docx,.xlsx,.csv,.json,.png,.jpg,.jpeg,.svg">
-                            <button class="btn btn-primary btn-sm w-100" onclick="uploadFile()">
-                                <i class="fas fa-upload me-1"></i>Procesar
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- Icons Panel -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-icons me-2"></i>Biblioteca de Iconos
-                        </h5>
-                    </div>
-                    <div class="card-body p-2">
-                        <!-- Search Bar -->
-                        <div class="mb-2">
-                            <input type="text" id="iconSearch" class="form-control form-control-sm" placeholder="Buscar iconos...">
+                            <label for="librarySelect" class="form-label">Seleccionar Librería</label>
+                            <select class="form-select" id="librarySelect">
+                                <option value="">Todas las librerías</option>
+                                <!-- Las opciones se cargarán dinámicamente -->
+                            </select>
                         </div>
                         
-                        <!-- Libraries Tabs -->
-                        <ul class="nav nav-pills nav-fill mb-2" id="libraryTabs">
+                        <!-- Filtros rápidos -->
+                        <div class="mb-3">
+                            <div class="btn-group-vertical d-grid gap-1" role="group">
+                                <button type="button" class="btn btn-outline-primary btn-sm filter-btn" data-filter="fortinet">
+                                    🛡️ Fortinet Security
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm filter-btn" data-filter="integration">
+                                    🔗 Integration
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm filter-btn" data-filter="azure">
+                                    ☁️ Azure
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm filter-btn" data-filter="aws">
+                                    🟧 AWS
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm filter-btn" data-filter="kubernetes">
+                                    🐳 Kubernetes
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Resultados de búsqueda -->
+                        <div id="searchResults" style="display: none;">
+                            <h6 class="mb-2">
+                                <span id="searchResultsCount">0</span> resultados encontrados
+                            </h6>
+                            <div id="searchResultsGrid" class="icons-grid-search">
+                                <!-- Los resultados aparecerán aquí -->
+                            </div>
+                        </div>
+                        
+                        <!-- Accordion de librerías (oculto por defecto) -->
+                        <div id="librariesAccordion" class="accordion" style="display: none;">
+                            <!-- Las librerías se cargarán dinámicamente aquí -->
+                        </div>
+                        
+                        <!-- Mensaje de estado -->
+                        <div id="iconsStatus" class="text-center text-muted">
+                            <i class="fas fa-search fa-2x mb-2"></i>
+                            <p>Usa la búsqueda o filtros para encontrar iconos</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel de configuración -->
+                <div class="card shadow-sm mt-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-cog me-2"></i>
+                            Configuración
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="diagramType" class="form-label">Tipo de Diagrama</label>
+                            <select class="form-select" id="diagramType">
+                                <option value="auto">Detección Automática</option>
+                                <option value="aws">AWS Architecture</option>
+                                <option value="azure">Azure Architecture</option>
+                                <option value="gcp">Google Cloud Platform</option>
+                                <option value="kubernetes">Kubernetes</option>
+                                <option value="network">Network Diagram</option>
+                                <option value="generic">Genérico</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="diagramStyle" class="form-label">Estilo Visual</label>
+                            <select class="form-select" id="diagramStyle">
+                                <option value="modern">Moderno</option>
+                                <option value="minimal">Minimalista</option>
+                                <option value="colorful">Colorido</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9 col-md-8">
+                <!-- Input Section -->
+                <div class="card shadow-sm">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="inputTabs">
                             <li class="nav-item">
-                                <a class="nav-link active" id="all-tab" data-bs-toggle="pill" href="#all-icons">Todos</a>
+                                <a class="nav-link active" id="text-tab" data-bs-toggle="tab" href="#text-input">
+                                    <i class="fas fa-keyboard me-2"></i>
+                                    Texto
+                                </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="integration-tab" data-bs-toggle="pill" href="#integration-icons">Integración</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="azure-tab" data-bs-toggle="pill" href="#azure-icons">Azure</a>
+                                <a class="nav-link" id="file-tab" data-bs-toggle="tab" href="#file-input">
+                                    <i class="fas fa-file-upload me-2"></i>
+                                    Documento
+                                </a>
                             </li>
                         </ul>
-                        
-                        <!-- Icons Content -->
-                        <div class="tab-content" id="iconsTabContent">
-                            <div class="tab-pane fade show active" id="all-icons">
-                                <div id="allIcons" class="icons-categories">
-                                    <!-- All icons will be loaded here -->
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="integration-icons">
-                                <div id="integrationIcons" class="icons-categories">
-                                    <!-- Integration icons will be loaded here -->
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="azure-icons">
-                                <div id="azureIcons" class="icons-categories">
-                                    <!-- Azure icons will be loaded here -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Diagram List -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list me-2"></i>Mis Diagramas
-                        </h5>
                     </div>
                     <div class="card-body">
-                        <div id="diagramsList">
-                            <!-- Diagramas se cargarán dinámicamente -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Canvas del diagrama -->
-            <div class="col-md-9">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-project-diagram me-2"></i>Canvas del Diagrama
-                        </h5>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-outline-primary btn-sm" onclick="exportDiagram('svg')">
-                                <i class="fas fa-download me-1"></i>Exportar SVG
-                            </button>
-                            <button class="btn btn-outline-primary btn-sm" onclick="exportDiagram('png')">
-                                <i class="fas fa-download me-1"></i>Exportar PNG
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="diagram-canvas-container">
-                            <div id="diagramCanvas" class="diagram-canvas">
-                                <!-- Los diagramas se renderizarán aquí -->
+                        <div class="tab-content" id="inputTabContent">
+                            <!-- Text Input Tab -->
+                            <div class="tab-pane fade show active" id="text-input">
+                                <div class="mb-3">
+                                    <label for="architectureText" class="form-label">
+                                        Describe tu arquitectura
+                                    </label>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="architectureText" 
+                                        rows="8" 
+                                        placeholder="Describe aquí tu arquitectura de sistema. Por ejemplo:&#10;&#10;Tengo una aplicación web con:&#10;- Frontend en React&#10;- Backend API en Node.js&#10;- Base de datos PostgreSQL&#10;- Cache Redis&#10;- Load balancer Nginx&#10;- Deployment en AWS con EC2 y RDS&#10;&#10;El frontend se conecta al backend via REST API, el backend consulta la base de datos y utiliza Redis para caché..."
+                                    ></textarea>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button class="btn btn-primary" id="generateFromText" type="button">
+                                        <i class="fas fa-magic me-2"></i>
+                                        Generar Diagrama
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- File Input Tab -->
+                            <div class="tab-pane fade" id="file-input">
+                                <div class="mb-3">
+                                    <label for="documentFile" class="form-label">
+                                        Subir documento
+                                    </label>
+                                    <input 
+                                        class="form-control" 
+                                        type="file" 
+                                        id="documentFile" 
+                                        accept=".txt,.pdf,.docx,.doc,.md,.json"
+                                    >
+                                    <div class="form-text">
+                                        Formatos soportados: TXT, PDF, DOCX, DOC, MD, JSON
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button class="btn btn-primary" id="generateFromFile" type="button">
+                                        <i class="fas fa-upload me-2"></i>
+                                        Procesar Documento
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Loading Indicator -->
+                <div class="card shadow-sm mt-3" id="loadingCard" style="display: none;">
+                    <div class="card-body text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2 mb-0">Generando diagrama con IA...</p>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div class="card shadow-sm mt-3" id="resultsCard" style="display: none;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-network me-2"></i>
+                            Diagrama Generado
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="viewDrawio">
+                                <i class="fas fa-external-link-alt me-1"></i>
+                                Abrir en Draw.io
+                            </button>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                                    <i class="fas fa-download me-1"></i>
+                                    Exportar
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" id="exportXML">XML (Draw.io)</a></li>
+                                    <li><a class="dropdown-item" href="#" id="exportSVG">SVG</a></li>
+                                    <li><a class="dropdown-item" href="#" id="exportPNG">PNG</a></li>
+                                    <li><a class="dropdown-item" href="#" id="exportPDF">PDF</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Diagram Preview -->
+                        <div id="diagramPreview" class="text-center mb-3">
+                            <!-- El preview se cargará aquí -->
+                        </div>
+                        
+                        <!-- Analysis Results -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Componentes Identificados</h6>
+                                <div id="componentsList" class="list-group list-group-flush">
+                                    <!-- Lista de componentes -->
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Conexiones</h6>
+                                <div id="connectionsList" class="list-group list-group-flush">
+                                    <!-- Lista de conexiones -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Suggestions -->
+                        <div class="mt-3" id="suggestionsSection" style="display: none;">
+                            <h6>Sugerencias de Mejora</h6>
+                            <div id="suggestionsList" class="alert alert-info">
+                                <!-- Sugerencias -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Section -->
+                <div class="alert alert-danger mt-3" id="errorAlert" style="display: none;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span id="errorMessage"></span>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- AI Modal -->
-    <div class="modal fade" id="aiModal" tabindex="-1">
+    <!-- Footer -->
+    <footer class="bg-light text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">
+                <i class="fas fa-robot me-2"></i>
+                Diagrams Creator v1.0.0 - Generador de Diagramas con IA
+            </p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-magic me-2"></i>Generar Diagrama con IA
-                    </h5>
+                    <h5 class="modal-title">Acerca de Diagrams Creator</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="aiTitle" class="form-label">Título del Diagrama</label>
-                        <input type="text" class="form-control" id="aiTitle" placeholder="Ej: Arquitectura de Red Empresarial">
-                    </div>
-                    <div class="mb-3">
-                        <label for="aiType" class="form-label">Tipo de Diagrama</label>
-                        <select class="form-select" id="aiType">
-                            <option value="auto">Detectar Automáticamente</option>
-                            <option value="flowchart">Diagrama de Flujo</option>
-                            <option value="sequence">Diagrama de Secuencia</option>
-                            <option value="class">Diagrama de Clases</option>
-                            <option value="er">Diagrama ER</option>
-                            <option value="network">Diagrama de Red</option>
-                            <option value="architecture">Arquitectura</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="aiDescription" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="aiDescription" rows="5" placeholder="Describe detalladamente lo que quieres en tu diagrama..."></textarea>
-                    </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-lightbulb me-2"></i>
-                        <strong>Tip:</strong> Sé específico en tu descripción. Por ejemplo: "Crear una arquitectura Azure hub and spoke con 4 suscripciones, firewall centralizado, y conectividad VPN"
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="generateAIDiagram()">
-                        <i class="fas fa-magic me-1"></i>Generar con IA
-                    </button>
+                    <p>Diagrams Creator es una aplicación avanzada que utiliza inteligencia artificial para generar diagramas de arquitectura de sistemas a partir de descripciones en texto natural o documentos.</p>
+                    
+                    <h6>Características principales:</h6>
+                    <ul>
+                        <li>Generación automática de diagramas con IA</li>
+                        <li>Soporte para múltiples proveedores cloud (AWS, Azure, GCP)</li>
+                        <li>Librería extensa de iconos técnicos</li>
+                        <li>Múltiples formatos de exportación</li>
+                        <li>Integración con Draw.io</li>
+                    </ul>
+                    
+                    <h6>Tecnologías utilizadas:</h6>
+                    <p>Python, Flask, OpenAI GPT, Bootstrap, JavaScript</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Help Modal -->
-    <div class="modal fade" id="helpModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-question-circle me-2"></i>Ayuda - Cómo Usar
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <h6>🚀 Generar con IA</h6>
-                    <p>Describe tu diagrama en lenguaje natural y la IA lo creará automáticamente.</p>
-                    
-                    <h6>📋 Plantillas</h6>
-                    <p>Usa plantillas predefinidas como punto de partida para diferentes tipos de diagramas.</p>
-                    
-                    <h6>📁 Subir Archivo</h6>
-                    <p>Sube documentos (PDF, Word, Excel) y la IA extraerá información para crear diagramas.</p>
-                    
-                    <h6>✏️ Texto Libre</h6>
-                    <p>Escribe tu descripción y genera diagramas personalizados.</p>
-                    
-                    <h6>💾 Exportar</h6>
-                    <p>Descarga tu diagrama en SVG, PNG o JSON.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="loading-overlay" style="display: none;">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-        </div>
-        <p class="mt-3 text-primary">Procesando...</p>
-    </div>
-
-    <!-- Bootstrap JS -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/icons-panel.js') }}"></script>
 </body>
 </html>

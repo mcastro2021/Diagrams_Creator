@@ -1,247 +1,318 @@
-# Diagramas Creator - Editor de Diagramas con IA
+# 🚀 Diagrams Creator - Generador de Diagramas con IA
 
-Una aplicación web moderna para crear diagramas interactivos usando inteligencia artificial, con soporte para iconos de AWS y Azure, similar a draw.io pero con capacidades de generación automática.
+Una aplicación web avanzada que utiliza inteligencia artificial para generar diagramas de arquitectura de sistemas a partir de descripciones en texto natural o documentos.
+
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--3.5-orange.svg)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.0-purple.svg)
 
 ## ✨ Características Principales
 
-### 🤖 Generación con IA
-- **Generación automática de diagramas** usando OpenAI GPT-4
-- **Detección inteligente de tipos** de diagrama basada en descripción
-- **Soporte especializado para Azure** con topologías Hub and Spoke
-- **Diagramas de arquitectura complejos** con múltiples suscripciones
+- 🤖 **Generación automática con IA**: Utiliza GPT para analizar descripciones y crear diagramas
+- 🎨 **Librería extensa de iconos**: Soporte para AWS, Azure, GCP, Kubernetes, y más
+- 📄 **Múltiples formatos de entrada**: Texto, PDF, DOCX, MD, JSON
+- 🎯 **Detección automática de arquitecturas**: Identifica patrones y tecnologías
+- 💾 **Exportación múltiple**: XML (Draw.io), SVG, PNG, PDF
+- 🎨 **Estilos personalizables**: Moderno, minimalista, colorido
+- 📱 **Interfaz responsive**: Funciona en desktop y móvil
+- 🔗 **Integración con Draw.io**: Edición avanzada de diagramas
 
-### 🎯 Tipos de Diagramas Soportados
-- **Diagramas de Flujo** - Procesos y workflows
-- **Diagramas de Secuencia** - Interacciones UML
-- **Diagramas de Clases** - Estructuras orientadas a objetos
-- **Diagramas ER** - Bases de datos y relaciones
-- **Diagramas de Red** - Arquitecturas de red
-- **Mapas Mentales** - Organización de ideas
-- **Diagramas de Arquitectura** - Sistemas y componentes
+## 🏗️ Arquitecturas Soportadas
 
-### 📦 Sistema de Iconos Avanzado
-- **Biblioteca completa de iconos AWS** organizados por categorías
-- **Iconos de Azure** para arquitecturas cloud
-- **Panel flotante interactivo** con búsqueda y filtros
-- **Drag & drop** de iconos al canvas
-- **Búsqueda inteligente** por nombre, categoría o proveedor
+- **☁️ Cloud Providers**: AWS, Microsoft Azure, Google Cloud Platform
+- **🐳 Containerización**: Kubernetes, Docker
+- **🌐 Redes**: Switches, Routers, Firewalls, Load Balancers
+- **🔒 Seguridad**: Fortinet, F5, componentes de seguridad
+- **💾 Almacenamiento**: Commvault, soluciones de backup
+- **🔧 Genérico**: Microservicios, APIs, bases de datos
 
-### 🎨 Editor Interactivo
-- **Canvas estilo draw.io** con funcionalidad completa
-- **Arrastrar y soltar** nodos y elementos
-- **Edición de texto** con doble clic
-- **Conexiones automáticas** entre elementos
-- **Selección y eliminación** de elementos
-- **Guardado automático** de cambios
-
-### 📁 Procesamiento de Archivos
-- **Subida de documentos** (PDF, Word, Excel, CSV, JSON)
-- **Extracción de contenido** automática
-- **Generación de diagramas** basada en contenido
-- **Procesamiento de texto libre** para crear diagramas
-
-### 💾 Gestión de Proyectos
-- **Guardado automático** en memoria
-- **Lista de diagramas** con metadatos
-- **Historial de versiones** básico
-- **Exportación múltiple** (SVG, PNG, JSON, Mermaid)
-
-## 🚀 Instalación y Configuración
+## 📦 Instalación y Configuración
 
 ### Prerrequisitos
-- Python 3.8+
-- pip (gestor de paquetes de Python)
-- Clave API de OpenAI (opcional, para funcionalidad IA)
 
-### Instalación
+- Python 3.8 o superior
+- Cuenta de OpenAI con API Key
+- Git
 
-1. **Clonar el repositorio**
+### 1. Clonar el repositorio
+
 ```bash
-git clone https://github.com/mcastro2021/Diagrams_Creator.git
+git clone <repository-url>
 cd Diagrams_Creator
 ```
 
-2. **Instalar dependencias**
+### 2. Crear ambiente virtual
+
+```bash
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+# Linux/Mac
+source venv/bin/activate
+```
+
+### 3. Instalar dependencias
+
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Configurar variables de entorno** (opcional)
+### 4. Configurar variables de entorno
+
 ```bash
-# Crear archivo .env
-echo "OPENAI_API_KEY=tu-clave-openai-aqui" > .env
+# Copiar archivo de ejemplo
+copy env_example.txt .env
+
+# Editar .env con tus configuraciones
+# IMPORTANTE: Configurar OPENAI_API_KEY
 ```
 
-4. **Ejecutar la aplicación**
+### 5. Ejecutar la aplicación
+
 ```bash
 python app.py
 ```
 
-5. **Abrir en navegador**
+La aplicación estará disponible en `http://localhost:5000`
+
+## 🎯 Uso de la Aplicación
+
+### Generación desde Texto
+
+1. **Describe tu arquitectura**: Escribe una descripción detallada en el área de texto
+2. **Selecciona el tipo**: Elige el tipo de diagrama (AWS, Azure, etc.) o usa detección automática
+3. **Elige el estilo**: Moderno, minimalista o colorido
+4. **Generar**: Haz clic en "Generar Diagrama"
+
+**Ejemplo de descripción:**
 ```
-http://localhost:5000
+Tengo una aplicación web con:
+- Frontend en React desplegado en S3
+- API REST en Node.js en EC2
+- Base de datos PostgreSQL en RDS
+- Cache Redis en ElastiCache
+- Load Balancer ALB
+- CloudFront para CDN
+- Autenticación con Cognito
 ```
 
-## 📖 Guía de Uso
+### Generación desde Documento
 
-### 🎯 Crear Diagrama con IA
+1. **Subir archivo**: Selecciona un documento (PDF, DOCX, etc.)
+2. **Configurar opciones**: Tipo de diagrama y estilo
+3. **Procesar**: La IA extraerá el texto y generará el diagrama
 
-1. **Hacer clic en "Generar Diagrama IA"**
-2. **Escribir descripción detallada**:
-   ```
-   Crear una arquitectura Azure hub and spoke con 4 suscripciones, 
-   firewall centralizado, VPN gateway y conectividad entre spokes
-   ```
-3. **Seleccionar tipo** (o dejar en "Detectar Automáticamente")
-4. **Hacer clic en "Generar con IA"**
+### Trabajar con Iconos
 
-### 📋 Usar Plantillas
+- **Explorar librerías**: Navega por las librerías de iconos en el panel lateral
+- **Buscar iconos**: Usa la funcionalidad de búsqueda
+- **Seleccionar**: Haz clic en los iconos para seleccionarlos
 
-1. **Seleccionar plantilla** del panel izquierdo
-2. **El diagrama base se carga** automáticamente
-3. **Personalizar** añadiendo/editando elementos
+### Exportar Diagramas
 
-### 🎨 Editar Diagramas
+- **Draw.io XML**: Para edición completa
+- **SVG**: Gráficos vectoriales
+- **PNG**: Imágenes raster
+- **PDF**: Documentos imprimibles
 
-- **Arrastrar nodos** para reposicionar
-- **Doble clic** en nodo para editar texto
-- **Tecla Delete** para eliminar nodo seleccionado
-- **Tecla Escape** para deseleccionar
-
-### 📦 Usar Iconos
-
-1. **Hacer clic en botón de iconos** (lado derecho)
-2. **Filtrar por proveedor** (AWS/Azure) y categoría
-3. **Buscar iconos** por nombre
-4. **Hacer clic en icono** para añadir al diagrama
-
-### 📁 Procesar Archivos
-
-1. **Seleccionar archivo** (PDF, Word, etc.)
-2. **Hacer clic en "Procesar"**
-3. **El diagrama se genera** automáticamente
-
-## 🏗️ Arquitectura del Proyecto
+## 🛠️ Estructura del Proyecto
 
 ```
 Diagrams_Creator/
-├── app.py                 # Servidor Flask principal
-├── requirements.txt       # Dependencias Python
-├── README.md             # Documentación
+├── app.py                 # Aplicación principal Flask
+├── config.py             # Configuración
+├── ai_processor.py       # Procesamiento con IA
+├── diagram_generator.py  # Generación de diagramas
+├── libs_handler.py       # Manejo de librerías de iconos
+├── requirements.txt      # Dependencias Python
+├── env_example.txt       # Ejemplo de variables de entorno
 ├── templates/
-│   └── index.html        # Interfaz principal
+│   └── index.html        # Interfaz web principal
 ├── static/
 │   ├── css/
 │   │   └── style.css     # Estilos personalizados
 │   └── js/
-│       ├── app.js        # Lógica principal
-│       └── icons-panel.js # Panel de iconos
-├── icons/
-│   ├── AWS/              # Iconos AWS por categorías
-│   └── Azure/            # Iconos Azure por categorías
-├── uploads/              # Archivos subidos
-└── outputs/              # Archivos exportados
+│       └── app.js        # JavaScript de la aplicación
+├── Libs/                 # Librerías de iconos
+│   ├── arista/          # Iconos de Arista
+│   ├── f5/              # Iconos de F5
+│   ├── fortinet/        # Iconos de Fortinet
+│   └── ...              # Otras librerías
+└── outputs/             # Diagramas generados
 ```
 
 ## 🔧 API Endpoints
 
-### Diagramas
-- `GET /` - Interfaz principal
-- `POST /create_diagram` - Crear nuevo diagrama
-- `GET /diagram/<id>` - Obtener diagrama
-- `PUT /diagram/<id>` - Actualizar diagrama
-- `GET /diagrams` - Listar todos los diagramas
-- `POST /export/<id>` - Exportar diagrama
+### Principales
 
-### IA y Procesamiento
-- `POST /generate_ai_diagram` - Generar con IA
-- `POST /upload` - Subir archivo
-- `POST /process_text` - Procesar texto libre
+- `GET /` - Interfaz web principal
+- `POST /api/generate-diagram` - Generar diagrama desde texto
+- `POST /api/upload-document` - Procesar documento
+- `GET /api/libraries` - Obtener librerías disponibles
+- `GET /api/icons/<library>` - Obtener iconos de librería
+- `GET /api/diagram/<id>` - Descargar diagrama
+- `GET /api/export-diagram/<id>/<format>` - Exportar diagrama
 
-### Iconos
-- `GET /api/icons` - Obtener todos los iconos
-- `GET /api/search_icons` - Buscar iconos
-- `GET /icons/<path>` - Servir archivo de icono
+### Utilitarios
 
-### Utilidades
-- `GET /templates` - Obtener plantillas
-- `GET /health` - Estado de la aplicación
+- `GET /api/health` - Estado de la aplicación
 
 ## 🎨 Personalización
 
-### Añadir Nuevos Iconos
+### Estilos de Diagrama
 
-1. **Crear carpeta** en `icons/PROVEEDOR/CATEGORIA/`
-2. **Añadir archivos SVG** con nombres descriptivos
-3. **Reiniciar aplicación** para cargar nuevos iconos
+Puedes personalizar los estilos editando `diagram_generator.py`:
 
-### Modificar Estilos
-
-- **Editar** `static/css/style.css`
-- **Variables CSS** disponibles en `:root`
-- **Clases específicas** para cada tipo de elemento
-
-### Extender Funcionalidad
-
-- **Nuevos tipos de diagrama** en `get_base_diagram()`
-- **Prompts de IA personalizados** en `get_system_prompt_for_type()`
-- **Procesadores de archivos** adicionales
-
-## 🔮 Ejemplos de Uso
-
-### Arquitectura Azure Hub and Spoke
-```
-Descripción: "Crear una topología hub and spoke con 4 suscripciones, 
-hub central con firewall y VPN gateway, spokes de producción y 
-no-producción con VMs y conectividad entre ellos"
+```python
+'modern': {
+    'component': {
+        'fillColor': '#E1F5FE',
+        'strokeColor': '#0277BD',
+        'strokeWidth': 2,
+        'rounded': 1,
+        'shadow': 1
+    }
+}
 ```
 
-### Diagrama de Flujo de Proceso
+### Agregar Nuevas Librerías
+
+1. Coloca los iconos en `Libs/nueva_libreria/`
+2. La aplicación detectará automáticamente:
+   - Archivos SVG
+   - Archivos PNG
+   - Archivos XML con definiciones
+
+## 🤖 Configuración de IA
+
+### Modelos Soportados
+
+- `gpt-3.5-turbo` (recomendado)
+- `gpt-4` (mayor precisión, más costoso)
+
+### Parámetros Ajustables
+
+```python
+AI_TEMPERATURE=0.7    # Creatividad (0.0-1.0)
+MAX_TOKENS=2000       # Longitud máxima de respuesta
 ```
-Descripción: "Proceso de aprobación de solicitudes con validación 
-inicial, revisión por supervisor, aprobación final y notificación"
+
+## 📝 Ejemplos de Uso
+
+### Arquitectura AWS
+
+```
+Descripción: "Aplicación web escalable en AWS con frontend en S3, API en Lambda, base de datos RDS MySQL, y cache ElastiCache Redis"
+
+Resultado: Diagrama con iconos de AWS mostrando S3, Lambda, RDS, ElastiCache y sus conexiones
 ```
 
-### Arquitectura de Microservicios
+### Arquitectura Kubernetes
+
 ```
-Descripción: "Sistema de microservicios con API Gateway, 
-servicios de usuario, pedidos y pagos, base de datos por servicio 
-y message broker"
+Descripción: "Cluster Kubernetes con 3 pods de aplicación, servicio LoadBalancer, ConfigMap para configuración, y PersistentVolume para datos"
+
+Resultado: Diagrama K8s con pods, services, configmaps y volúmenes
 ```
 
-## 🤝 Contribuir
+## 🐛 Solución de Problemas
 
-1. **Fork** el repositorio
-2. **Crear rama** para nueva funcionalidad
-3. **Hacer commits** con mensajes descriptivos
-4. **Crear Pull Request** con descripción detallada
+### Error de API Key
 
-## 📝 Licencia
+```
+Error: OpenAI API key not configured
+Solución: Configurar OPENAI_API_KEY en el archivo .env
+```
 
-Este proyecto está bajo la Licencia MIT. Ver archivo `LICENSE` para más detalles.
+### Error de Librerías
 
-## 🆘 Soporte
+```
+Error: No libraries found
+Solución: Verificar que la carpeta Libs/ contenga las librerías de iconos
+```
 
-- **Issues**: [GitHub Issues](https://github.com/mcastro2021/Diagrams_Creator/issues)
-- **Documentación**: Este README.md
-- **Ejemplos**: Carpeta `examples/` (próximamente)
+### Error de Memoria
 
-## 🔄 Roadmap
+```
+Error: Request too large
+Solución: Reducir el tamaño del documento o dividirlo en partes más pequeñas
+```
 
-### Próximas Funcionalidades
-- [ ] **Colaboración en tiempo real** con WebSockets
-- [ ] **Más proveedores de iconos** (GCP, Kubernetes, etc.)
-- [ ] **Exportación a draw.io** nativa
-- [ ] **Plantillas personalizadas** por usuario
-- [ ] **Integración con GitHub** para diagramas como código
-- [ ] **API REST completa** para integraciones
-- [ ] **Modo oscuro** y temas personalizables
-- [ ] **Historial de versiones** completo
-- [ ] **Comentarios y anotaciones** en diagramas
-- [ ] **Generación de código** desde diagramas
+## 🔒 Seguridad
+
+- ✅ Validación de tipos de archivo
+- ✅ Límites de tamaño de archivo (16MB)
+- ✅ Sanitización de entradas
+- ✅ Manejo seguro de archivos temporales
+- ⚠️ **Importante**: Mantén tu API Key de OpenAI segura
+
+## 🚀 Despliegue en Producción
+
+### Variables de Entorno de Producción
+
+```bash
+FLASK_ENV=production
+SECRET_KEY=tu-clave-secreta-muy-segura
+OPENAI_API_KEY=tu-api-key-de-openai
+```
+
+### Usando Gunicorn
+
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
+
+### Docker (Opcional)
+
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+```
+
+## 📊 Métricas y Monitoreo
+
+La aplicación incluye:
+- Health check endpoint (`/api/health`)
+- Logging detallado
+- Manejo de errores robusto
+- Métricas de uso (componentes, conexiones)
+
+## 🤝 Contribuciones
+
+¡Las contribuciones son bienvenidas!
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-caracteristica`)
+3. Commit tus cambios (`git commit -am 'Agregar nueva característica'`)
+4. Push a la rama (`git push origin feature/nueva-caracteristica`)
+5. Crea un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+
+## 🙏 Agradecimientos
+
+- **OpenAI** por la API de GPT
+- **Draw.io** por la plataforma de diagramas
+- **Bootstrap** por el framework CSS
+- **Comunidad Open Source** por las librerías de iconos
+
+## 📞 Soporte
+
+Si tienes problemas o preguntas:
+
+1. Revisa la documentación
+2. Busca en los issues existentes
+3. Crea un nuevo issue con detalles del problema
 
 ---
 
-**Desarrollado con ❤️ por el equipo de Diagramas Creator**
-
-*¿Te gusta el proyecto? ¡Dale una ⭐ en GitHub!*
+**¡Feliz creación de diagramas! 🎨📊**
