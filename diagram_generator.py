@@ -466,14 +466,30 @@ class DiagramGenerator:
         for key, value in style_dict.items():
             style_parts.append(f"{key}={value}")
         
-        # INTEGRACIÓN SIMPLE Y DIRECTA DE ICONOS
+        # 🚀 INTEGRACIÓN FORZADA DE ICONOS PARA DRAW.IO
         if icon_data:
-            logger.info(f"Integrating icon: {icon_data.get('name', 'unknown')}")
+            logger.info(f"🎯 FORCING ICON: {icon_data.get('name', 'unknown')}")
+            
+            # FORZAR ESTILO DE IMAGEN EN DRAW.IO
+            style_parts = [
+                "shape=image",
+                "html=1",
+                "verticalAlign=top", 
+                "verticalLabelPosition=bottom",
+                "labelPosition=center",
+                "aspect=fixed",
+                "imageAspect=0"
+            ]
+            
+            # Agregar estilos del componente (excepto los que conflicten)
+            for key, value in style_dict.items():
+                if key not in ['shape', 'html', 'verticalAlign', 'verticalLabelPosition', 'labelPosition', 'aspect', 'imageAspect']:
+                    style_parts.append(f"{key}={value}")
             
             # Método 1: Data URI directo
             if icon_data.get('data') and icon_data['data'].startswith('data:'):
                 style_parts.append(f"image={icon_data['data']}")
-                logger.info("✅ Icon integrated via data URI")
+                logger.info("🎨 ICON FORCED via data URI")
                 
             # Método 2: XML/SVG embebido
             elif icon_data.get('xml'):
@@ -492,7 +508,7 @@ class DiagramGenerator:
                     data_uri = f"data:image/svg+xml;base64,{svg_b64}"
                     
                     style_parts.append(f"image={data_uri}")
-                    logger.info("✅ Icon integrated via SVG base64")
+                    logger.info("🎨 ICON FORCED via SVG base64")
                     
                 except Exception as e:
                     logger.error(f"Error encoding SVG: {e}")
@@ -506,7 +522,7 @@ class DiagramGenerator:
                             if lib_icon.get('name') == icon_data.get('name'):
                                 if lib_icon.get('data') and lib_icon['data'].startswith('data:'):
                                     style_parts.append(f"image={lib_icon['data']}")
-                                    logger.info("✅ Icon found via library search")
+                                    logger.info("🎨 ICON FORCED via library search")
                                     break
                                 elif lib_icon.get('xml'):
                                     try:
@@ -516,20 +532,29 @@ class DiagramGenerator:
                                         svg_content = svg_content.replace('\n', '').replace('\r', '').replace('\t', ' ')
                                         svg_b64 = base64.b64encode(svg_content.encode('utf-8')).decode()
                                         style_parts.append(f"image=data:image/svg+xml;base64,{svg_b64}")
-                                        logger.info("✅ Icon integrated via library XML")
+                                        logger.info("🎨 ICON FORCED via library XML")
                                         break
                                     except Exception as e:
                                         logger.warning(f"Failed to encode library icon: {e}")
                 except Exception as e:
                     logger.warning(f"Error searching library: {e}")
+            
+            # RETORNAR ESTILO CON ICONO FORZADO
+            logger.info("✅ ICON INTEGRATION COMPLETED - FORCED STYLE")
+            return ';'.join(style_parts)
         
-        # AÑADIR ESTILOS BÁSICOS SIEMPRE
-        if not any('whiteSpace=' in part for part in style_parts):
-            style_parts.append("whiteSpace=wrap")
-        if not any('html=' in part for part in style_parts):
-            style_parts.append("html=1")
+        # SI NO HAY ICONO, USAR ESTILO NORMAL
+        normal_style_parts = []
+        for key, value in style_dict.items():
+            normal_style_parts.append(f"{key}={value}")
         
-        return ';'.join(style_parts)
+        # AÑADIR ESTILOS BÁSICOS
+        if not any('whiteSpace=' in part for part in normal_style_parts):
+            normal_style_parts.append("whiteSpace=wrap")
+        if not any('html=' in part for part in normal_style_parts):
+            normal_style_parts.append("html=1")
+        
+        return ';'.join(normal_style_parts)
     
     def _format_xml(self, xml_str: str) -> str:
         """Formatear XML para mejor legibilidad"""

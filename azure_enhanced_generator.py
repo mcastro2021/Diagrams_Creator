@@ -9,9 +9,21 @@ from typing import Dict, List, Any
 def create_enhanced_azure_hub_spoke(text: str) -> Dict[str, Any]:
     """Crear arquitectura Azure Hub and Spoke con detalles empresariales completos"""
     
-    # Detectar número de spokes/subscripciones
+    # Detectar número de spokes/subscripciones - SIN LÍMITES
     spoke_numbers = re.findall(r'(\d+)\s*(?:spoke|subscription|suscripcion)', text.lower())
     num_spokes = int(spoke_numbers[0]) if spoke_numbers else 4
+    
+    # DETECTAR AMBIENTES
+    environments = []
+    if 'bajo' in text.lower() or 'dev' in text.lower() or 'development' in text.lower():
+        environments.append('bajo')
+    if 'medio' in text.lower() or 'test' in text.lower() or 'staging' in text.lower():
+        environments.append('medio') 
+    if 'alto' in text.lower() or 'prod' in text.lower() or 'production' in text.lower():
+        environments.append('alto')
+    
+    if not environments:
+        environments = ['bajo', 'medio', 'alto']  # Por defecto todos
     
     components = []
     connections = []
@@ -170,9 +182,22 @@ def create_enhanced_azure_hub_spoke(text: str) -> Dict[str, Any]:
                 'y': 1200 + (row * total_height_needed)
             })
     
-    # Crear spokes con servicios detallados
-    for i in range(min(num_spokes, len(spoke_configs))):
-        config = spoke_configs[i]
+    # Crear spokes con servicios detallados - SIN LÍMITES
+    for i in range(num_spokes):
+        # Generar configuración dinámicamente si excedemos la lista predefinida
+        if i < len(spoke_configs):
+            config = spoke_configs[i]
+        else:
+            # Generar configuración dinámica para suscripciones adicionales
+            env_cycle = environments[i % len(environments)]
+            config = {
+                'name': f'Spoke-{i+1:02d}',
+                'cidr': f'10.{10 + i}.0.0/16',
+                'environment': env_cycle,
+                'cost_center': f'CC-{env_cycle.upper()}-{i+1:03d}',
+                'region': ['East US', 'West US', 'Central US', 'West Europe', 'North Europe'][i % 5]
+            }
+        
         spoke_id = f'spoke_vnet_{i+1}'
         
         # Spoke VNet con información completa
@@ -184,7 +209,10 @@ def create_enhanced_azure_hub_spoke(text: str) -> Dict[str, Any]:
             'description': f'Spoke VNet para entorno {config["name"]}\nAddress Space: {config["cidr"]}\nEnvironment: {config["environment"]}\nSubnets: Web, App, Data, Management',
             'layer': 'network',
             'icon_category': 'integration_azure',
-            'position': spoke_positions[i]
+            'position': spoke_positions[i] if i < len(spoke_positions) else {
+                'x': start_x + ((i % cols) * total_width_needed),
+                'y': 1200 + ((i // cols) * total_height_needed)
+            }
         })
         
         # Subscription con detalles financieros

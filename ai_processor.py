@@ -229,16 +229,27 @@ class AIProcessor:
     
     def _get_system_prompt(self, diagram_type: str) -> str:
         """Obtener prompt del sistema según el tipo de diagrama"""
-        base_prompt = """Eres un experto arquitecto de sistemas que analiza descripciones de arquitectura para crear diagramas técnicos precisos.
+        base_prompt = """🚀 ARQUITECTO SIN LÍMITES - Genera EXACTAMENTE lo que se solicita.
 
-Tu tarea es analizar el texto proporcionado y extraer:
-1. Componentes del sistema (servicios, bases de datos, APIs, etc.)
-2. Conexiones y flujos entre componentes
-3. Tecnologías específicas utilizadas
-4. Patrones arquitectónicos identificados
-5. Capas de la arquitectura
+🎯 REGLAS ABSOLUTAS:
+1. ✅ NÚMEROS EXACTOS: Si dice "20 suscripciones", genera EXACTAMENTE 20 componentes
+2. ✅ NO IMPONER LÍMITES: Genera cualquier cantidad solicitada
+3. ✅ AMBIENTES ESPECÍFICOS: "bajo/medio/alto" = clasificar componentes
+4. ✅ ICONOS OBLIGATORIOS: Cada componente DEBE tener icon_category válida
 
-Responde ÚNICAMENTE en formato JSON válido con esta estructura:
+📋 CATEGORÍAS DE ICONOS:
+- integration_azure (servicios Azure)
+- fortinet_fortinet-products (firewalls, seguridad)
+- material-design-icons (iconos generales)
+- kubernetes (contenedores)
+- arista (networking)
+
+🎨 POSICIONAMIENTO INTELIGENTE:
+- Hub: x:1200, y:600
+- Spokes: Grid con separación 800x600
+- Distribución automática según cantidad
+
+Responde ÚNICAMENTE en formato JSON válido:
 {
     "diagram_type": "tipo_identificado",
     "title": "Título del diagrama",
