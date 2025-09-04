@@ -195,7 +195,13 @@ def create_enhanced_azure_hub_spoke(text: str) -> Dict[str, Any]:
                 'cidr': f'10.{10 + i}.0.0/16',
                 'environment': env_cycle,
                 'cost_center': f'CC-{env_cycle.upper()}-{i+1:03d}',
-                'region': ['East US', 'West US', 'Central US', 'West Europe', 'North Europe'][i % 5]
+                'region': ['East US', 'West US', 'Central US', 'West Europe', 'North Europe'][i % 5],
+                'services': [
+                    {'name': f'App Service ({env_cycle})', 'type': 'application', 'icon': 'integration_azure'},
+                    {'name': f'SQL Database ({env_cycle})', 'type': 'database', 'icon': 'integration_azure'}, 
+                    {'name': f'Storage Account ({env_cycle})', 'type': 'storage', 'icon': 'integration_azure'},
+                    {'name': f'Key Vault ({env_cycle})', 'type': 'security', 'icon': 'integration_azure'}
+                ]
             }
         
         spoke_id = f'spoke_vnet_{i+1}'
