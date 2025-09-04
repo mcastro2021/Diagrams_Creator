@@ -52,7 +52,7 @@ git push -u origin main
 ```
 RENDER=true
 AI_PROVIDER=groq
-GROQ_API_KEY=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
+GROQ_API_KEY=your_groq_api_key_here
 SECRET_KEY=render-production-key-2025-secure
 ```
 
