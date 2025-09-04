@@ -160,6 +160,29 @@ textarea.form-control {
     object-fit: contain;
 }
 
+.icon-preview {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.icon-preview img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.fallback-icon {
+    color: #6c757d;
+    font-size: 16px;
+}
+
 .icon-item .icon-name {
     font-size: 0.7rem;
     text-align: center;

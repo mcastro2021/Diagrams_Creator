@@ -466,15 +466,12 @@ class DiagramGenerator:
         for key, value in style_dict.items():
             style_parts.append(f"{key}={value}")
         
-        # INTEGRACIÓN DE ICONOS CON FORMATO HÍBRIDO
-        has_icon = False
-        
+        # INTEGRACIÓN SIMPLE Y DIRECTA DE ICONOS
         if icon_data:
             logger.info(f"Integrating icon: {icon_data.get('name', 'unknown')}")
             
             # Método 1: Data URI directo
             if icon_data.get('data') and icon_data['data'].startswith('data:'):
-                has_icon = True
                 style_parts.append(f"image={icon_data['data']}")
                 logger.info("✅ Icon integrated via data URI")
                 
@@ -494,7 +491,6 @@ class DiagramGenerator:
                     svg_b64 = base64.b64encode(svg_content.encode('utf-8')).decode()
                     data_uri = f"data:image/svg+xml;base64,{svg_b64}"
                     
-                    has_icon = True
                     style_parts.append(f"image={data_uri}")
                     logger.info("✅ Icon integrated via SVG base64")
                     
@@ -502,14 +498,13 @@ class DiagramGenerator:
                     logger.error(f"Error encoding SVG: {e}")
                     
             # Método 3: Buscar en librería directamente
-            if not has_icon and icon_data.get('library'):
+            elif icon_data.get('library'):
                 try:
                     library = self.libs_handler.get_library(icon_data['library'])
                     if library and library.get('icons'):
                         for lib_icon in library['icons']:
                             if lib_icon.get('name') == icon_data.get('name'):
                                 if lib_icon.get('data') and lib_icon['data'].startswith('data:'):
-                                    has_icon = True
                                     style_parts.append(f"image={lib_icon['data']}")
                                     logger.info("✅ Icon found via library search")
                                     break
@@ -520,7 +515,6 @@ class DiagramGenerator:
                                             svg_content = f'<?xml version="1.0" encoding="UTF-8"?>\n{svg_content}'
                                         svg_content = svg_content.replace('\n', '').replace('\r', '').replace('\t', ' ')
                                         svg_b64 = base64.b64encode(svg_content.encode('utf-8')).decode()
-                                        has_icon = True
                                         style_parts.append(f"image=data:image/svg+xml;base64,{svg_b64}")
                                         logger.info("✅ Icon integrated via library XML")
                                         break
@@ -529,32 +523,11 @@ class DiagramGenerator:
                 except Exception as e:
                     logger.warning(f"Error searching library: {e}")
         
-        # APLICAR FORMATO SEGÚN SI HAY ICONO O NO
-        if has_icon:
-            # Formato específico para iconos - shape=image
-            logger.info("Using image shape format")
-            # Remover estilos incompatibles con shape=image
-            style_parts = [part for part in style_parts if not any(incompatible in part for incompatible in 
-                          ['fillColor=', 'strokeColor=', 'strokeWidth=', 'rounded=', 'shadow='])]
-            
-            # Añadir configuración específica para iconos
-            style_parts.insert(0, "shape=image")
-            style_parts.extend([
-                "html=1",
-                "verticalAlign=top", 
-                "verticalLabelPosition=bottom",
-                "labelBackgroundColor=#ffffff",
-                "imageAspect=0",
-                "aspect=fixed"
-            ])
-        else:
-            # Sin icono - usar formato de rectángulo normal
-            logger.info("Using rectangle shape format")
-            # Mantener estilos básicos para rectángulos
-            if not any('whiteSpace=' in part for part in style_parts):
-                style_parts.append("whiteSpace=wrap")
-            if not any('html=' in part for part in style_parts):
-                style_parts.append("html=1")
+        # AÑADIR ESTILOS BÁSICOS SIEMPRE
+        if not any('whiteSpace=' in part for part in style_parts):
+            style_parts.append("whiteSpace=wrap")
+        if not any('html=' in part for part in style_parts):
+            style_parts.append("html=1")
         
         return ';'.join(style_parts)
     
@@ -568,7 +541,7 @@ class DiagramGenerator:
         except:
             # Si falla el formateo, devolver original
             return xml_str
-    
+wa    
     def export_diagram(self, xml_file_path: str, export_format: str) -> str:
         """Exportar diagrama a diferentes formatos"""
         try:

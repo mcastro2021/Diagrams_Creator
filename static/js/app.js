@@ -195,11 +195,11 @@ class DiagramsCreator {
             const response = await fetch(`/api/icons/${libraryName}`);
             const data = await response.json();
             
-            if (data.success) {
+            if (data.success && data.icons) {
                 this.renderIcons(iconsContainer, data.icons);
                 iconsContainer.dataset.loaded = 'true';
             } else {
-                iconsContainer.innerHTML = `<div class="text-danger">Error: ${data.error}</div>`;
+                iconsContainer.innerHTML = `<div class="text-danger">Error: ${data.error || 'Error cargando iconos'}</div>`;
             }
         } catch (error) {
             console.error('Error loading icons:', error);
@@ -220,17 +220,16 @@ class DiagramsCreator {
             iconElement.className = 'icon-item';
             iconElement.title = icon.name;
             
-            let iconContent = '';
-            if (icon.data && icon.data.startsWith('data:image/')) {
-                iconContent = `<img src="${icon.data}" alt="${icon.name}">`;
-            } else if (icon.xml && icon.xml.includes('<svg')) {
-                iconContent = icon.xml;
-            } else {
-                iconContent = '<i class="fas fa-cube"></i>';
-            }
+            // Usar el endpoint del servidor para cargar el icono
+            const iconUrl = `/api/icon/${encodeURIComponent(icon.library)}/${encodeURIComponent(icon.name)}`;
             
             iconElement.innerHTML = `
-                ${iconContent}
+                <div class="icon-preview">
+                    <img src="${iconUrl}" 
+                         alt="${icon.name}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <i class="fas fa-cube fallback-icon" style="display: none;"></i>
+                </div>
                 <div class="icon-name">${icon.name}</div>
             `;
             
@@ -500,7 +499,7 @@ class DiagramsCreator {
         }
         
         try {
-            const response = await fetch(`/api/export-diagram/${this.currentDiagramId}/${format}`);
+            const response = await fetch(`/api/export/${this.currentDiagramId}/${format}`);
             
             if (response.ok) {
                 const blob = await response.blob();
@@ -861,17 +860,16 @@ class DiagramsCreator {
             iconElement.className = 'icon-item search-result';
             iconElement.title = `${icon.name} (${icon.library})`;
             
-            let iconContent = '';
-            if (icon.data && icon.data.startsWith('data:image/')) {
-                iconContent = `<img src="${icon.data}" alt="${icon.name}">`;
-            } else if (icon.xml && icon.xml.includes('<svg')) {
-                iconContent = icon.xml;
-            } else {
-                iconContent = '<i class="fas fa-cube"></i>';
-            }
+            // Usar el endpoint del servidor para cargar el icono
+            const iconUrl = `/api/icon/${encodeURIComponent(icon.library)}/${encodeURIComponent(icon.name)}`;
             
             iconElement.innerHTML = `
-                ${iconContent}
+                <div class="icon-preview">
+                    <img src="${iconUrl}" 
+                         alt="${icon.name}" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <i class="fas fa-cube fallback-icon" style="display: none;"></i>
+                </div>
                 <div class="icon-name">${icon.name}</div>
                 <div class="library-badge">${icon.library.split('_').pop()}</div>
             `;
