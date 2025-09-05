@@ -118,12 +118,11 @@ class DiagramsCreator {
         
         // Agrupar librerías por categoría
         const categories = {
-            'Fortinet': this.libraries.filter(lib => lib.name.includes('fortinet')),
-            'Integration': this.libraries.filter(lib => lib.name.includes('integration')),
-            'Cloud': this.libraries.filter(lib => ['digitalocean', 'azure', 'aws', 'gcp'].some(cloud => lib.name.includes(cloud))),
-            'Design': this.libraries.filter(lib => ['material-design', 'font-awesome', 'flat-color'].some(design => lib.name.includes(design))),
-            'Network': this.libraries.filter(lib => ['arista', 'f5'].some(net => lib.name.includes(net))),
-            'Other': this.libraries.filter(lib => !['fortinet', 'integration', 'digitalocean', 'azure', 'aws', 'gcp', 'material-design', 'font-awesome', 'flat-color', 'arista', 'f5'].some(cat => lib.name.includes(cat)))
+            'Azure': this.libraries.filter(lib => lib.name.includes('azure')),
+            'AWS': this.libraries.filter(lib => lib.name.includes('aws')),
+            'General': this.libraries.filter(lib => lib.name.includes('general')),
+            'Connections': this.libraries.filter(lib => lib.name.includes('connections')),
+            'Other': this.libraries.filter(lib => !['azure', 'aws', 'general', 'connections'].some(cat => lib.name.includes(cat)))
         };
         
         Object.entries(categories).forEach(([category, libs]) => {
@@ -270,8 +269,15 @@ class DiagramsCreator {
             return;
         }
         
+        // Validar que no sea un mensaje de error de JavaScript
+        if (text.includes('Uncaught') || text.includes('TypeError') || text.includes('app.js:') || text.includes('Cannot read properties')) {
+            this.showMessage('Por favor, ingresa una descripción válida de la arquitectura', 'error');
+            // Limpiar el campo de texto
+            document.getElementById('architectureText').value = '';
+            return;
+        }
+        
         const diagramType = document.getElementById('diagramType').value;
-        const style = document.getElementById('diagramStyle').value;
         
         this.showLoading();
         this.hideMessage();
@@ -284,8 +290,7 @@ class DiagramsCreator {
                 },
                 body: JSON.stringify({
                     input_text: text,
-                    diagram_type: diagramType,
-                    style: style
+                    diagram_type: diagramType
                 })
             });
             
@@ -338,10 +343,8 @@ class DiagramsCreator {
         formData.append('file', file);
         
         const diagramType = document.getElementById('diagramType').value;
-        const style = document.getElementById('diagramStyle').value;
         
         formData.append('diagram_type', diagramType);
-        formData.append('style', style);
         
         this.showLoading();
         this.hideMessage();
@@ -926,6 +929,13 @@ class DiagramsCreator {
         }
     }
 }
+
+// Global error handler to prevent JavaScript errors from being displayed
+window.addEventListener('error', function(e) {
+    console.error('JavaScript Error:', e.error);
+    // Don't let the error bubble up to avoid confusion
+    e.preventDefault();
+});
 
 // Initialize application when DOM is loaded
 let app; // Global instance

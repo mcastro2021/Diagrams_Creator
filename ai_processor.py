@@ -662,12 +662,7 @@ Recuerda responder ÚNICAMENTE con JSON válido."""
         # Azure Hub and Spoke
         if 'azure' in text_lower and ('hub' in text_lower or 'spoke' in text_lower):
             logger.info("Detected Azure Hub and Spoke architecture pattern")
-            try:
-                from azure_enhanced_generator import create_enhanced_azure_hub_spoke
-                return create_enhanced_azure_hub_spoke(text)
-            except ImportError:
-                logger.warning("Enhanced Azure generator not available, using fallback")
-                return self._create_azure_hub_spoke_architecture(text)
+            return self._create_azure_hub_spoke_architecture(text)
         
         # Azure Security Architecture
         if any(sec_word in text_lower for sec_word in ['firewall', 'waf', 'application gateway', 'security', 'nsg']):
@@ -1256,12 +1251,23 @@ Recuerda responder ÚNICAMENTE con JSON válido."""
         }
     
     def _create_application_architecture(self, text: str) -> Dict[str, Any]:
-        """Crear arquitectura de aplicación"""
+        """Crear arquitectura de aplicación con análisis más específico"""
         logger.info("Creating Application Architecture")
+        
+        text_lower = text.lower()
+        
+        # Detectar tipo específico de arquitectura
+        if 'microservices' in text_lower:
+            return self._create_microservices_architecture(text)
+        elif 'serverless' in text_lower:
+            return self._create_serverless_architecture(text)
+        elif 'kubernetes' in text_lower or 'k8s' in text_lower:
+            return self._create_kubernetes_architecture(text)
+        elif 'hub' in text_lower and 'spoke' in text_lower:
+            return self._create_hub_spoke_architecture(text)
         
         components = []
         connections = []
-        text_lower = text.lower()
         
         # Frontend
         if any(fe_word in text_lower for fe_word in ['frontend', 'ui', 'web', 'portal', 'client']):
@@ -1346,6 +1352,91 @@ Recuerda responder ÚNICAMENTE con JSON válido."""
             'layers': ['presentation', 'integration', 'application', 'data'],
             'technologies': [comp['technology'] for comp in components],
             'patterns': ['Layered Architecture', 'API-First', 'Microservices']
+        }
+    
+    def _create_microservices_architecture(self, text: str) -> Dict[str, Any]:
+        """Crear arquitectura de microservicios"""
+        logger.info("Creating Microservices Architecture")
+        
+        components = []
+        connections = []
+        
+        # API Gateway
+        components.append({
+            'id': 'api_gateway',
+            'name': 'API Gateway',
+            'type': 'api',
+            'technology': 'API Management',
+            'description': 'API routing and management',
+            'layer': 'integration',
+            'icon_category': 'integration_integration',
+            'position': {'x': 400, 'y': 200}
+        })
+        
+        # Microservicios
+        services = ['User Service', 'Order Service', 'Payment Service', 'Notification Service']
+        for i, service in enumerate(services):
+            components.append({
+                'id': f'service_{i+1}',
+                'name': service,
+                'type': 'api',
+                'technology': 'Microservice',
+                'description': f'{service} business logic',
+                'layer': 'application',
+                'icon_category': 'integration_integration',
+                'position': {'x': 100 + i * 200, 'y': 400}
+            })
+            
+            # Conectar con API Gateway
+            connections.append({
+                'from': 'api_gateway',
+                'to': f'service_{i+1}',
+                'type': 'api_call',
+                'label': 'API Call',
+                'protocol': 'HTTP'
+            })
+        
+        return {
+            'title': 'Microservices Architecture',
+            'description': 'Distributed microservices architecture with API gateway',
+            'diagram_type': 'microservices',
+            'components': components,
+            'connections': connections,
+            'layers': ['integration', 'application'],
+            'technologies': ['API Gateway', 'Microservices'],
+            'patterns': ['Microservices', 'API Gateway']
+        }
+    
+    def _create_serverless_architecture(self, text: str) -> Dict[str, Any]:
+        """Crear arquitectura serverless"""
+        logger.info("Creating Serverless Architecture")
+        
+        components = []
+        connections = []
+        
+        # Function Apps
+        functions = ['HTTP Trigger', 'Timer Trigger', 'Queue Trigger']
+        for i, func in enumerate(functions):
+            components.append({
+                'id': f'function_{i+1}',
+                'name': func,
+                'type': 'function',
+                'technology': 'Azure Functions',
+                'description': f'{func} function',
+                'layer': 'compute',
+                'icon_category': 'integration_azure',
+                'position': {'x': 100 + i * 250, 'y': 300}
+            })
+        
+        return {
+            'title': 'Serverless Architecture',
+            'description': 'Event-driven serverless architecture',
+            'diagram_type': 'serverless',
+            'components': components,
+            'connections': connections,
+            'layers': ['compute'],
+            'technologies': ['Azure Functions'],
+            'patterns': ['Serverless', 'Event-Driven']
         }
     
     def _create_data_architecture(self, text: str) -> Dict[str, Any]:

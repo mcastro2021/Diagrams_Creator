@@ -1,0 +1,108 @@
+# Diagrams Creator - Environment Variables Example
+# Copy this file to .env and fill in your API keys
+
+# ===========================================
+# AI PROVIDER CONFIGURATION
+# ===========================================
+
+# OpenAI Configuration (Recommended)
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-3.5-turbo
+
+# Alternative AI Providers (Optional)
+# GROQ_API_KEY=your_groq_api_key_here
+# GROQ_MODEL=llama-3.1-70b-versatile
+
+# HUGGINGFACE_API_KEY=your_huggingface_api_key_here
+# HUGGINGFACE_MODEL=microsoft/DialoGPT-large
+
+# Ollama Configuration (for local AI)
+# OLLAMA_URL=http://localhost:11434
+# OLLAMA_MODEL=llama3.2
+
+# ===========================================
+# APPLICATION CONFIGURATION
+# ===========================================
+
+# Flask Configuration
+SECRET_KEY=dev-secret-key-change-in-production
+FLASK_ENV=development
+FLASK_DEBUG=True
+
+# Logging
+LOG_LEVEL=INFO
+
+# ===========================================
+# AI PROCESSING CONFIGURATION
+# ===========================================
+
+# AI Model Settings
+AI_TEMPERATURE=0.7
+MAX_TOKENS=2000
+AI_TIMEOUT=30
+
+# ===========================================
+# DIAGRAM GENERATION SETTINGS
+# ===========================================
+
+# Default diagram settings
+DEFAULT_DIAGRAM_TYPE=auto
+DEFAULT_DIAGRAM_STYLE=modern
+
+# Icon library settings
+ICON_CACHE_SIZE=1000
+ICON_SEARCH_LIMIT=50
+
+# ===========================================
+# SECURITY SETTINGS
+# ===========================================
+
+# CORS settings
+CORS_ORIGINS=*
+
+# Rate limiting
+RATE_LIMIT_PER_MINUTE=60
+
+# ===========================================
+# FILE UPLOAD SETTINGS
+# ===========================================
+
+# Maximum file size (in bytes)
+MAX_FILE_SIZE=16777216  # 16MB
+
+# Allowed file extensions
+ALLOWED_EXTENSIONS=txt,pdf,docx,doc,md,json
+
+# ===========================================
+# EXPORT SETTINGS
+# ===========================================
+
+# Export formats
+ENABLED_EXPORT_FORMATS=xml,svg,png,pdf
+
+# Export quality settings
+PNG_QUALITY=95
+PDF_DPI=300
+
+# ===========================================
+# DEVELOPMENT SETTINGS
+# ===========================================
+
+# Development mode
+DEBUG_MODE=True
+VERBOSE_LOGGING=True
+
+# Test mode
+TEST_MODE=False
+
+# ===========================================
+# PRODUCTION SETTINGS
+# ===========================================
+
+# Production settings (uncomment for production)
+# FLASK_ENV=production
+# FLASK_DEBUG=False
+# SECRET_KEY=your-super-secret-production-key-here
+# LOG_LEVEL=WARNING
+# DEBUG_MODE=False
+# VERBOSE_LOGGING=False

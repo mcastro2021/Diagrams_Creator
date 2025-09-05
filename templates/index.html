@@ -18,21 +18,11 @@
                 <i class="fas fa-project-diagram me-2"></i>
                 Diagrams Creator
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">Acerca de</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#features">Características</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#help">Ayuda</a>
-                    </li>
-                </ul>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text">
+                    <i class="fas fa-robot me-1"></i>
+                    AI-Powered Architecture Diagrams
+                </span>
             </div>
         </div>
     </nav>
@@ -83,20 +73,17 @@
                         <!-- Filtros rápidos -->
                         <div class="mb-3">
                             <div class="btn-group-vertical d-grid gap-1" role="group">
-                                <button type="button" class="btn btn-outline-primary btn-sm filter-btn" data-filter="fortinet">
-                                    🛡️ Fortinet Security
-                                </button>
-                                <button type="button" class="btn btn-outline-info btn-sm filter-btn" data-filter="integration">
-                                    🔗 Integration
-                                </button>
                                 <button type="button" class="btn btn-outline-success btn-sm filter-btn" data-filter="azure">
                                     ☁️ Azure
                                 </button>
                                 <button type="button" class="btn btn-outline-warning btn-sm filter-btn" data-filter="aws">
                                     🟧 AWS
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm filter-btn" data-filter="kubernetes">
-                                    🐳 Kubernetes
+                                <button type="button" class="btn btn-outline-info btn-sm filter-btn" data-filter="general">
+                                    🔧 General
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm filter-btn" data-filter="connections">
+                                    ➡️ Connections
                                 </button>
                             </div>
                         </div>
@@ -137,21 +124,11 @@
                             <label for="diagramType" class="form-label">Tipo de Diagrama</label>
                             <select class="form-select" id="diagramType">
                                 <option value="auto">Detección Automática</option>
-                                <option value="aws">AWS Architecture</option>
                                 <option value="azure">Azure Architecture</option>
-                                <option value="gcp">Google Cloud Platform</option>
-                                <option value="kubernetes">Kubernetes</option>
+                                <option value="aws">AWS Architecture</option>
+                                <option value="microservices">Microservices</option>
+                                <option value="serverless">Serverless</option>
                                 <option value="network">Network Diagram</option>
-                                <option value="generic">Genérico</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="diagramStyle" class="form-label">Estilo Visual</label>
-                            <select class="form-select" id="diagramStyle">
-                                <option value="modern">Moderno</option>
-                                <option value="minimal">Minimalista</option>
-                                <option value="colorful">Colorido</option>
                             </select>
                         </div>
                     </div>
@@ -312,39 +289,10 @@
         <div class="container">
             <p class="mb-0">
                 <i class="fas fa-robot me-2"></i>
-                Diagrams Creator v1.0.0 - Generador de Diagramas con IA
+                Diagrams Creator v1.0.0 - AI-Powered Architecture Diagrams
             </p>
         </div>
     </footer>
-
-    <!-- Modals -->
-    
-    <!-- About Modal -->
-    <div class="modal fade" id="aboutModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Acerca de Diagrams Creator</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Diagrams Creator es una aplicación avanzada que utiliza inteligencia artificial para generar diagramas de arquitectura de sistemas a partir de descripciones en texto natural o documentos.</p>
-                    
-                    <h6>Características principales:</h6>
-                    <ul>
-                        <li>Generación automática de diagramas con IA</li>
-                        <li>Soporte para múltiples proveedores cloud (AWS, Azure, GCP)</li>
-                        <li>Librería extensa de iconos técnicos</li>
-                        <li>Múltiples formatos de exportación</li>
-                        <li>Integración con Draw.io</li>
-                    </ul>
-                    
-                    <h6>Tecnologías utilizadas:</h6>
-                    <p>Python, Flask, OpenAI GPT, Bootstrap, JavaScript</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -78,11 +78,12 @@ class LibsHandler:
                     icon = {
                         'name': name,
                         'xml': icon_data.get('xml', ''),
-                        'width': int(icon_data.get('w', 100)),
-                        'height': int(icon_data.get('h', 100)),
+                        'width': int(icon_data.get('w', 48)),
+                        'height': int(icon_data.get('h', 48)),
                         'aspect': icon_data.get('aspect', 'fixed'),
                         'data': icon_data.get('data', ''),
-                        'library': library_name
+                        'library': library_name,
+                        'desc': icon_data.get('desc', '')
                     }
                     
                     # Si hay data URL, usarla como preview

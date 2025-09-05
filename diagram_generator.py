@@ -36,20 +36,40 @@ class DiagramGenerator:
                     'fontStyle': 1
                 },
                 'database': {
-                    'fillColor': '#F3E5F5',
-                    'strokeColor': '#7B1FA2',
+                    'shape': 'cylinder3',
+                    'fillColor': '#E8F5E8',
+                    'strokeColor': '#2E7D32',
                     'strokeWidth': 2,
-                    'rounded': 1,
+                    'shadow': 1,
+                    'fontColor': '#263238',
+                    'fontSize': 12,
+                    'fontStyle': 1
+                },
+                'network': {
+                    'shape': 'rhombus',
+                    'fillColor': '#FFF3E0',
+                    'strokeColor': '#F57C00',
+                    'strokeWidth': 2,
                     'shadow': 1,
                     'fontColor': '#263238',
                     'fontSize': 12,
                     'fontStyle': 1
                 },
                 'api': {
-                    'fillColor': '#E8F5E8',
-                    'strokeColor': '#2E7D32',
+                    'shape': 'hexagon',
+                    'fillColor': '#F3E5F5',
+                    'strokeColor': '#7B1FA2',
                     'strokeWidth': 2,
-                    'rounded': 1,
+                    'shadow': 1,
+                    'fontColor': '#263238',
+                    'fontSize': 12,
+                    'fontStyle': 1
+                },
+                'security': {
+                    'shape': 'shield',
+                    'fillColor': '#FFEBEE',
+                    'strokeColor': '#C62828',
+                    'strokeWidth': 2,
                     'shadow': 1,
                     'fontColor': '#263238',
                     'fontSize': 12,
@@ -282,10 +302,15 @@ class DiagramGenerator:
         # Crear estilo string
         style_str = self._create_style_string(style_dict, icon_data)
         
+        # Crear etiqueta más rica
+        name = component.get('name', 'Component')
+        technology = component.get('technology', '')
+        label = f"{name}\\n{technology}" if technology else name
+        
         # Crear elemento mxCell
         cell = ET.Element('mxCell', {
             'id': str(cell_id),
-            'value': component.get('name', 'Component'),
+            'value': label,
             'style': style_str,
             'vertex': '1',
             'parent': '1'
@@ -351,26 +376,17 @@ class DiagramGenerator:
                 # 1. Categoría específica si se proporciona
                 {'category': icon_category, 'terms': [component_name, technology, component_type]} if icon_category else None,
                 
-                # 2. Azure específicos
-                {'category': 'integration_azure', 'terms': ['azure', technology.replace('azure ', ''), component_type, component_name]},
+                # 2. Azure específicos - búsqueda más específica
+                {'category': 'azure_complete', 'terms': [technology.replace('azure ', ''), component_name, component_type, 'azure']},
                 
-                # 3. Fortinet para seguridad
-                {'category': 'fortinet_fortinet-products', 'terms': ['firewall', 'security', 'nsg', 'bastion']} if component_type in ['security', 'firewall'] else None,
+                # 3. AWS específicos
+                {'category': 'aws_complete', 'terms': ['aws', 'amazon', technology.replace('aws ', ''), component_type, component_name]},
                 
-                # 4. Integration para APIs y servicios
-                {'category': 'integration_integration', 'terms': ['api', 'service', 'integration', 'management']} if component_type in ['api', 'service'] else None,
+                # 4. General icons para servicios comunes
+                {'category': 'general_icons', 'terms': [component_type, 'server', 'service', 'application', 'database', 'api']},
                 
-                # 5. Databases específicas
-                {'category': 'integration_databases', 'terms': ['sql', 'database', 'data', 'cosmos', 'mysql']} if component_type in ['database', 'data'] else None,
-                
-                # 6. Infrastructure
-                {'category': 'integration_infrastructure', 'terms': ['server', 'vm', 'compute', 'network', 'infrastructure']} if component_type in ['compute', 'infrastructure', 'network'] else None,
-                
-                # 7. Developer tools
-                {'category': 'integration_developer', 'terms': ['container', 'registry', 'devops', 'build', 'pipeline']} if component_type in ['containers', 'devops'] else None,
-                
-                # 8. Material Design como fallback
-                {'category': 'material-design-icons', 'terms': [component_type, 'server', 'service', 'application']}
+                # 5. Connection arrows
+                {'category': 'connections_arrows', 'terms': ['arrow', 'connection', 'line']} if component_type in ['connection', 'arrow'] else None
             ]
             
             # Filtrar estrategias None
@@ -438,6 +454,12 @@ class DiagramGenerator:
                 if best_icon and best_score >= 5:
                     logger.info(f"Found good icon: {best_icon.get('name')} (score: {best_score}) in {category}")
                     return best_icon
+                
+                # Si no encontramos nada específico, devolver el primer icono de la librería
+                if library['icons']:
+                    fallback_icon = library['icons'][0]
+                    logger.info(f"Using fallback icon: {fallback_icon.get('name')} from {category}")
+                    return fallback_icon
                 
                 # Si no hay buen match pero la categoría es relevante, usar el primer icono
                 elif category in ['integration_azure', 'integration_infrastructure'] and library['icons']:
@@ -645,7 +667,7 @@ class DiagramGenerator:
                 x_offset = 100
                 for j, component in enumerate(layer_components[layer]):
                     component['position'] = {
-                        'x': x_offset + (j * 150),
+                        'x': x_offset + (j * 300),  # Más espacio entre componentes
                         'y': y_offset + (i * layer_height)
                     }
         

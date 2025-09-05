@@ -1,318 +1,368 @@
-# 🚀 Diagrams Creator - Generador de Diagramas con IA
+# Diagrams Creator - AI-Powered Architecture Diagram Generator
 
-Una aplicación web avanzada que utiliza inteligencia artificial para generar diagramas de arquitectura de sistemas a partir de descripciones en texto natural o documentos.
+## 🚀 Overview
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)
-![OpenAI](https://img.shields.io/badge/OpenAI-GPT--3.5-orange.svg)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.0-purple.svg)
+Diagrams Creator is a comprehensive AI-powered application that generates architecture diagrams from natural language descriptions. It supports multiple cloud providers (Azure, AWS, GCP), on-premise architectures, and hybrid cloud solutions.
 
-## ✨ Características Principales
+## ✨ Features
 
-- 🤖 **Generación automática con IA**: Utiliza GPT para analizar descripciones y crear diagramas
-- 🎨 **Librería extensa de iconos**: Soporte para AWS, Azure, GCP, Kubernetes, y más
-- 📄 **Múltiples formatos de entrada**: Texto, PDF, DOCX, MD, JSON
-- 🎯 **Detección automática de arquitecturas**: Identifica patrones y tecnologías
-- 💾 **Exportación múltiple**: XML (Draw.io), SVG, PNG, PDF
-- 🎨 **Estilos personalizables**: Moderno, minimalista, colorido
-- 📱 **Interfaz responsive**: Funciona en desktop y móvil
-- 🔗 **Integración con Draw.io**: Edición avanzada de diagramas
+### 🎯 Core Capabilities
+- **Natural Language Processing**: Generate diagrams from plain English descriptions
+- **Multi-Cloud Support**: Azure, AWS, Google Cloud Platform
+- **On-Premise Architectures**: Traditional data centers, Kubernetes, Docker
+- **Hybrid Cloud**: Cloud bursting, multi-cloud, hybrid connectivity
+- **Comprehensive Icon Library**: 1000+ icons from major cloud providers
+- **Real-time Generation**: Instant diagram creation and visualization
+- **Export Options**: Multiple formats (PNG, SVG, PDF, XML)
 
-## 🏗️ Arquitecturas Soportadas
+### 🏗️ Architecture Patterns Supported
+- **Microservices**: Container-based and serverless microservices
+- **Serverless**: Function-as-a-Service architectures
+- **Data Platforms**: Data lakes, warehouses, analytics pipelines
+- **AI/ML Platforms**: Machine learning and artificial intelligence workflows
+- **IoT Platforms**: Internet of Things architectures
+- **Security Architectures**: Zero-trust, defense-in-depth
+- **Disaster Recovery**: Backup, replication, and failover systems
+- **Network Architectures**: Hub-and-spoke, mesh, hybrid connectivity
 
-- **☁️ Cloud Providers**: AWS, Microsoft Azure, Google Cloud Platform
-- **🐳 Containerización**: Kubernetes, Docker
-- **🌐 Redes**: Switches, Routers, Firewalls, Load Balancers
-- **🔒 Seguridad**: Fortinet, F5, componentes de seguridad
-- **💾 Almacenamiento**: Commvault, soluciones de backup
-- **🔧 Genérico**: Microservicios, APIs, bases de datos
+### 🎨 Icon Libraries
+- **Azure Icons**: Complete Azure service catalog (693+ icons)
+- **AWS Icons**: Full AWS service library (500+ icons)
+- **General Icons**: Common infrastructure and application icons
+- **Connection Icons**: Arrows, lines, and flow indicators
+- **Technology Icons**: Programming languages, frameworks, tools
 
-## 📦 Instalación y Configuración
+## 🛠️ Installation
 
-### Prerrequisitos
+### 🚀 Deploy to Render (Recommended)
 
-- Python 3.8 o superior
-- Cuenta de OpenAI con API Key
+1. **Fork this repository** to your GitHub account
+
+2. **Connect to Render:**
+   - Go to [render.com](https://render.com)
+   - Create account or sign in
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+
+3. **Configure the service:**
+   - **Name**: `diagrams-creator` (or your preferred name)
+   - **Environment**: `Python 3`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `python app.py`
+   - **Plan**: `Starter` (free tier)
+
+4. **Set environment variables:**
+   - In Render's "Environment Variables" section, add:
+   ```
+   OPENAI_API_KEY = your_openai_api_key
+   FLASK_ENV = production
+   SECRET_KEY = your_secure_secret_key
+   ```
+
+5. **Deploy:**
+   - Click "Create Web Service"
+   - Render will automatically build and deploy your application
+   - You'll get a public URL (e.g., `https://diagrams-creator.onrender.com`)
+
+### 🏠 Local Installation
+
+#### Prerequisites
+- Python 3.8+
+- pip package manager
 - Git
 
-### 1. Clonar el repositorio
-
+#### Quick Start
 ```bash
+# Clone the repository
 git clone <repository-url>
 cd Diagrams_Creator
-```
 
-### 2. Crear ambiente virtual
-
-```bash
+# Create virtual environment
 python -m venv venv
 
-# Windows
-venv\Scripts\activate
-
-# Linux/Mac
+# Activate virtual environment
+# Windows:
+venv\\Scripts\\activate
+# Linux/Mac:
 source venv/bin/activate
-```
 
-### 3. Instalar dependencias
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the application
+python app.py
 ```
 
-### 4. Configurar variables de entorno
+### Configuration
+1. Copy `config_example.py` to `config_local.py`
+2. Add your API keys:
+   ```python
+   # OpenAI Configuration
+   OPENAI_API_KEY = "your_openai_api_key_here"
+   
+   # Alternative AI Providers (optional)
+   GROQ_API_KEY = "your_groq_api_key_here"
+   HUGGINGFACE_API_KEY = "your_huggingface_api_key_here"
+   ```
 
+## 🚀 Usage
+
+### Web Interface
+1. Open your browser to `http://localhost:5000`
+2. Enter your architecture description in natural language
+3. Click "Generate Diagram"
+4. View, edit, and export your diagram
+
+### API Usage
 ```bash
-# Copiar archivo de ejemplo
-copy env_example.txt .env
+# Generate a diagram
+curl -X POST http://localhost:5000/api/generate-diagram \
+  -H "Content-Type: application/json" \
+  -d '{"input_text": "Create an Azure microservices architecture with API Gateway, App Service, and Cosmos DB"}'
 
-# Editar .env con tus configuraciones
-# IMPORTANTE: Configurar OPENAI_API_KEY
+# Get diagram details
+curl http://localhost:5000/api/diagram/{diagram_id}
+
+# Export diagram
+curl http://localhost:5000/api/export/{diagram_id}/png
 ```
 
-### 5. Ejecutar la aplicación
+### Example Requests
 
+#### Azure Microservices
+```
+"Create a microservices architecture using Azure services including API Management, App Service for web APIs, Azure Functions for serverless processing, Cosmos DB for data storage, Service Bus for messaging, Key Vault for secrets management, and Application Insights for monitoring"
+```
+
+#### AWS Serverless
+```
+"Create an AWS serverless architecture with API Gateway, Lambda functions, DynamoDB, S3 storage, SQS messaging, and CloudWatch monitoring"
+```
+
+#### Hybrid Cloud
+```
+"Design a hybrid cloud architecture connecting on-premise data center with Azure using ExpressRoute, including VNet peering, VPN Gateway, and hybrid identity with Azure AD Connect"
+```
+
+#### Kubernetes Cluster
+```
+"Create a Kubernetes cluster architecture with master nodes, worker nodes, ingress controller, service mesh, and monitoring stack with Prometheus and Grafana"
+```
+
+## 🏗️ Architecture
+
+### Components
+- **Flask Web Application**: Main web interface and API
+- **AI Processor**: Natural language processing and diagram generation
+- **Diagram Generator**: Creates draw.io compatible XML diagrams
+- **Libraries Handler**: Manages icon libraries and search
+- **Configuration Manager**: Handles settings and API keys
+
+### File Structure
+```
+Diagrams_Creator/
+├── app.py                 # Main Flask application
+├── ai_processor.py        # AI processing and analysis
+├── diagram_generator.py   # Diagram generation logic
+├── libs_handler.py        # Icon library management
+├── config.py             # Configuration settings
+├── templates/            # HTML templates
+├── static/               # CSS, JS, and static assets
+├── Libs/                 # Icon libraries
+│   ├── azure/           # Azure icons
+│   ├── aws/             # AWS icons
+│   ├── connections_arrows.xml
+│   ├── aws_complete.xml
+│   ├── azure_complete.xml
+│   └── general_icons.xml
+└── outputs/             # Generated diagrams
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+```bash
+# AI Provider Configuration
+OPENAI_API_KEY=your_openai_api_key
+GROQ_API_KEY=your_groq_api_key
+HUGGINGFACE_API_KEY=your_huggingface_api_key
+
+# Application Configuration
+FLASK_ENV=development
+SECRET_KEY=your_secret_key
+LOG_LEVEL=INFO
+
+# AI Processing
+AI_TEMPERATURE=0.7
+MAX_TOKENS=2000
+```
+
+### Icon Library Configuration
+The application automatically loads icon libraries from the `Libs/` directory:
+- XML files with mxlibrary format
+- SVG files in subdirectories
+- PNG files for raster icons
+
+## 🎨 Customization
+
+### Adding New Icon Libraries
+1. Create XML file in `Libs/` directory
+2. Use mxlibrary format:
+```xml
+<mxlibrary>
+[
+  {
+    "data": "data:image/svg+xml;base64,...",
+    "w": 48,
+    "h": 48,
+    "title": "Icon Name",
+    "desc": "Icon description"
+  }
+]
+</mxlibrary>
+```
+
+### Custom Architecture Patterns
+Add new patterns in `ai_processor.py`:
+```python
+def _create_custom_architecture(self, text: str) -> Dict[str, Any]:
+    # Your custom architecture logic
+    return {
+        'title': 'Custom Architecture',
+        'components': [...],
+        'connections': [...]
+    }
+```
+
+## 📊 API Reference
+
+### Endpoints
+
+#### Generate Diagram
+- **POST** `/api/generate-diagram`
+- **Body**: `{"input_text": "architecture description"}`
+- **Response**: Diagram metadata and ID
+
+#### Get Diagram
+- **GET** `/api/diagram/{diagram_id}`
+- **Response**: Draw.io XML format
+
+#### Export Diagram
+- **GET** `/api/export/{diagram_id}/{format}`
+- **Formats**: `png`, `svg`, `pdf`, `xml`
+
+#### Health Check
+- **GET** `/api/health`
+- **Response**: Application status and statistics
+
+#### Library Icons
+- **GET** `/api/library-icons/{library_name}`
+- **Response**: List of icons in library
+
+## 🚀 Deployment
+
+### Local Development
 ```bash
 python app.py
 ```
 
-La aplicación estará disponible en `http://localhost:5000`
-
-## 🎯 Uso de la Aplicación
-
-### Generación desde Texto
-
-1. **Describe tu arquitectura**: Escribe una descripción detallada en el área de texto
-2. **Selecciona el tipo**: Elige el tipo de diagrama (AWS, Azure, etc.) o usa detección automática
-3. **Elige el estilo**: Moderno, minimalista o colorido
-4. **Generar**: Haz clic en "Generar Diagrama"
-
-**Ejemplo de descripción:**
-```
-Tengo una aplicación web con:
-- Frontend en React desplegado en S3
-- API REST en Node.js en EC2
-- Base de datos PostgreSQL en RDS
-- Cache Redis en ElastiCache
-- Load Balancer ALB
-- CloudFront para CDN
-- Autenticación con Cognito
-```
-
-### Generación desde Documento
-
-1. **Subir archivo**: Selecciona un documento (PDF, DOCX, etc.)
-2. **Configurar opciones**: Tipo de diagrama y estilo
-3. **Procesar**: La IA extraerá el texto y generará el diagrama
-
-### Trabajar con Iconos
-
-- **Explorar librerías**: Navega por las librerías de iconos en el panel lateral
-- **Buscar iconos**: Usa la funcionalidad de búsqueda
-- **Seleccionar**: Haz clic en los iconos para seleccionarlos
-
-### Exportar Diagramas
-
-- **Draw.io XML**: Para edición completa
-- **SVG**: Gráficos vectoriales
-- **PNG**: Imágenes raster
-- **PDF**: Documentos imprimibles
-
-## 🛠️ Estructura del Proyecto
-
-```
-Diagrams_Creator/
-├── app.py                 # Aplicación principal Flask
-├── config.py             # Configuración
-├── ai_processor.py       # Procesamiento con IA
-├── diagram_generator.py  # Generación de diagramas
-├── libs_handler.py       # Manejo de librerías de iconos
-├── requirements.txt      # Dependencias Python
-├── env_example.txt       # Ejemplo de variables de entorno
-├── templates/
-│   └── index.html        # Interfaz web principal
-├── static/
-│   ├── css/
-│   │   └── style.css     # Estilos personalizados
-│   └── js/
-│       └── app.js        # JavaScript de la aplicación
-├── Libs/                 # Librerías de iconos
-│   ├── arista/          # Iconos de Arista
-│   ├── f5/              # Iconos de F5
-│   ├── fortinet/        # Iconos de Fortinet
-│   └── ...              # Otras librerías
-└── outputs/             # Diagramas generados
-```
-
-## 🔧 API Endpoints
-
-### Principales
-
-- `GET /` - Interfaz web principal
-- `POST /api/generate-diagram` - Generar diagrama desde texto
-- `POST /api/upload-document` - Procesar documento
-- `GET /api/libraries` - Obtener librerías disponibles
-- `GET /api/icons/<library>` - Obtener iconos de librería
-- `GET /api/diagram/<id>` - Descargar diagrama
-- `GET /api/export-diagram/<id>/<format>` - Exportar diagrama
-
-### Utilitarios
-
-- `GET /api/health` - Estado de la aplicación
-
-## 🎨 Personalización
-
-### Estilos de Diagrama
-
-Puedes personalizar los estilos editando `diagram_generator.py`:
-
-```python
-'modern': {
-    'component': {
-        'fillColor': '#E1F5FE',
-        'strokeColor': '#0277BD',
-        'strokeWidth': 2,
-        'rounded': 1,
-        'shadow': 1
-    }
-}
-```
-
-### Agregar Nuevas Librerías
-
-1. Coloca los iconos en `Libs/nueva_libreria/`
-2. La aplicación detectará automáticamente:
-   - Archivos SVG
-   - Archivos PNG
-   - Archivos XML con definiciones
-
-## 🤖 Configuración de IA
-
-### Modelos Soportados
-
-- `gpt-3.5-turbo` (recomendado)
-- `gpt-4` (mayor precisión, más costoso)
-
-### Parámetros Ajustables
-
-```python
-AI_TEMPERATURE=0.7    # Creatividad (0.0-1.0)
-MAX_TOKENS=2000       # Longitud máxima de respuesta
-```
-
-## 📝 Ejemplos de Uso
-
-### Arquitectura AWS
-
-```
-Descripción: "Aplicación web escalable en AWS con frontend en S3, API en Lambda, base de datos RDS MySQL, y cache ElastiCache Redis"
-
-Resultado: Diagrama con iconos de AWS mostrando S3, Lambda, RDS, ElastiCache y sus conexiones
-```
-
-### Arquitectura Kubernetes
-
-```
-Descripción: "Cluster Kubernetes con 3 pods de aplicación, servicio LoadBalancer, ConfigMap para configuración, y PersistentVolume para datos"
-
-Resultado: Diagrama K8s con pods, services, configmaps y volúmenes
-```
-
-## 🐛 Solución de Problemas
-
-### Error de API Key
-
-```
-Error: OpenAI API key not configured
-Solución: Configurar OPENAI_API_KEY en el archivo .env
-```
-
-### Error de Librerías
-
-```
-Error: No libraries found
-Solución: Verificar que la carpeta Libs/ contenga las librerías de iconos
-```
-
-### Error de Memoria
-
-```
-Error: Request too large
-Solución: Reducir el tamaño del documento o dividirlo en partes más pequeñas
-```
-
-## 🔒 Seguridad
-
-- ✅ Validación de tipos de archivo
-- ✅ Límites de tamaño de archivo (16MB)
-- ✅ Sanitización de entradas
-- ✅ Manejo seguro de archivos temporales
-- ⚠️ **Importante**: Mantén tu API Key de OpenAI segura
-
-## 🚀 Despliegue en Producción
-
-### Variables de Entorno de Producción
-
+### Production Deployment
 ```bash
-FLASK_ENV=production
-SECRET_KEY=tu-clave-secreta-muy-segura
-OPENAI_API_KEY=tu-api-key-de-openai
-```
-
-### Usando Gunicorn
-
-```bash
+# Using Gunicorn
 gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+# Using Docker
+docker build -t diagrams-creator .
+docker run -p 5000:5000 diagrams-creator
 ```
 
-### Docker (Opcional)
+### Environment Setup
+- **Development**: `FLASK_ENV=development`
+- **Production**: `FLASK_ENV=production`
+- **Testing**: `FLASK_ENV=testing`
 
-```dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### Libraries Not Loading
+- Check `Libs/` directory exists
+- Verify XML files are valid
+- Check file permissions
+
+#### AI Provider Errors
+- Verify API keys are correct
+- Check network connectivity
+- Review API quotas and limits
+
+#### Diagram Generation Fails
+- Check input text format
+- Verify icon libraries are loaded
+- Review application logs
+
+### Logging
+Enable detailed logging:
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
 ```
 
-## 📊 Métricas y Monitoreo
+## 🤝 Contributing
 
-La aplicación incluye:
-- Health check endpoint (`/api/health`)
-- Logging detallado
-- Manejo de errores robusto
-- Métricas de uso (componentes, conexiones)
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-## 🤝 Contribuciones
+### Development Setup
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
 
-¡Las contribuciones son bienvenidas!
+# Run tests
+python -m pytest
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-caracteristica`)
-3. Commit tus cambios (`git commit -am 'Agregar nueva característica'`)
-4. Push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Crea un Pull Request
+# Run linting
+flake8 .
+```
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Agradecimientos
+## 🙏 Acknowledgments
 
-- **OpenAI** por la API de GPT
-- **Draw.io** por la plataforma de diagramas
-- **Bootstrap** por el framework CSS
-- **Comunidad Open Source** por las librerías de iconos
+- **Draw.io**: For the diagram format and inspiration
+- **Eraser.io**: For architecture diagram best practices
+- **Cloud Providers**: For official icon libraries
+- **Open Source Community**: For various libraries and tools
 
-## 📞 Soporte
+## 📞 Support
 
-Si tienes problemas o preguntas:
+- **Issues**: GitHub Issues
+- **Documentation**: This README
+- **Examples**: Check the `examples/` directory
 
-1. Revisa la documentación
-2. Busca en los issues existentes
-3. Crea un nuevo issue con detalles del problema
+## 🔮 Roadmap
+
+### Upcoming Features
+- [ ] Real-time collaboration
+- [ ] Version control for diagrams
+- [ ] Advanced AI models integration
+- [ ] Custom template support
+- [ ] Team workspaces
+- [ ] Advanced export options
+- [ ] Integration with popular tools
+- [ ] Mobile app support
+
+### Performance Improvements
+- [ ] Caching for faster generation
+- [ ] Background processing
+- [ ] Optimized icon loading
+- [ ] Database integration
+- [ ] CDN for static assets
 
 ---
 
-**¡Feliz creación de diagramas! 🎨📊**
+**Made with ❤️ for the architecture community**
