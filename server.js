@@ -123,7 +123,52 @@ function processDescription(description) {
       
       // Patrones para Service Bus
       { regex: /(\d+|\w+)\s+service\s+buses?/gi, serviceType: 'service buses' },
-      { regex: /(\d+|\w+)\s+colas?/gi, serviceType: 'service buses' }
+      { regex: /(\d+|\w+)\s+colas?/gi, serviceType: 'service buses' },
+      
+      // Patrones para Kubernetes
+      { regex: /(\d+|\w+)\s+kubernetes\s+services?/gi, serviceType: 'kubernetes services' },
+      { regex: /(\d+|\w+)\s+aks\s+clusters?/gi, serviceType: 'kubernetes services' },
+      { regex: /(\d+|\w+)\s+container\s+orchestrations?/gi, serviceType: 'kubernetes services' },
+      
+      // Patrones para Cognitive Services
+      { regex: /(\d+|\w+)\s+cognitive\s+services?/gi, serviceType: 'cognitive services' },
+      { regex: /(\d+|\w+)\s+ai\s+services?/gi, serviceType: 'cognitive services' },
+      { regex: /(\d+|\w+)\s+machine\s+learning\s+services?/gi, serviceType: 'cognitive services' },
+      
+      // Patrones para Event Hubs
+      { regex: /(\d+|\w+)\s+event\s+hubs?/gi, serviceType: 'event hubs' },
+      { regex: /(\d+|\w+)\s+streaming\s+services?/gi, serviceType: 'event hubs' },
+      
+      // Patrones para Logic Apps
+      { regex: /(\d+|\w+)\s+logic\s+apps?/gi, serviceType: 'logic apps' },
+      { regex: /(\d+|\w+)\s+workflows?/gi, serviceType: 'logic apps' },
+      
+      // Patrones para API Management
+      { regex: /(\d+|\w+)\s+api\s+gateways?/gi, serviceType: 'api gateways' },
+      { regex: /(\d+|\w+)\s+api\s+managements?/gi, serviceType: 'api gateways' },
+      
+      // Patrones para Active Directory
+      { regex: /(\d+|\w+)\s+active\s+directories?/gi, serviceType: 'active directories' },
+      { regex: /(\d+|\w+)\s+identity\s+providers?/gi, serviceType: 'active directories' },
+      
+      // Patrones para CDN
+      { regex: /(\d+|\w+)\s+cdns?/gi, serviceType: 'cdns' },
+      { regex: /(\d+|\w+)\s+content\s+delivery\s+networks?/gi, serviceType: 'cdns' },
+      
+      // Patrones para Search
+      { regex: /(\d+|\w+)\s+search\s+services?/gi, serviceType: 'search services' },
+      { regex: /(\d+|\w+)\s+search\s+engines?/gi, serviceType: 'search services' },
+      
+      // Patrones para Notification Hubs
+      { regex: /(\d+|\w+)\s+notification\s+hubs?/gi, serviceType: 'notification hubs' },
+      { regex: /(\d+|\w+)\s+push\s+services?/gi, serviceType: 'notification hubs' },
+      
+      // Patrones para arquitecturas específicas
+      { regex: /(\d+|\w+)\s+subcripciones?/gi, serviceType: 'subscriptions' },
+      { regex: /(\d+|\w+)\s+subscriptions?/gi, serviceType: 'subscriptions' },
+      { regex: /(\d+|\w+)\s+hub\s+and\s+spoke/gi, serviceType: 'hub and spoke' },
+      { regex: /(\d+|\w+)\s+redes?\s+virtuales?/gi, serviceType: 'virtual networks' },
+      { regex: /(\d+|\w+)\s+vnets?/gi, serviceType: 'virtual networks' }
     ];
     
     patterns.forEach(pattern => {
@@ -155,31 +200,45 @@ function processDescription(description) {
   const detectedQuantities = detectQuantities(text);
   console.log('🔢 Cantidades detectadas:', Array.from(detectedQuantities.entries()));
   
-  // Patrones de reconocimiento mejorados y más específicos
+  // Patrones de reconocimiento expandidos para arquitecturas universales
   const servicePatterns = {
     'azure-vm': [
       'virtual machine', 'vm', 'máquina virtual', 'servidor', 'compute',
       'instancia', 'host', 'node', 'worker', 'servidor', 'máquina',
       'virtual machines', 'máquinas virtuales', 'servidores', 'instancias',
-      'ec2', 'compute instance', 'instancia de computación'
+      'ec2', 'compute instance', 'instancia de computación', 'server',
+      'compute node', 'worker node', 'master node', 'nodo', 'nodos',
+      'instancia de computo', 'máquina', 'máquinas', 'servidor web',
+      'web server', 'app server', 'application server', 'backend server',
+      'frontend server', 'api server', 'microservice', 'microservicio'
     ],
     'azure-app-service': [
       'app service', 'web app', 'aplicación web', 'api', 'rest api',
       'web application', 'backend', 'frontend', 'servicio web', 'aplicación',
       'app', 'webapp', 'web application', 'aplicaciones web', 'apis',
-      'web service', 'servicio web', 'aplicación web', 'sitio web'
+      'web service', 'servicio web', 'aplicación web', 'sitio web',
+      'website', 'sitio', 'portal', 'dashboard', 'admin panel',
+      'user interface', 'ui', 'frontend app', 'backend app', 'api gateway',
+      'gateway', 'proxy', 'load balancer', 'reverse proxy', 'cdn',
+      'content delivery network', 'static website', 'spa', 'single page app'
     ],
     'azure-sql': [
       'sql database', 'sql db', 'base de datos sql', 'database', 'db',
       'sql server', 'relational database', 'tabla', 'tablas', 'sql',
       'base de datos', 'bases de datos', 'relacional', 'relacionales',
-      'mysql', 'postgresql', 'postgres', 'oracle', 'sqlite'
+      'mysql', 'postgresql', 'postgres', 'oracle', 'sqlite',
+      'data warehouse', 'data lake', 'analytics database', 'reporting db',
+      'transactional database', 'oltp', 'olap', 'data mart', 'data store',
+      'persistence layer', 'data layer', 'repository', 'data access layer'
     ],
     'azure-storage': [
       'storage account', 'storage', 'blob storage', 'file storage',
       'almacenamiento', 'archivos', 'blob', 'container', 'file',
       'almacenamiento', 'storage', 'archivos', 'files', 'blobs',
-      's3', 'bucket', 'file system', 'sistema de archivos'
+      's3', 'bucket', 'file system', 'sistema de archivos',
+      'object storage', 'file share', 'backup storage', 'archive storage',
+      'cold storage', 'hot storage', 'media storage', 'image storage',
+      'document storage', 'log storage', 'temp storage', 'cache storage'
     ],
     'azure-vnet': [
       'virtual network', 'vnet', 'red virtual', 'network', 'subnet',
@@ -226,12 +285,134 @@ function processDescription(description) {
       'application insights', 'monitor', 'logging', 'métricas',
       'alertas', 'dashboard', 'telemetría', 'monitoring',
       'insights', 'logs', 'métricas', 'alertas', 'dashboards',
-      'cloudwatch', 'datadog', 'new relic', 'observability'
+      'cloudwatch', 'datadog', 'new relic', 'observability',
+      'monitoring', 'observability', 'telemetry', 'analytics',
+      'performance monitoring', 'health monitoring', 'uptime monitoring'
+    ],
+    
+    // Servicios adicionales para arquitecturas más complejas
+    'azure-kubernetes': [
+      'kubernetes', 'aks', 'azure kubernetes service', 'container orchestration',
+      'k8s', 'container platform', 'orchestration', 'container management',
+      'pod', 'pods', 'deployment', 'service mesh', 'istio'
+    ],
+    'azure-container-registry': [
+      'container registry', 'acr', 'azure container registry', 'docker registry',
+      'image registry', 'container images', 'docker images', 'registry'
+    ],
+    'azure-cognitive-services': [
+      'cognitive services', 'ai services', 'machine learning', 'artificial intelligence',
+      'computer vision', 'speech services', 'language understanding', 'text analytics',
+      'face api', 'custom vision', 'form recognizer', 'translator'
+    ],
+    'azure-event-hubs': [
+      'event hubs', 'event streaming', 'event processing', 'stream processing',
+      'real-time data', 'event sourcing', 'message streaming', 'data streaming'
+    ],
+    'azure-logic-apps': [
+      'logic apps', 'workflow', 'automation', 'business process', 'integration',
+      'workflow automation', 'process automation', 'business logic'
+    ],
+    'azure-api-management': [
+      'api management', 'apim', 'api gateway', 'api portal', 'api documentation',
+      'api versioning', 'api security', 'rate limiting', 'api analytics'
+    ],
+    'azure-active-directory': [
+      'active directory', 'aad', 'identity', 'authentication', 'authorization',
+      'single sign-on', 'sso', 'identity provider', 'user management', 'rbac'
+    ],
+    'azure-cdn': [
+      'cdn', 'content delivery network', 'edge caching', 'global distribution',
+      'static content', 'media delivery', 'web acceleration'
+    ],
+    'azure-search': [
+      'search service', 'azure search', 'full-text search', 'search engine',
+      'search index', 'search analytics', 'cognitive search'
+    ],
+    'azure-notification-hubs': [
+      'notification hubs', 'push notifications', 'mobile notifications',
+      'notification service', 'messaging service', 'alert service'
+    ],
+    'azure-firewall': [
+      'firewall', 'azure firewall', 'network security', 'seguridad de red',
+      'firewall manager', 'network security group', 'nsg', 'security rules',
+      'reglas de seguridad', 'cortafuegos', 'filtrado de tráfico'
+    ],
+    'azure-bastion': [
+      'bastion', 'azure bastion', 'remote access', 'acceso remoto',
+      'rdp access', 'ssh access', 'secure access', 'acceso seguro',
+      'jump host', 'bastion host', 'secure shell'
     ]
   };
   
+  // Detectar patrones arquitectónicos específicos
+  const architecturalPatterns = {
+    'hub-and-spoke': {
+      keywords: ['hub and spoke', 'hub-and-spoke', 'hub & spoke', 'centralized', 'centro y radios'],
+      services: ['azure-firewall', 'azure-bastion', 'azure-vnet', 'azure-vm', 'azure-app-service', 'azure-sql', 'azure-storage'],
+      description: 'Arquitectura hub and spoke con firewall central, bastion y múltiples VNets'
+    },
+    'multi-tier': {
+      keywords: ['multi-tier', 'multi tier', '3-tier', 'three tier', 'n-tier', 'capas', 'tiers'],
+      services: ['azure-app-service', 'azure-sql', 'azure-storage', 'azure-load-balancer'],
+      description: 'Arquitectura de múltiples capas'
+    },
+    'microservices': {
+      keywords: ['microservices', 'microservicios', 'micro-service', 'distributed'],
+      services: ['azure-kubernetes', 'azure-app-service', 'azure-service-bus', 'azure-redis'],
+      description: 'Arquitectura de microservicios'
+    },
+    'serverless': {
+      keywords: ['serverless', 'sin servidor', 'functions', 'event-driven'],
+      services: ['azure-functions', 'azure-service-bus', 'azure-cosmos', 'azure-event-hubs'],
+      description: 'Arquitectura serverless'
+    },
+    'containerized': {
+      keywords: ['container', 'containers', 'docker', 'kubernetes', 'aks', 'orchestration'],
+      services: ['azure-kubernetes', 'azure-container-registry', 'azure-load-balancer'],
+      description: 'Arquitectura basada en contenedores'
+    }
+  };
+
+  // Detectar patrón arquitectónico
+  let detectedPattern = null;
+  for (const [patternName, pattern] of Object.entries(architecturalPatterns)) {
+    for (const keyword of pattern.keywords) {
+      if (text.includes(keyword.toLowerCase())) {
+        detectedPattern = pattern;
+        console.log(`🏗️ Patrón arquitectónico detectado: ${patternName}`);
+        break;
+      }
+    }
+    if (detectedPattern) break;
+  }
+
   // Detectar servicios mencionados con puntuación mejorada
   const detectedServices = new Map();
+  
+  // Si se detectó un patrón arquitectónico, aplicar sus servicios primero
+  if (detectedPattern) {
+    console.log(`🏗️ Aplicando patrón arquitectónico: ${detectedPattern.description}`);
+    
+    // Para hub and spoke, configurar componentes específicos
+    if (detectedPattern === architecturalPatterns['hub-and-spoke']) {
+      console.log('🏗️ Configurando componentes específicos de Hub and Spoke');
+      // Agregar componentes correctos del hub
+      detectedServices.set('azure-firewall', 10); // Hub central
+      detectedServices.set('azure-bastion', 10); // Hub central
+      detectedServices.set('azure-vnet', 10); // Hub central
+      // Agregar componentes de los spokes
+      detectedServices.set('azure-vm', 8); // VMs en spokes
+      detectedServices.set('azure-app-service', 8); // App Services en spokes
+      detectedServices.set('azure-sql', 8); // SQL en spokes
+      detectedServices.set('azure-storage', 8); // Storage en spokes
+    } else {
+      // Para otros patrones, usar servicios estándar
+      detectedPattern.services.forEach(serviceType => {
+        detectedServices.set(serviceType, 8);
+      });
+    }
+  }
   
   Object.entries(servicePatterns).forEach(([serviceType, patterns]) => {
     let score = 0;
@@ -320,25 +501,49 @@ function processDescription(description) {
     if (detectedServices.size === 0) {
       console.log('🔄 Usando configuración básica por defecto');
       
-      // Detectar tipo de aplicación
-      if (text.includes('web') || text.includes('aplicación') || text.includes('sitio')) {
-        detectedServices.set('azure-app-service', 1);
-        detectedServices.set('azure-sql', 1);
-        detectedServices.set('azure-storage', 1);
-      } else if (text.includes('microservicio') || text.includes('api') || text.includes('servicio')) {
-        detectedServices.set('azure-app-service', 1);
-        detectedServices.set('azure-service-bus', 1);
-        detectedServices.set('azure-redis', 1);
-        detectedServices.set('azure-monitor', 1);
-      } else if (text.includes('datos') || text.includes('data') || text.includes('analytics')) {
-        detectedServices.set('azure-sql', 1);
-        detectedServices.set('azure-storage', 1);
-        detectedServices.set('azure-cosmos', 1);
+      // Si se detectó un patrón arquitectónico, usar sus servicios
+      if (detectedPattern) {
+        console.log(`🏗️ Aplicando patrón arquitectónico: ${detectedPattern.description}`);
+        detectedPattern.services.forEach(serviceType => {
+          detectedServices.set(serviceType, 8); // Alta puntuación para servicios del patrón
+        });
+        
+        // Para hub and spoke, asegurar que se generen los componentes correctos
+        if (detectedPattern === architecturalPatterns['hub-and-spoke']) {
+          console.log('🏗️ Configurando componentes específicos de Hub and Spoke');
+          // Limpiar servicios detectados incorrectamente
+          detectedServices.clear();
+          // Agregar componentes correctos del hub
+          detectedServices.set('azure-firewall', 10); // Hub central
+          detectedServices.set('azure-bastion', 10); // Hub central
+          detectedServices.set('azure-vnet', 10); // Hub central
+          // Agregar componentes de los spokes
+          detectedServices.set('azure-vm', 8); // VMs en spokes
+          detectedServices.set('azure-app-service', 8); // App Services en spokes
+          detectedServices.set('azure-sql', 8); // SQL en spokes
+          detectedServices.set('azure-storage', 8); // Storage en spokes
+        }
       } else {
-        // Configuración básica por defecto
-        detectedServices.set('azure-app-service', 1);
-        detectedServices.set('azure-sql', 1);
-        detectedServices.set('azure-storage', 1);
+        // Detectar tipo de aplicación
+        if (text.includes('web') || text.includes('aplicación') || text.includes('sitio')) {
+          detectedServices.set('azure-app-service', 1);
+          detectedServices.set('azure-sql', 1);
+          detectedServices.set('azure-storage', 1);
+        } else if (text.includes('microservicio') || text.includes('api') || text.includes('servicio')) {
+          detectedServices.set('azure-app-service', 1);
+          detectedServices.set('azure-service-bus', 1);
+          detectedServices.set('azure-redis', 1);
+          detectedServices.set('azure-monitor', 1);
+        } else if (text.includes('datos') || text.includes('data') || text.includes('analytics')) {
+          detectedServices.set('azure-sql', 1);
+          detectedServices.set('azure-storage', 1);
+          detectedServices.set('azure-cosmos', 1);
+        } else {
+          // Configuración básica por defecto
+          detectedServices.set('azure-app-service', 1);
+          detectedServices.set('azure-sql', 1);
+          detectedServices.set('azure-storage', 1);
+        }
       }
     }
   }
@@ -349,6 +554,9 @@ function processDescription(description) {
   const elementHeight = 80;
   const spacing = 200;
   let elementIndex = 0;
+  
+  // Detectar si es arquitectura Hub and Spoke
+  const isHubSpokeArchitecture = text.includes('hub and spoke') || text.includes('hub-and-spoke');
   
   // Función para mapear texto de servicio a tipo de Azure
   function mapServiceTextToType(serviceText) {
@@ -426,6 +634,53 @@ function processDescription(description) {
       return 'azure-monitor';
     }
     
+    // Nuevos servicios para arquitecturas universales
+    if (serviceTextLower.includes('kubernetes') || serviceTextLower.includes('aks') || 
+        serviceTextLower.includes('container orchestration')) {
+      return 'azure-kubernetes';
+    }
+    if (serviceTextLower.includes('cognitive services') || serviceTextLower.includes('ai services') || 
+        serviceTextLower.includes('machine learning') || serviceTextLower.includes('artificial intelligence')) {
+      return 'azure-cognitive-services';
+    }
+    if (serviceTextLower.includes('event hubs') || serviceTextLower.includes('event streaming') || 
+        serviceTextLower.includes('stream processing')) {
+      return 'azure-event-hubs';
+    }
+    if (serviceTextLower.includes('logic apps') || serviceTextLower.includes('workflow') || 
+        serviceTextLower.includes('automation')) {
+      return 'azure-logic-apps';
+    }
+    if (serviceTextLower.includes('api management') || serviceTextLower.includes('api gateway') || 
+        serviceTextLower.includes('apim')) {
+      return 'azure-api-management';
+    }
+    if (serviceTextLower.includes('active directory') || serviceTextLower.includes('aad') || 
+        serviceTextLower.includes('identity') || serviceTextLower.includes('authentication')) {
+      return 'azure-active-directory';
+    }
+    if (serviceTextLower.includes('cdn') || serviceTextLower.includes('content delivery network') || 
+        serviceTextLower.includes('edge caching')) {
+      return 'azure-cdn';
+    }
+    if (serviceTextLower.includes('search service') || serviceTextLower.includes('azure search') || 
+        serviceTextLower.includes('search engine')) {
+      return 'azure-search';
+    }
+    if (serviceTextLower.includes('notification hubs') || serviceTextLower.includes('push notifications') || 
+        serviceTextLower.includes('notification service')) {
+      return 'azure-notification-hubs';
+    }
+    
+    // Mapeo para arquitecturas específicas
+    if (serviceTextLower === 'subscriptions') { return 'azure-subscriptions'; } // Las subscripciones se mapean a iconos específicos
+    if (serviceTextLower === 'hub and spoke') { return 'azure-vnet'; } // Hub and spoke se mapea a VNet
+    if (serviceTextLower === 'virtual networks') { return 'azure-vnet'; }
+    
+    // Mapeo para servicios de seguridad
+    if (serviceTextLower.includes('firewall') || serviceTextLower.includes('cortafuegos')) { return 'azure-firewall'; }
+    if (serviceTextLower.includes('bastion') || serviceTextLower.includes('acceso remoto')) { return 'azure-bastion'; }
+    
     return null;
   }
   
@@ -436,11 +691,34 @@ function processDescription(description) {
       console.log(`📊 Generando ${quantity} elementos de tipo ${serviceType} para "${serviceText}"`);
       
       for (let i = 0; i < quantity; i++) {
-        const row = Math.floor(elementIndex / 4); // Máximo 4 columnas
-        const col = elementIndex % 4;
+        let x, y;
         
-        const x = 100 + col * spacing;
-        const y = 100 + row * spacing;
+        if (isHubSpokeArchitecture) {
+          // Posicionamiento especial para Hub and Spoke
+          if (serviceType === 'azure-subscriptions') {
+            // Spokes (subscripciones) en la parte inferior
+            const spokeRow = Math.floor(elementIndex / 4);
+            const spokeCol = elementIndex % 4;
+            x = 100 + spokeCol * spacing;
+            y = 400 + spokeRow * spacing; // Separar del hub
+          } else if (serviceType === 'azure-firewall' || serviceType === 'azure-bastion') {
+            // Hub central en la parte superior
+            x = 400; // Centro
+            y = 100;
+          } else {
+            // Otros servicios del hub
+            const hubRow = Math.floor(elementIndex / 3);
+            const hubCol = elementIndex % 3;
+            x = 300 + hubCol * spacing;
+            y = 100 + hubRow * spacing;
+          }
+        } else {
+          // Posicionamiento normal
+          const row = Math.floor(elementIndex / 4);
+          const col = elementIndex % 4;
+          x = 100 + col * spacing;
+          y = 100 + row * spacing;
+        }
         
         const serviceInfo = getServiceInfo(serviceType);
         
@@ -459,23 +737,47 @@ function processDescription(description) {
         elementIndex++;
       }
       
-      // Remover el servicio de la lista de servicios detectados para evitar duplicados
-      detectedServices.delete(serviceType);
+      // NO remover servicios del patrón arquitectónico
+      // Solo remover si no es un servicio del hub and spoke
+      if (!isHubSpokeArchitecture || !['azure-firewall', 'azure-bastion', 'azure-vnet', 'azure-vm', 'azure-app-service', 'azure-sql', 'azure-storage'].includes(serviceType)) {
+        detectedServices.delete(serviceType);
+      } else {
+        console.log(`🔒 Manteniendo servicio del patrón: ${serviceType}`);
+      }
     }
   });
   
   // Procesar servicios restantes (sin cantidad específica)
   const remainingServices = Array.from(detectedServices);
+  console.log(`🔍 Servicios restantes a procesar: ${remainingServices.map(([type, score]) => `${type}(${score})`).join(', ')}`);
+  
   remainingServices.forEach(([serviceType, score]) => {
-    const row = Math.floor(elementIndex / 4);
-    const col = elementIndex % 4;
+    let x, y;
     
-    const x = 100 + col * spacing;
-    const y = 100 + row * spacing;
+    if (isHubSpokeArchitecture) {
+      // Posicionamiento especial para Hub and Spoke
+      if (serviceType === 'azure-firewall' || serviceType === 'azure-bastion') {
+        // Hub central
+        x = 400;
+        y = 100;
+      } else {
+        // Otros servicios del hub
+        const hubRow = Math.floor(elementIndex / 3);
+        const hubCol = elementIndex % 3;
+        x = 300 + hubCol * spacing;
+        y = 100 + hubRow * spacing;
+      }
+    } else {
+      // Posicionamiento normal
+      const row = Math.floor(elementIndex / 4);
+      const col = elementIndex % 4;
+      x = 100 + col * spacing;
+      y = 100 + row * spacing;
+    }
     
     const serviceInfo = getServiceInfo(serviceType);
     
-    elements.push({
+    const element = {
       id: `${serviceType}-${elementIndex + 1}`,
       type: serviceType,
       text: serviceInfo.name,
@@ -485,7 +787,10 @@ function processDescription(description) {
       width: elementWidth,
       height: elementHeight,
       color: serviceInfo.color
-    });
+    };
+    
+    elements.push(element);
+    console.log(`📦 Elemento creado: ${serviceType} - ${element.text} (x:${x}, y:${y})`);
     
     elementIndex++;
   });
@@ -564,6 +869,71 @@ function getServiceInfo(serviceType) {
     'azure-monitor': {
       name: 'Application Insights',
       description: 'Monitoreo y telemetría',
+      color: '#0078d4'
+    },
+    'azure-kubernetes': {
+      name: 'Azure Kubernetes Service',
+      description: 'Orquestación de contenedores',
+      color: '#0078d4'
+    },
+    'azure-container-registry': {
+      name: 'Container Registry',
+      description: 'Registro de imágenes de contenedores',
+      color: '#0078d4'
+    },
+    'azure-cognitive-services': {
+      name: 'Cognitive Services',
+      description: 'Servicios de inteligencia artificial',
+      color: '#0078d4'
+    },
+    'azure-event-hubs': {
+      name: 'Event Hubs',
+      description: 'Procesamiento de eventos en tiempo real',
+      color: '#0078d4'
+    },
+    'azure-logic-apps': {
+      name: 'Logic Apps',
+      description: 'Automatización de procesos de negocio',
+      color: '#0078d4'
+    },
+    'azure-api-management': {
+      name: 'API Management',
+      description: 'Gestión y seguridad de APIs',
+      color: '#0078d4'
+    },
+    'azure-active-directory': {
+      name: 'Active Directory',
+      description: 'Gestión de identidades y acceso',
+      color: '#0078d4'
+    },
+    'azure-cdn': {
+      name: 'Content Delivery Network',
+      description: 'Red de entrega de contenido',
+      color: '#0078d4'
+    },
+    'azure-search': {
+      name: 'Azure Search',
+      description: 'Servicio de búsqueda en la nube',
+      color: '#0078d4'
+    },
+    'azure-notification-hubs': {
+      name: 'Notification Hubs',
+      description: 'Servicio de notificaciones push',
+      color: '#0078d4'
+    },
+    'azure-firewall': {
+      name: 'Azure Firewall',
+      description: 'Firewall de red administrado',
+      color: '#0078d4'
+    },
+    'azure-bastion': {
+      name: 'Azure Bastion',
+      description: 'Acceso remoto seguro a VMs',
+      color: '#0078d4'
+    },
+    'azure-subscriptions': {
+      name: 'Subscriptions',
+      description: 'Suscripciones de Azure',
       color: '#0078d4'
     }
   };
@@ -727,6 +1097,38 @@ function addConnection(connections, source, target, label) {
 
 function createContextualConnections(elements, connections, description, elementsByType) {
   const text = description.toLowerCase();
+  
+  // Conexiones específicas para arquitectura Hub and Spoke
+  if (text.includes('hub and spoke') || text.includes('hub-and-spoke')) {
+    console.log('🏗️ Creando conexiones para arquitectura Hub and Spoke');
+    
+    // Conectar Azure Firewall (hub) a todas las VNets (spokes)
+    if (elementsByType['azure-firewall'] && elementsByType['azure-vnet']) {
+      elementsByType['azure-firewall'].forEach(firewall => {
+        elementsByType['azure-vnet'].forEach(vnet => {
+          addConnection(connections, firewall, vnet, 'Traffic Control');
+        });
+      });
+    }
+    
+    // Conectar Azure Bastion (hub) a todas las VMs (spokes)
+    if (elementsByType['azure-bastion'] && elementsByType['azure-vm']) {
+      elementsByType['azure-bastion'].forEach(bastion => {
+        elementsByType['azure-vm'].forEach(vm => {
+          addConnection(connections, bastion, vm, 'Remote Access');
+        });
+      });
+    }
+    
+    // Conectar VNets (spokes) a servicios dentro de cada spoke
+    if (elementsByType['azure-vnet'] && elementsByType['azure-vm']) {
+      elementsByType['azure-vnet'].forEach(vnet => {
+        elementsByType['azure-vm'].forEach(vm => {
+          addConnection(connections, vnet, vm, 'Network');
+        });
+      });
+    }
+  }
   
   // Si hay múltiples VMs y una base de datos, conectar todas las VMs a la DB
   if (elementsByType['azure-vm'] && elementsByType['azure-vm'].length > 1 && 
