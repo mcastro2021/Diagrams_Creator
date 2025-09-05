@@ -122,36 +122,83 @@
             border-radius: 4px;
             position: relative;
             overflow: auto;
+            transform-origin: 0 0;
+            transition: transform 0.2s ease;
+        }
+        
+        .diagram-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .zoom-btn {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #24292f;
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-btn:hover {
+            background: #f3f4f6;
+            border-color: #8c959f;
+        }
+        
+        .zoom-btn:active {
+            background: #e1e4e8;
+        }
+        
+        .zoom-level {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #656d76;
+            min-width: 60px;
+            text-align: center;
         }
         
         .azure-element {
             position: absolute;
             width: 180px;
             height: 100px;
-            border: 2px solid #0078d4;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid #d0d7de;
+            border-radius: 3px;
+            background: #ffffff;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-weight: 400;
+            box-shadow: none;
             cursor: move;
             user-select: none;
             padding: 8px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(8px);
+            transition: none;
+            font-family: Arial, sans-serif;
         }
         
         .azure-icon {
-            width: 40px;
-            height: 40px;
+            width: 24px;
+            height: 24px;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+            filter: none;
         }
         
         .azure-icon svg {
@@ -160,19 +207,27 @@
         }
         
         .azure-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #1a1a1a;
+            font-size: 10px;
+            font-weight: 400;
+            color: #000000;
             text-align: center;
             margin-bottom: 2px;
             line-height: 1.2;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .azure-description {
-            font-size: 9px;
-            color: var(--secondary-color);
+            font-size: 8px;
+            color: #666666;
             text-align: center;
-            line-height: 1.2;
+            line-height: 1.1;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .azure-vm {
@@ -230,10 +285,24 @@
         
         .connection {
             position: absolute;
-            background-color: #0078d4;
+            background-color: #000000;
             transform-origin: 0 0;
-            box-shadow: 0 1px 3px rgba(0, 120, 212, 0.2);
-            border-radius: 1px;
+            box-shadow: none;
+            border-radius: 0;
+            height: 1px;
+            z-index: 1;
+        }
+        
+        .connection::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid #000000;
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
         }
         
         .loading {
@@ -292,6 +361,12 @@
         
         <div class="main-content">
             <div class="diagram-container" id="diagram-container">
+                <div class="diagram-controls">
+                    <button class="zoom-btn" id="zoomOut">-</button>
+                    <div class="zoom-level" id="zoomLevel">100%</div>
+                    <button class="zoom-btn" id="zoomIn">+</button>
+                    <button class="zoom-btn" id="zoomFit">Fit</button>
+                </div>
                 <!-- Aquí se renderizará el diagrama -->
             </div>
         </div>
@@ -304,11 +379,56 @@
             const diagramContainer = document.getElementById('diagram-container');
             const loadingElement = document.getElementById('loading');
             const exampleChips = document.querySelectorAll('.example-chip');
+            
+            // Variables para zoom
+            let currentZoom = 1;
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const zoomFitBtn = document.getElementById('zoomFit');
+            const zoomLevel = document.getElementById('zoomLevel');
             const clearBtn = document.getElementById('clear-btn');
             const exportBtn = document.getElementById('export-btn');
             const saveBtn = document.getElementById('save-btn');
             
             let currentDiagramData = null;
+            
+            // Funciones de zoom
+            function updateZoom() {
+                diagramContainer.style.transform = `scale(${currentZoom})`;
+                zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+            }
+            
+            function zoomIn() {
+                currentZoom = Math.min(currentZoom * 1.2, 3);
+                updateZoom();
+            }
+            
+            function zoomOut() {
+                currentZoom = Math.max(currentZoom / 1.2, 0.1);
+                updateZoom();
+            }
+            
+            function zoomFit() {
+                currentZoom = 1;
+                updateZoom();
+            }
+            
+            // Event listeners para zoom
+            zoomInBtn.addEventListener('click', zoomIn);
+            zoomOutBtn.addEventListener('click', zoomOut);
+            zoomFitBtn.addEventListener('click', zoomFit);
+            
+            // Zoom con rueda del mouse
+            diagramContainer.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        zoomIn();
+                    } else {
+                        zoomOut();
+                    }
+                }
+            });
             
             // Cargar ejemplos
             exampleChips.forEach(chip => {
@@ -418,8 +538,8 @@
                     // Crear contenido del elemento con icono específico
                     elementDiv.innerHTML = `
                         <div class="azure-icon">
-                            <img src="${iconData.path}" alt="${iconData.name}" style="width: 40px; height: 40px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div style="width: 40px; height: 40px; background-color: ${iconData.color}; border-radius: 6px; display: none; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">
+                            <img src="${iconData.path}" alt="${iconData.name}" style="width: 24px; height: 24px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="width: 24px; height: 24px; background-color: ${iconData.color}; border-radius: 2px; display: none; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">
                                 ${iconData.name.charAt(0)}
                             </div>
                         </div>
@@ -704,16 +824,13 @@
         }
         
         .azure-element:hover {
-            transform: translateY(-1px) scale(1.01);
-            box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1);
-            border-color: #106ebe;
+            border-color: #0078d4;
+            border-width: 1px;
         }
         
         .azure-element.selected {
-            border-color: #ff6b35;
+            border-color: #0078d4;
             border-width: 2px;
-            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.3), 0 6px 16px rgba(0, 120, 212, 0.2);
-            transform: translateY(-1px);
         }
     </style>
 

@@ -3716,6 +3716,28 @@ azureIconsReal["azure-storage"] = azureIconsReal["azure-storage-accounts"];
 azureIconsReal["azure-app-service"] = azureIconsReal["azure-app-services"];
 azureIconsReal["azure-load-balancer"] = azureIconsReal["azure-load-balancers"];
 azureIconsReal["azure-vnet"] = azureIconsReal["azure-virtual-networks"];
+azureIconsReal["azure-kubernetes"] = azureIconsReal["azure-kubernetes-services"];
+azureIconsReal["azure-service-bus"] = azureIconsReal["azure-azure-service-bus"];
+azureIconsReal["azure-api-management"] = azureIconsReal["azure-api-management-services"];
+azureIconsReal["azure-data-lake"] = azureIconsReal["azure-data-lake-storage-gen1"];
+azureIconsReal["azure-cognitive"] = azureIconsReal["azure-cognitive-services"];
+azureIconsReal["azure-machine-learning"] = azureIconsReal["azure-machine-learning-studio-classic-web-services"];
+azureIconsReal["azure-iot-hub"] = azureIconsReal["azure-iot-hub"];
+azureIconsReal["azure-security-center"] = azureIconsReal["azure-security"];
+azureIconsReal["azure-active-directory"] = azureIconsReal["azure-entra-domain-services"];
+azureIconsReal["azure-container-registry"] = azureIconsReal["azure-container-registries"];
+azureIconsReal["azure-event-hubs"] = azureIconsReal["azure-event-hubs"];
+azureIconsReal["azure-logic-apps"] = azureIconsReal["azure-logic-apps"];
+azureIconsReal["azure-key-vault"] = azureIconsReal["azure-key-vaults"];
+azureIconsReal["azure-cosmos"] = azureIconsReal["azure-cosmos-db"];
+azureIconsReal["azure-redis"] = azureIconsReal["azure-redis-cache"];
+// Azure Functions no existe en el archivo, usar icono genérico
+azureIconsReal["azure-functions"] = {
+  name: "Azure Functions",
+  path: "/icons/general/10001-icon-service-All-Resources.svg",
+  color: "#0078D4",
+  category: "Compute"
+};
 
 // Función para obtener el icono real de Azure
 function getAzureIconReal(serviceType) {

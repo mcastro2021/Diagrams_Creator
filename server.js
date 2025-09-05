@@ -350,27 +350,52 @@ function processDescription(description) {
     ]
   };
   
-  // Detectar patrones arquitectónicos específicos
+  // Detectar patrones arquitectónicos específicos - Sistema inteligente expandido
   const architecturalPatterns = {
     'hub-and-spoke': {
-      keywords: ['hub and spoke', 'hub-and-spoke', 'hub & spoke', 'centralized', 'centro y radios'],
+      keywords: ['hub and spoke', 'hub-and-spoke', 'hub & spoke', 'centralized', 'centro y radios', 'topologia hub', 'arquitectura centralizada', 'red centralizada'],
       services: ['azure-firewall', 'azure-bastion', 'azure-vnet', 'azure-vm', 'azure-app-service', 'azure-sql', 'azure-storage'],
       description: 'Arquitectura hub and spoke con firewall central, bastion y múltiples VNets'
     },
     'multi-tier': {
-      keywords: ['multi-tier', 'multi tier', '3-tier', 'three tier', 'n-tier', 'capas', 'tiers'],
+      keywords: ['multi-tier', 'multi tier', '3-tier', 'three tier', 'n-tier', 'capas', 'tiers', 'tres capas', 'presentation layer', 'business layer', 'data layer', 'capa de presentación', 'capa de negocio', 'capa de datos'],
       services: ['azure-app-service', 'azure-sql', 'azure-storage', 'azure-load-balancer'],
       description: 'Arquitectura de múltiples capas'
     },
     'microservices': {
-      keywords: ['microservices', 'microservicios', 'micro-service', 'distributed'],
-      services: ['azure-kubernetes', 'azure-app-service', 'azure-service-bus', 'azure-redis'],
+      keywords: ['microservices', 'microservicios', 'micro-service', 'distributed', 'servicios distribuidos', 'arquitectura distribuida', 'service mesh', 'malla de servicios'],
+      services: ['azure-kubernetes', 'azure-app-service', 'azure-service-bus', 'azure-redis', 'azure-functions'],
       description: 'Arquitectura de microservicios'
     },
     'serverless': {
-      keywords: ['serverless', 'sin servidor', 'functions', 'event-driven'],
-      services: ['azure-functions', 'azure-service-bus', 'azure-cosmos', 'azure-event-hubs'],
-      description: 'Arquitectura serverless'
+      keywords: ['serverless', 'sin servidor', 'functions as a service', 'faas', 'azure functions', 'event-driven', 'dirigido por eventos'],
+      services: ['azure-functions', 'azure-logic-apps', 'azure-cosmos', 'azure-storage', 'azure-service-bus'],
+      description: 'Arquitectura serverless con Azure Functions'
+    },
+    'big-data': {
+      keywords: ['big data', 'grandes datos', 'data analytics', 'análisis de datos', 'data lake', 'lago de datos', 'data warehouse', 'almacén de datos', 'streaming', 'streaming de datos'],
+      services: ['azure-data-lake', 'azure-sql', 'azure-cosmos', 'azure-storage', 'azure-functions', 'azure-event-hubs'],
+      description: 'Arquitectura de big data y analytics'
+    },
+    'iot': {
+      keywords: ['iot', 'internet of things', 'internet de las cosas', 'sensors', 'sensores', 'telemetry', 'telemetría', 'device', 'dispositivos', 'edge computing', 'computación en el borde'],
+      services: ['azure-event-hubs', 'azure-iot-hub', 'azure-functions', 'azure-cosmos', 'azure-storage'],
+      description: 'Arquitectura IoT con dispositivos y telemetría'
+    },
+    'ai-ml': {
+      keywords: ['ai', 'artificial intelligence', 'inteligencia artificial', 'machine learning', 'aprendizaje automático', 'ml', 'cognitive', 'cognitivo', 'deep learning', 'aprendizaje profundo'],
+      services: ['azure-cognitive', 'azure-machine-learning', 'azure-functions', 'azure-storage', 'azure-cosmos'],
+      description: 'Arquitectura de inteligencia artificial y machine learning'
+    },
+    'high-availability': {
+      keywords: ['high availability', 'alta disponibilidad', 'ha', 'disaster recovery', 'recuperación ante desastres', 'backup', 'respaldo', 'redundancy', 'redundancia', 'failover', 'conmutación por error'],
+      services: ['azure-load-balancer', 'azure-app-service', 'azure-sql', 'azure-storage', 'azure-vnet', 'azure-monitor'],
+      description: 'Arquitectura de alta disponibilidad'
+    },
+    'security-focused': {
+      keywords: ['security', 'seguridad', 'secure', 'seguro', 'compliance', 'cumplimiento', 'governance', 'gobernanza', 'audit', 'auditoría', 'zero trust', 'confianza cero'],
+      services: ['azure-key-vault', 'azure-security-center', 'azure-firewall', 'azure-bastion', 'azure-active-directory', 'azure-monitor'],
+      description: 'Arquitectura centrada en seguridad'
     },
     'containerized': {
       keywords: ['container', 'containers', 'docker', 'kubernetes', 'aks', 'orchestration'],
@@ -557,7 +582,7 @@ function processDescription(description) {
   const serviceArray = Array.from(detectedServices);
   const elementWidth = 180;
   const elementHeight = 100;
-  const spacing = 350;
+  const spacing = 500;
   let elementIndex = 0;
   
   // Detectar si es arquitectura Hub and Spoke
@@ -703,27 +728,27 @@ function processDescription(description) {
           if (serviceType === 'azure-subscriptions') {
             // Spokes (subscripciones) alrededor del hub
             const angle = (elementIndex * 90) * (Math.PI / 180); // 90 grados entre spokes
-            const radius = 400; // Mayor distancia del hub
-            x = 500 + Math.cos(angle) * radius; // Centro en 500,400
-            y = 400 + Math.sin(angle) * radius;
+            const radius = 600; // Mayor distancia del hub
+            x = 600 + Math.cos(angle) * radius; // Centro en 600,500
+            y = 500 + Math.sin(angle) * radius;
           } else if (serviceType === 'azure-firewall') {
             // Hub central - Firewall en el centro
-            x = 500;
-            y = 400;
+            x = 600;
+            y = 500;
           } else if (serviceType === 'azure-bastion') {
             // Bastion cerca del firewall
-            x = 600;
-            y = 400;
+            x = 700;
+            y = 500;
           } else if (serviceType === 'azure-vnet') {
             // VNet del hub
-            x = 400;
-            y = 400;
+            x = 500;
+            y = 500;
           } else {
             // Otros servicios del hub alrededor del firewall
             const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
-            const hubRadius = 200;
-            x = 500 + Math.cos(hubAngle) * hubRadius;
-            y = 400 + Math.sin(hubAngle) * hubRadius;
+            const hubRadius = 300;
+            x = 600 + Math.cos(hubAngle) * hubRadius;
+            y = 500 + Math.sin(hubAngle) * hubRadius;
           }
         } else {
           // Posicionamiento normal
@@ -771,22 +796,22 @@ function processDescription(description) {
       // Posicionamiento especial para Hub and Spoke según documentación oficial
       if (serviceType === 'azure-firewall') {
         // Hub central - Firewall en el centro
-        x = 500;
-        y = 400;
+        x = 600;
+        y = 500;
       } else if (serviceType === 'azure-bastion') {
         // Bastion cerca del firewall
-        x = 600;
-        y = 400;
+        x = 700;
+        y = 500;
       } else if (serviceType === 'azure-vnet') {
         // VNet del hub
-        x = 400;
-        y = 400;
+        x = 500;
+        y = 500;
       } else {
         // Otros servicios del hub alrededor del firewall
         const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
-        const hubRadius = 200;
-        x = 500 + Math.cos(hubAngle) * hubRadius;
-        y = 400 + Math.sin(hubAngle) * hubRadius;
+        const hubRadius = 300;
+        x = 600 + Math.cos(hubAngle) * hubRadius;
+        y = 500 + Math.sin(hubAngle) * hubRadius;
       }
     } else {
       // Posicionamiento normal
