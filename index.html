@@ -126,30 +126,32 @@
         
         .azure-element {
             position: absolute;
-            width: 150px;
-            height: 80px;
-            border: 2px solid var(--primary-color);
+            width: 180px;
+            height: 100px;
+            border: 2px solid #0078d4;
             border-radius: 8px;
-            background-color: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-weight: 500;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: move;
             user-select: none;
             padding: 8px;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
         }
         
         .azure-icon {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
         }
         
         .azure-icon svg {
@@ -160,9 +162,10 @@
         .azure-label {
             font-size: 12px;
             font-weight: 600;
-            color: var(--primary-color);
+            color: #1a1a1a;
             text-align: center;
             margin-bottom: 2px;
+            line-height: 1.2;
         }
         
         .azure-description {
@@ -184,14 +187,53 @@
             background-color: #ffebee;
         }
         
+        /* Estilos específicos para tipos de servicios Azure */
+        .azure-vm {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #1976d2;
+        }
+        
+        .azure-sql {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+        
+        .azure-storage {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+            border-color: #f57c00;
+        }
+        
+        .azure-firewall {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #d32f2f;
+        }
+        
+        .azure-bastion {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-color: #388e3c;
+        }
+        
+        .azure-subscriptions {
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            border-color: #689f38;
+        }
+        
         .azure-vnet {
-            background-color: #f3e5f5;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+        
+        .azure-app-service {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #00695c;
         }
         
         .connection {
             position: absolute;
-            background-color: var(--secondary-color);
+            background-color: #0078d4;
             transform-origin: 0 0;
+            box-shadow: 0 1px 3px rgba(0, 120, 212, 0.2);
+            border-radius: 1px;
         }
         
         .loading {
@@ -367,35 +409,23 @@
                     elementDiv.className = `azure-element ${elem.type}`;
                     elementDiv.style.left = `${elem.x}px`;
                     elementDiv.style.top = `${elem.y}px`;
-                    elementDiv.style.width = `${elem.width || 150}px`;
-                    elementDiv.style.height = `${elem.height || 80}px`;
+                    elementDiv.style.width = `${elem.width || 180}px`;
+                    elementDiv.style.height = `${elem.height || 100}px`;
                     
-                    // Cargar icono real de Azure
-                    try {
-                        const iconData = await loadAzureIcon(elem.type);
-                        
-                        // Crear contenido del elemento con icono real
-                        elementDiv.innerHTML = `
-                            <div class="azure-icon">
-                                ${iconData.svg}
+                    // Obtener información del icono
+                    const iconData = getAzureIconReal(elem.type);
+                    
+                    // Crear contenido del elemento con icono específico
+                    elementDiv.innerHTML = `
+                        <div class="azure-icon">
+                            <img src="${iconData.path}" alt="${iconData.name}" style="width: 40px; height: 40px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="width: 40px; height: 40px; background-color: ${iconData.color}; border-radius: 6px; display: none; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: bold;">
+                                ${iconData.name.charAt(0)}
                             </div>
-                            <div class="azure-label">${elem.text}</div>
-                            <div class="azure-description">${elem.description || ''}</div>
-                        `;
-                    } catch (error) {
-                        console.error('Error loading icon for', elem.type, error);
-                        // Fallback a icono básico
-                        const iconData = getAzureIconReal(elem.type);
-                        elementDiv.innerHTML = `
-                            <div class="azure-icon">
-                                <div style="width: 32px; height: 32px; background-color: ${iconData.color}; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
-                                    ${iconData.name.charAt(0)}
-                                </div>
-                            </div>
-                            <div class="azure-label">${elem.text}</div>
-                            <div class="azure-description">${elem.description || ''}</div>
-                        `;
-                    }
+                        </div>
+                        <div class="azure-label">${elem.text}</div>
+                        <div class="azure-description">${elem.description || ''}</div>
+                    `;
                     
                     // Hacer elementos arrastrables
                     makeDraggable(elementDiv);
@@ -670,18 +700,22 @@
         }
         
         .azure-element {
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .azure-element:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px) scale(1.01);
+            box-shadow: 0 6px 16px rgba(0, 120, 212, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-color: #106ebe;
         }
         
         .azure-element.selected {
-            border-color: #FF6B35;
-            border-width: 3px;
+            border-color: #ff6b35;
+            border-width: 2px;
+            box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.3), 0 6px 16px rgba(0, 120, 212, 0.2);
+            transform: translateY(-1px);
         }
     </style>
+
 </body>
 </html>

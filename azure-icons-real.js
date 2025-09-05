@@ -3709,6 +3709,14 @@ const azureIconsReal = {
   }
 };
 
+// Mapeos específicos para los tipos de servicio utilizados por el servidor
+azureIconsReal["azure-vm"] = azureIconsReal["azure-virtual-machine"];
+azureIconsReal["azure-sql"] = azureIconsReal["azure-azure-sql"];
+azureIconsReal["azure-storage"] = azureIconsReal["azure-storage-accounts"];
+azureIconsReal["azure-app-service"] = azureIconsReal["azure-app-services"];
+azureIconsReal["azure-load-balancer"] = azureIconsReal["azure-load-balancers"];
+azureIconsReal["azure-vnet"] = azureIconsReal["azure-virtual-networks"];
+
 // Función para obtener el icono real de Azure
 function getAzureIconReal(serviceType) {
   return azureIconsReal[serviceType] || {

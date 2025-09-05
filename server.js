@@ -10,6 +10,11 @@ app.use(express.json());
 app.use(express.static('.'));
 app.use('/icons', express.static('icons'));
 
+// Ruta específica para Draw.io
+app.get('/drawio', (req, res) => {
+  res.sendFile(__dirname + '/index-drawio.html');
+});
+
 // Servir el archivo HTML principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -550,9 +555,9 @@ function processDescription(description) {
   
   // Crear elementos con posicionamiento inteligente y cantidades detectadas
   const serviceArray = Array.from(detectedServices);
-  const elementWidth = 150;
-  const elementHeight = 80;
-  const spacing = 200;
+  const elementWidth = 180;
+  const elementHeight = 100;
+  const spacing = 350;
   let elementIndex = 0;
   
   // Detectar si es arquitectura Hub and Spoke
@@ -694,23 +699,31 @@ function processDescription(description) {
         let x, y;
         
         if (isHubSpokeArchitecture) {
-          // Posicionamiento especial para Hub and Spoke
+          // Posicionamiento especial para Hub and Spoke según documentación oficial
           if (serviceType === 'azure-subscriptions') {
-            // Spokes (subscripciones) en la parte inferior
-            const spokeRow = Math.floor(elementIndex / 4);
-            const spokeCol = elementIndex % 4;
-            x = 100 + spokeCol * spacing;
-            y = 400 + spokeRow * spacing; // Separar del hub
-          } else if (serviceType === 'azure-firewall' || serviceType === 'azure-bastion') {
-            // Hub central en la parte superior
-            x = 400; // Centro
-            y = 100;
+            // Spokes (subscripciones) alrededor del hub
+            const angle = (elementIndex * 90) * (Math.PI / 180); // 90 grados entre spokes
+            const radius = 400; // Mayor distancia del hub
+            x = 500 + Math.cos(angle) * radius; // Centro en 500,400
+            y = 400 + Math.sin(angle) * radius;
+          } else if (serviceType === 'azure-firewall') {
+            // Hub central - Firewall en el centro
+            x = 500;
+            y = 400;
+          } else if (serviceType === 'azure-bastion') {
+            // Bastion cerca del firewall
+            x = 600;
+            y = 400;
+          } else if (serviceType === 'azure-vnet') {
+            // VNet del hub
+            x = 400;
+            y = 400;
           } else {
-            // Otros servicios del hub
-            const hubRow = Math.floor(elementIndex / 3);
-            const hubCol = elementIndex % 3;
-            x = 300 + hubCol * spacing;
-            y = 100 + hubRow * spacing;
+            // Otros servicios del hub alrededor del firewall
+            const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
+            const hubRadius = 200;
+            x = 500 + Math.cos(hubAngle) * hubRadius;
+            y = 400 + Math.sin(hubAngle) * hubRadius;
           }
         } else {
           // Posicionamiento normal
@@ -755,17 +768,25 @@ function processDescription(description) {
     let x, y;
     
     if (isHubSpokeArchitecture) {
-      // Posicionamiento especial para Hub and Spoke
-      if (serviceType === 'azure-firewall' || serviceType === 'azure-bastion') {
-        // Hub central
+      // Posicionamiento especial para Hub and Spoke según documentación oficial
+      if (serviceType === 'azure-firewall') {
+        // Hub central - Firewall en el centro
+        x = 500;
+        y = 400;
+      } else if (serviceType === 'azure-bastion') {
+        // Bastion cerca del firewall
+        x = 600;
+        y = 400;
+      } else if (serviceType === 'azure-vnet') {
+        // VNet del hub
         x = 400;
-        y = 100;
+        y = 400;
       } else {
-        // Otros servicios del hub
-        const hubRow = Math.floor(elementIndex / 3);
-        const hubCol = elementIndex % 3;
-        x = 300 + hubCol * spacing;
-        y = 100 + hubRow * spacing;
+        // Otros servicios del hub alrededor del firewall
+        const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
+        const hubRadius = 200;
+        x = 500 + Math.cos(hubAngle) * hubRadius;
+        y = 400 + Math.sin(hubAngle) * hubRadius;
       }
     } else {
       // Posicionamiento normal
@@ -1218,6 +1239,83 @@ function getConnectionLabel(sourceType, targetType) {
   
   const key = `${sourceType}-${targetType}`;
   return labels[key] || 'Connection';
+}
+
+// Función para obtener información de servicios de Azure
+function getServiceInfo(serviceType) {
+  const serviceInfoMap = {
+    'azure-vm': {
+      name: 'Virtual Machine',
+      description: 'Máquina virtual escalable',
+      color: '#0078d4'
+    },
+    'azure-sql': {
+      name: 'SQL Database',
+      description: 'Base de datos relacional',
+      color: '#0078d4'
+    },
+    'azure-storage': {
+      name: 'Storage Account',
+      description: 'Cuenta de almacenamiento',
+      color: '#0078d4'
+    },
+    'azure-app-service': {
+      name: 'App Service',
+      description: 'Servicio de aplicaciones web',
+      color: '#0078d4'
+    },
+    'azure-load-balancer': {
+      name: 'Load Balancer',
+      description: 'Distribución de tráfico',
+      color: '#0078d4'
+    },
+    'azure-vnet': {
+      name: 'Virtual Network',
+      description: 'Red virtual privada',
+      color: '#0078d4'
+    },
+    'azure-firewall': {
+      name: 'Azure Firewall',
+      description: 'Firewall de red',
+      color: '#0078d4'
+    },
+    'azure-bastion': {
+      name: 'Azure Bastion',
+      description: 'Acceso seguro a VMs',
+      color: '#0078d4'
+    },
+    'azure-subscriptions': {
+      name: 'Subscription',
+      description: 'Suscripción de Azure',
+      color: '#0078d4'
+    },
+    'azure-redis': {
+      name: 'Redis Cache',
+      description: 'Cache en memoria',
+      color: '#0078d4'
+    },
+    'azure-cosmos': {
+      name: 'Cosmos DB',
+      description: 'Base de datos NoSQL',
+      color: '#0078d4'
+    },
+    'azure-functions': {
+      name: 'Azure Functions',
+      description: 'Computación sin servidor',
+      color: '#0078d4'
+    },
+    'azure-service-bus': {
+      name: 'Service Bus',
+      description: 'Mensajería en la nube',
+      color: '#0078d4'
+    }
+  };
+
+  return serviceInfoMap[serviceType] || {
+    name: 'Azure Service',
+    description: 'Servicio de Azure',
+    color: '#0078d4'
+  };
 }
 
 app.listen(port, () => {
