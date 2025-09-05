@@ -3729,8 +3729,8 @@ azureIconsReal["azure-container-registry"] = azureIconsReal["azure-container-reg
 azureIconsReal["azure-event-hubs"] = azureIconsReal["azure-event-hubs"];
 azureIconsReal["azure-logic-apps"] = azureIconsReal["azure-logic-apps"];
 azureIconsReal["azure-key-vault"] = azureIconsReal["azure-key-vaults"];
-azureIconsReal["azure-cosmos"] = azureIconsReal["azure-cosmos-db"];
-azureIconsReal["azure-redis"] = azureIconsReal["azure-redis-cache"];
+azureIconsReal["azure-cosmos"] = azureIconsReal["azure-azure-cosmos-db"];
+azureIconsReal["azure-redis"] = azureIconsReal["azure-cache"];
 // Azure Functions no existe en el archivo, usar icono genérico
 azureIconsReal["azure-functions"] = {
   name: "Azure Functions",
