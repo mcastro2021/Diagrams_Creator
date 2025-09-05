@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Azure Diagram Generator</title>
+    <script src="azure-icons-real.js"></script>
     <style>
         :root {
             --primary-color: #0078d4;
@@ -125,18 +126,50 @@
         
         .azure-element {
             position: absolute;
-            width: 120px;
-            height: 60px;
+            width: 150px;
+            height: 80px;
             border: 2px solid var(--primary-color);
-            border-radius: 4px;
+            border-radius: 8px;
             background-color: white;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             cursor: move;
             user-select: none;
+            padding: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .azure-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .azure-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .azure-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 2px;
+        }
+        
+        .azure-description {
+            font-size: 9px;
+            color: var(--secondary-color);
+            text-align: center;
+            line-height: 1.2;
         }
         
         .azure-vm {
@@ -256,7 +289,7 @@
                 }
             });
             
-            function generateDiagram() {
+            async function generateDiagram() {
                 const description = descriptionInput.value.trim();
                 
                 if (!description) {
@@ -269,26 +302,26 @@
                 diagramContainer.innerHTML = '';
                 
                 // Llamar al backend
-                fetch('http://localhost:3001/generate-diagram', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ description })
-                })
-                .then(response => response.json())
-                .then(data => {
+                try {
+                    const response = await fetch('http://localhost:3001/generate-diagram', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ description })
+                    });
+                    
+                    const data = await response.json();
                     loadingElement.style.display = 'none';
                     
                     if (data.success) {
                         currentDiagramData = data.data;
-                        renderDiagram(data.data);
+                        await renderDiagram(data.data);
                         showNotification(`Diagrama generado: ${data.data.metadata.totalElements} elementos, ${data.data.metadata.totalConnections} conexiones`, 'success');
                     } else {
                         showNotification('Error: ' + data.error, 'error');
                     }
-                })
-                .catch(error => {
+                } catch (error) {
                     loadingElement.style.display = 'none';
                     showNotification('Error de conexión: ' + error.message, 'error');
                     // Para propósitos de demostración, usamos datos de ejemplo si el backend no está disponible
@@ -309,12 +342,12 @@
                         }
                     };
                     currentDiagramData = fallbackData;
-                    renderDiagram(fallbackData);
+                    await renderDiagram(fallbackData);
                     showNotification('Usando datos de ejemplo (backend no disponible)', 'info');
-                });
+                }
             }
             
-            function renderDiagram(data) {
+            async function renderDiagram(data) {
                 diagramContainer.innerHTML = '';
                 
                 // Dibujar conexiones primero (para que queden detrás de los elementos)
@@ -323,27 +356,55 @@
                     const targetElem = data.elements.find(e => e.id === conn.target);
                     
                     if (sourceElem && targetElem) {
-                        drawConnection(sourceElem, targetElem);
+                        drawConnection(sourceElem, targetElem, conn.label);
                     }
                 });
                 
-                // Dibujar elementos
-                data.elements.forEach(elem => {
+                // Dibujar elementos con iconos reales de Azure
+                for (const elem of data.elements) {
                     const elementDiv = document.createElement('div');
                     elementDiv.id = elem.id;
                     elementDiv.className = `azure-element ${elem.type}`;
                     elementDiv.style.left = `${elem.x}px`;
                     elementDiv.style.top = `${elem.y}px`;
-                    elementDiv.textContent = elem.text;
+                    elementDiv.style.width = `${elem.width || 150}px`;
+                    elementDiv.style.height = `${elem.height || 80}px`;
+                    
+                    // Cargar icono real de Azure
+                    try {
+                        const iconData = await loadAzureIcon(elem.type);
+                        
+                        // Crear contenido del elemento con icono real
+                        elementDiv.innerHTML = `
+                            <div class="azure-icon">
+                                ${iconData.svg}
+                            </div>
+                            <div class="azure-label">${elem.text}</div>
+                            <div class="azure-description">${elem.description || ''}</div>
+                        `;
+                    } catch (error) {
+                        console.error('Error loading icon for', elem.type, error);
+                        // Fallback a icono básico
+                        const iconData = getAzureIconReal(elem.type);
+                        elementDiv.innerHTML = `
+                            <div class="azure-icon">
+                                <div style="width: 32px; height: 32px; background-color: ${iconData.color}; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
+                                    ${iconData.name.charAt(0)}
+                                </div>
+                            </div>
+                            <div class="azure-label">${elem.text}</div>
+                            <div class="azure-description">${elem.description || ''}</div>
+                        `;
+                    }
                     
                     // Hacer elementos arrastrables
                     makeDraggable(elementDiv);
                     
                     diagramContainer.appendChild(elementDiv);
-                });
+                }
             }
             
-            function drawConnection(source, target) {
+            function drawConnection(source, target, label = '') {
                 const svgNS = "http://www.w3.org/2000/svg";
                 const diagramContainer = document.getElementById('diagram-container');
                 
@@ -362,10 +423,10 @@
                 }
                 
                 // Calcular puntos de inicio y fin
-                const startX = source.x + 60;
-                const startY = source.y + 30;
-                const endX = target.x + 60;
-                const endY = target.y + 30;
+                const startX = source.x + (source.width || 150) / 2;
+                const startY = source.y + (source.height || 80) / 2;
+                const endX = target.x + (target.width || 150) / 2;
+                const endY = target.y + (target.height || 80) / 2;
                 
                 // Crear línea
                 const line = document.createElementNS(svgNS, "line");
@@ -373,7 +434,7 @@
                 line.setAttribute("y1", startY);
                 line.setAttribute("x2", endX);
                 line.setAttribute("y2", endY);
-                line.setAttribute("stroke", "#505a64");
+                line.setAttribute("stroke", "#0078D4");
                 line.setAttribute("stroke-width", "2");
                 line.setAttribute("marker-end", "url(#arrowhead)");
                 
@@ -390,7 +451,7 @@
                     
                     const polygon = document.createElementNS(svgNS, "polygon");
                     polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
-                    polygon.setAttribute("fill", "#505a64");
+                    polygon.setAttribute("fill", "#0078D4");
                     
                     marker.appendChild(polygon);
                     defs.appendChild(marker);
@@ -398,6 +459,36 @@
                 }
                 
                 svg.appendChild(line);
+                
+                // Añadir etiqueta si existe
+                if (label) {
+                    const textX = (startX + endX) / 2;
+                    const textY = (startY + endY) / 2 - 5;
+                    
+                    const text = document.createElementNS(svgNS, "text");
+                    text.setAttribute("x", textX);
+                    text.setAttribute("y", textY);
+                    text.setAttribute("text-anchor", "middle");
+                    text.setAttribute("font-size", "10");
+                    text.setAttribute("fill", "#0078D4");
+                    text.setAttribute("font-weight", "500");
+                    text.textContent = label;
+                    
+                    // Fondo para la etiqueta
+                    const rect = document.createElementNS(svgNS, "rect");
+                    const textLength = label.length * 6;
+                    rect.setAttribute("x", textX - textLength / 2 - 2);
+                    rect.setAttribute("y", textY - 8);
+                    rect.setAttribute("width", textLength + 4);
+                    rect.setAttribute("height", "12");
+                    rect.setAttribute("fill", "white");
+                    rect.setAttribute("stroke", "#0078D4");
+                    rect.setAttribute("stroke-width", "1");
+                    rect.setAttribute("rx", "2");
+                    
+                    svg.appendChild(rect);
+                    svg.appendChild(text);
+                }
             }
             
             function makeDraggable(element) {
@@ -535,14 +626,14 @@
             }
             
             // Cargar diagrama guardado al iniciar
-            function loadSavedDiagram() {
+            async function loadSavedDiagram() {
                 const saved = localStorage.getItem('lastDiagram');
                 if (saved) {
                     try {
                         const data = JSON.parse(saved);
                         descriptionInput.value = data.description;
                         currentDiagramData = data.diagram;
-                        renderDiagram(data.diagram);
+                        await renderDiagram(data.diagram);
                         showNotification('Diagrama anterior cargado', 'info');
                     } catch (error) {
                         console.error('Error cargando diagrama guardado:', error);
