@@ -1,9 +1,21 @@
 // server.js
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const Groq = require('groq-sdk');
+const https = require('https');
+const { URL } = require('url');
+const axios = require('axios');
+const cheerio = require('cheerio');
+
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
+
+// Configurar Groq
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 app.use(cors());
 app.use(express.json());
