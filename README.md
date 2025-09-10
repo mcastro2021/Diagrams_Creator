@@ -1,22 +1,43 @@
 # Azure Diagram Generator
 
-Una aplicación web que permite generar diagramas de arquitectura de Azure automáticamente a partir de descripciones en lenguaje natural.
+Una aplicación web avanzada que permite generar diagramas de arquitectura de Azure automáticamente a partir de descripciones en lenguaje natural, similar a Eraser.io pero especializada en Azure.
 
 ## 🚀 Características
 
-- **Generación Automática**: Crea diagramas de Azure desde descripciones en lenguaje natural
-- **Reconocimiento Inteligente**: Detecta servicios de Azure en español e inglés
-- **Posicionamiento Inteligente**: Organiza automáticamente los elementos del diagrama
-- **Conexiones Automáticas**: Establece conexiones lógicas entre servicios
-- **Interfaz Interactiva**: Elementos arrastrables y editables
-- **Exportación**: Guarda y exporta diagramas en formato JSON
-- **Ejemplos Predefinidos**: Plantillas de arquitecturas comunes
+- **🤖 IA Avanzada**: Procesamiento de lenguaje natural con Groq API
+- **🎨 Generación Automática**: Crea diagramas de Azure desde descripciones en lenguaje natural
+- **🔍 Reconocimiento Inteligente**: Detecta servicios de Azure en español e inglés
+- **📐 Posicionamiento Inteligente**: Organiza automáticamente los elementos del diagrama
+- **🔗 Conexiones Automáticas**: Establece conexiones lógicas entre servicios
+- **🖱️ Interfaz Interactiva**: Elementos arrastrables y editables
+- **💾 Persistencia**: Base de datos PostgreSQL para guardar diagramas
+- **👥 Colaboración**: Sistema de usuarios y colaboración en tiempo real
+- **📤 Exportación**: Guarda y exporta diagramas en múltiples formatos
+- **📋 Ejemplos Predefinidos**: Plantillas de arquitecturas comunes
+- **🔒 Seguridad**: Autenticación JWT y rate limiting
+- **☁️ Despliegue**: Optimizado para Render, Heroku y Docker
 
 ## 🛠️ Tecnologías
 
-- **Backend**: Node.js + Express
-- **Frontend**: HTML5 + CSS3 + JavaScript Vanilla
-- **Dependencias**: Express, CORS
+### Backend
+- **Node.js 18+** + Express.js
+- **PostgreSQL** para persistencia de datos
+- **Redis** para caché y sesiones
+- **Groq API** para procesamiento de IA
+- **JWT** para autenticación
+- **Socket.io** para colaboración en tiempo real
+
+### Frontend
+- **HTML5 + CSS3 + JavaScript Vanilla**
+- **React Flow** (próximamente)
+- **Responsive Design**
+- **PWA Ready**
+
+### DevOps & Deployment
+- **Docker** para contenedorización
+- **Render** para despliegue en la nube
+- **Jest** para testing
+- **ESLint** para calidad de código
 
 ## 📦 Instalación
 
@@ -183,40 +204,105 @@ Los estilos CSS están definidos en `index.html`. Puedes personalizar:
 
 ## 🚀 Despliegue
 
-### Heroku
+### Render (Recomendado)
 
-1. Crea un archivo `Procfile`:
+1. **Conectar repositorio a Render**:
+   - Ve a [Render Dashboard](https://dashboard.render.com)
+   - Conecta tu repositorio de GitHub
+   - Selecciona "New Web Service"
+
+2. **Configurar el servicio**:
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Environment**: `Node`
+   - **Plan**: `Starter` (gratuito)
+
+3. **Variables de entorno**:
    ```
-   web: node server.js
+   NODE_ENV=production
+   GROQ_API_KEY=tu_groq_api_key
+   JWT_SECRET=tu_jwt_secret_seguro
+   DATABASE_URL=postgresql://user:pass@host:port/dbname
+   REDIS_URL=redis://user:pass@host:port
+   CORS_ORIGIN=https://tu-app.onrender.com
    ```
 
-2. Configura las variables de entorno:
-   ```bash
-   heroku config:set NODE_ENV=production
-   ```
+4. **Base de datos PostgreSQL**:
+   - Crea una nueva base de datos PostgreSQL en Render
+   - Ejecuta el archivo `database/schema.sql` para crear las tablas
 
-3. Despliega:
-   ```bash
-   git push heroku main
-   ```
+5. **Redis (opcional)**:
+   - Crea un servicio Redis en Render para caché y sesiones
 
 ### Docker
 
-1. Crea un `Dockerfile`:
-   ```dockerfile
-   FROM node:16-alpine
-   WORKDIR /app
-   COPY package*.json ./
-   RUN npm install
-   COPY . .
-   EXPOSE 3001
-   CMD ["node", "server.js"]
-   ```
-
-2. Construye y ejecuta:
+1. **Construir imagen**:
    ```bash
    docker build -t azure-diagram-generator .
-   docker run -p 3001:3001 azure-diagram-generator
+   ```
+
+2. **Ejecutar contenedor**:
+   ```bash
+   docker run -p 3001:3001 \
+     -e GROQ_API_KEY=tu_api_key \
+     -e DATABASE_URL=tu_database_url \
+     azure-diagram-generator
+   ```
+
+3. **Docker Compose** (para desarrollo local):
+   ```yaml
+   version: '3.8'
+   services:
+     app:
+       build: .
+       ports:
+         - "3001:3001"
+       environment:
+         - NODE_ENV=development
+         - GROQ_API_KEY=${GROQ_API_KEY}
+         - DATABASE_URL=postgresql://postgres:password@db:5432/azure_diagrams
+       depends_on:
+         - db
+         - redis
+     
+     db:
+       image: postgres:15
+       environment:
+         - POSTGRES_DB=azure_diagrams
+         - POSTGRES_USER=postgres
+         - POSTGRES_PASSWORD=password
+       volumes:
+         - postgres_data:/var/lib/postgresql/data
+     
+     redis:
+       image: redis:7-alpine
+   
+   volumes:
+     postgres_data:
+   ```
+
+### Heroku
+
+1. **Instalar Heroku CLI** y crear aplicación:
+   ```bash
+   heroku create tu-app-name
+   ```
+
+2. **Configurar variables de entorno**:
+   ```bash
+   heroku config:set NODE_ENV=production
+   heroku config:set GROQ_API_KEY=tu_groq_api_key
+   heroku config:set JWT_SECRET=tu_jwt_secret
+   ```
+
+3. **Agregar base de datos PostgreSQL**:
+   ```bash
+   heroku addons:create heroku-postgresql:mini
+   ```
+
+4. **Desplegar**:
+   ```bash
+   git push heroku main
    ```
 
 ## 🤝 Contribuir

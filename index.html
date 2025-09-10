@@ -465,12 +465,12 @@
                 
                 // Llamar al backend
                 try {
-                    const response = await fetch('http://localhost:3001/generate-diagram', {
+                    const response = await fetch('/api/generate-diagram', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ description })
+                        body: JSON.stringify({ description, useAI: true })
                     });
                     
                     const data = await response.json();

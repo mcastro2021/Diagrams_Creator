@@ -3,11 +3,17 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const helmet = require('helmet');
+const compression = require('compression');
+const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const Groq = require('groq-sdk');
 const https = require('https');
 const { URL } = require('url');
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { v4: uuidv4 } = require('uuid');
+const { testConnection, initializeDatabase } = require('./config/database');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -17,10 +23,49 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-app.use(cors());
-app.use(express.json());
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+
+// Compression middleware
+app.use(compression());
+
+// Logging middleware
+app.use(morgan('combined'));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use('/api/', limiter);
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Static files
 app.use(express.static('.'));
-app.use('/icons', express.static('icons'));
+app.use('/icons', express.static('Icons'));
 
 // Ruta específica para Draw.io
 app.get('/drawio', (req, res) => {
@@ -33,8 +78,8 @@ app.get('/', (req, res) => {
 });
 
 // Procesamiento inteligente de lenguaje natural para diagramas de Azure
-app.post('/generate-diagram', (req, res) => {
-  const { description } = req.body;
+app.post('/api/generate-diagram', async (req, res) => {
+  const { description, useAI = true } = req.body;
   
   if (!description || description.trim().length === 0) {
     return res.status(400).json({ 
@@ -44,44 +89,209 @@ app.post('/generate-diagram', (req, res) => {
   }
   
   try {
-    const diagramData = processDescription(description);
+    let diagramData;
+    
+    if (useAI && process.env.GROQ_API_KEY) {
+      // Usar IA para procesar la descripción
+      diagramData = await processDescriptionWithAI(description);
+    } else {
+      // Usar procesamiento local como fallback
+      diagramData = processDescription(description);
+    }
+    
+    // Agregar metadata adicional
+    diagramData.metadata = {
+      ...diagramData.metadata,
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      description: description,
+      processingMethod: useAI && process.env.GROQ_API_KEY ? 'AI' : 'Local'
+    };
+    
     res.json({ success: true, data: diagramData });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    console.error('Error generating diagram:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      fallback: 'Intentando con procesamiento local...'
+    });
   }
 });
 
 // Endpoint para obtener ejemplos de arquitecturas
-app.get('/examples', (req, res) => {
+app.get('/api/examples', (req, res) => {
   const examples = [
     {
       id: 'web-app-basic',
       name: 'Aplicación Web Básica',
       description: 'Una aplicación web con App Service, SQL Database y Storage Account',
-      architecture: 'App Service conectado a SQL Database y Storage Account para archivos estáticos'
+      architecture: 'App Service conectado a SQL Database y Storage Account para archivos estáticos',
+      category: 'Web Applications',
+      complexity: 'Basic'
     },
     {
       id: 'microservices',
       name: 'Arquitectura de Microservicios',
       description: 'Múltiples servicios con API Gateway, Service Bus y Application Insights',
-      architecture: 'API Gateway que conecta a múltiples App Services, Service Bus para comunicación asíncrona y Application Insights para monitoreo'
+      architecture: 'API Gateway que conecta a múltiples App Services, Service Bus para comunicación asíncrona y Application Insights para monitoreo',
+      category: 'Microservices',
+      complexity: 'Advanced'
     },
     {
       id: 'data-pipeline',
       name: 'Pipeline de Datos',
       description: 'Procesamiento de datos con Data Factory, Data Lake y Synapse',
-      architecture: 'Data Factory que extrae datos a Data Lake Storage, procesados por Synapse Analytics y almacenados en SQL Database'
+      architecture: 'Data Factory que extrae datos a Data Lake Storage, procesados por Synapse Analytics y almacenados en SQL Database',
+      category: 'Data & Analytics',
+      complexity: 'Advanced'
     },
     {
       id: 'iot-solution',
       name: 'Solución IoT',
       description: 'Dispositivos IoT con IoT Hub, Stream Analytics y Power BI',
-      architecture: 'Dispositivos IoT conectados a IoT Hub, datos procesados por Stream Analytics y visualizados en Power BI'
+      architecture: 'Dispositivos IoT conectados a IoT Hub, datos procesados por Stream Analytics y visualizados en Power BI',
+      category: 'IoT',
+      complexity: 'Intermediate'
+    },
+    {
+      id: 'hub-spoke',
+      name: 'Hub and Spoke',
+      description: 'Arquitectura hub and spoke con firewall central y múltiples VNets',
+      architecture: 'Azure Firewall en el hub central conectado a múltiples VNets (spokes) con servicios distribuidos',
+      category: 'Networking',
+      complexity: 'Advanced'
+    },
+    {
+      id: 'serverless',
+      name: 'Arquitectura Serverless',
+      description: 'Aplicación serverless con Azure Functions, Logic Apps y Cosmos DB',
+      architecture: 'Azure Functions para lógica de negocio, Logic Apps para workflows y Cosmos DB para datos NoSQL',
+      category: 'Serverless',
+      complexity: 'Intermediate'
     }
   ];
   
   res.json({ success: true, examples });
 });
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date().toISOString(),
+    version: '2.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Función para procesar descripción con IA usando Groq
+async function processDescriptionWithAI(description) {
+  try {
+    const prompt = `Eres un experto en arquitectura de Azure. Analiza la siguiente descripción y genera un diagrama de arquitectura Azure en formato JSON.
+
+Descripción: "${description}"
+
+Responde SOLO con un JSON válido que contenga:
+{
+  "elements": [
+    {
+      "id": "unique-id",
+      "type": "azure-service-type",
+      "text": "Service Name",
+      "description": "Brief description",
+      "x": number,
+      "y": number,
+      "width": 180,
+      "height": 100,
+      "color": "#0078d4"
+    }
+  ],
+  "connections": [
+    {
+      "id": "conn-id",
+      "source": "source-element-id",
+      "target": "target-element-id",
+      "type": "standard",
+      "label": "Connection description"
+    }
+  ],
+  "metadata": {
+    "totalElements": number,
+    "totalConnections": number,
+    "detectedServices": ["array", "of", "service", "types"]
+  }
+}
+
+Tipos de servicios Azure disponibles:
+- azure-vm (Virtual Machine)
+- azure-app-service (App Service)
+- azure-sql (SQL Database)
+- azure-storage (Storage Account)
+- azure-vnet (Virtual Network)
+- azure-load-balancer (Load Balancer)
+- azure-redis (Redis Cache)
+- azure-service-bus (Service Bus)
+- azure-functions (Azure Functions)
+- azure-cosmos (Cosmos DB)
+- azure-key-vault (Key Vault)
+- azure-monitor (Application Insights)
+- azure-kubernetes (Azure Kubernetes Service)
+- azure-cognitive-services (Cognitive Services)
+- azure-event-hubs (Event Hubs)
+- azure-logic-apps (Logic Apps)
+- azure-api-management (API Management)
+- azure-active-directory (Active Directory)
+- azure-cdn (Content Delivery Network)
+- azure-search (Azure Search)
+- azure-notification-hubs (Notification Hubs)
+- azure-firewall (Azure Firewall)
+- azure-bastion (Azure Bastion)
+
+Posiciona los elementos de manera lógica y crea conexiones apropiadas entre ellos.`;
+
+    const completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "Eres un experto en arquitectura de Azure. Responde siempre con JSON válido para diagramas de arquitectura."
+        },
+        {
+          role: "user",
+          content: prompt
+        }
+      ],
+      model: "llama3-8b-8192",
+      temperature: 0.3,
+      max_tokens: 2000,
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    
+    if (!response) {
+      throw new Error('No response from AI');
+    }
+
+    // Limpiar la respuesta para extraer solo el JSON
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in AI response');
+    }
+
+    const diagramData = JSON.parse(jsonMatch[0]);
+    
+    // Validar estructura básica
+    if (!diagramData.elements || !Array.isArray(diagramData.elements)) {
+      throw new Error('Invalid diagram structure from AI');
+    }
+
+    return diagramData;
+  } catch (error) {
+    console.error('Error in AI processing:', error);
+    // Fallback al procesamiento local
+    return processDescription(description);
+  }
+}
 
 function processDescription(description) {
   const elements = [];
@@ -1355,6 +1565,43 @@ function getServiceInfo(serviceType) {
   };
 }
 
-app.listen(port, () => {
-  console.log(`Backend running at http://localhost:${port}`);
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Test database connection
+    const dbConnected = await testConnection();
+    if (!dbConnected) {
+      console.log('⚠️ Database connection failed, continuing without database features');
+    }
+    
+    // Initialize database tables
+    if (dbConnected) {
+      await initializeDatabase();
+    }
+    
+    // Start server
+    app.listen(port, () => {
+      console.log(`🚀 Azure Diagram Generator running at http://localhost:${port}`);
+      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🤖 AI Processing: ${process.env.GROQ_API_KEY ? 'Enabled' : 'Disabled'}`);
+      console.log(`🗄️ Database: ${dbConnected ? 'Connected' : 'Not connected'}`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('🛑 SIGTERM received, shutting down gracefully');
+  process.exit(0);
 });
+
+process.on('SIGINT', () => {
+  console.log('🛑 SIGINT received, shutting down gracefully');
+  process.exit(0);
+});
+
+// Start the server
+startServer();
