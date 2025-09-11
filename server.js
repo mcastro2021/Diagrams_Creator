@@ -960,8 +960,8 @@ function processDescription(description) {
           // Posicionamiento especial para Hub and Spoke según documentación oficial
           if (serviceType === 'azure-subscriptions') {
             // Spokes (subscripciones) alrededor del hub
-            const angle = (elementIndex * 90) * (Math.PI / 180); // 90 grados entre spokes
-            const radius = 600; // Mayor distancia del hub
+            const angle = (elementIndex * 51.4) * (Math.PI / 180); // 360/7 = 51.4 grados entre spokes
+            const radius = 800; // Mayor distancia del hub para mejor separación
             x = 600 + Math.cos(angle) * radius; // Centro en 600,500
             y = 500 + Math.sin(angle) * radius;
           } else if (serviceType === 'azure-firewall') {
@@ -970,16 +970,16 @@ function processDescription(description) {
             y = 500;
           } else if (serviceType === 'azure-bastion') {
             // Bastion cerca del firewall
-            x = 700;
+            x = 750;
             y = 500;
           } else if (serviceType === 'azure-vnet') {
             // VNet del hub
-            x = 500;
+            x = 450;
             y = 500;
           } else {
             // Otros servicios del hub alrededor del firewall
             const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
-            const hubRadius = 300;
+            const hubRadius = 500; // Aumentar el radio para más separación
             x = 600 + Math.cos(hubAngle) * hubRadius;
             y = 500 + Math.sin(hubAngle) * hubRadius;
           }
@@ -1041,8 +1041,8 @@ function processDescription(description) {
         y = 500;
       } else {
         // Otros servicios del hub alrededor del firewall
-        const hubAngle = (elementIndex * 45) * (Math.PI / 180); // 45 grados entre servicios
-        const hubRadius = 400; // Aumentar el radio para más separación
+        const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
+        const hubRadius = 500; // Aumentar el radio para más separación
         x = 600 + Math.cos(hubAngle) * hubRadius;
         y = 500 + Math.sin(hubAngle) * hubRadius;
       }
