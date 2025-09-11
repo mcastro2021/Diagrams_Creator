@@ -1,0 +1,3 @@
+# This file exists to prevent Render.com from failing when it detects Python
+# This project uses Node.js, not Python
+# The actual dependencies are in package.json

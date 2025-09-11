@@ -1,0 +1,13 @@
+# This file exists to prevent Render.com from detecting Python
+# This project uses Node.js, not Python
+# The actual dependencies are in package.json
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "azure-diagram-generator"
+version = "1.0.0"
+description = "This project uses Node.js, not Python"
+dependencies = []

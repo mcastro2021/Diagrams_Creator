@@ -130,14 +130,16 @@ coverage/
 __pycache__/
 *.egg-info/
 .python-version
-requirements.txt
-setup.py
-pyproject.toml
 poetry.lock
 Pipfile
 Pipfile.lock
 environment.yml
 conda.yml
+
+# Keep these files for Render.com compatibility
+!requirements.txt
+!setup.py
+!pyproject.toml
 
 # Node modules Python files
 node_modules/**/*.py
