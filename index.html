@@ -373,12 +373,24 @@
     </div>
 
     <script>
+        console.log('Azure Diagram Generator script loading...');
+        
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
             const descriptionInput = document.getElementById('description-input');
             const generateBtn = document.getElementById('generate-btn');
             const diagramContainer = document.getElementById('diagram-container');
             const loadingElement = document.getElementById('loading');
             const exampleChips = document.querySelectorAll('.example-chip');
+            
+            console.log('Elements found:', {
+                descriptionInput: !!descriptionInput,
+                generateBtn: !!generateBtn,
+                diagramContainer: !!diagramContainer,
+                loadingElement: !!loadingElement,
+                exampleChips: exampleChips.length
+            });
             
             // Variables para zoom
             let currentZoom = 1;
@@ -439,7 +451,11 @@
             });
             
             // Event listeners
-            generateBtn.addEventListener('click', generateDiagram);
+            console.log('Setting up event listeners...');
+            generateBtn.addEventListener('click', function() {
+                console.log('Generate button clicked!');
+                generateDiagram();
+            });
             clearBtn.addEventListener('click', clearDiagram);
             exportBtn.addEventListener('click', exportDiagram);
             saveBtn.addEventListener('click', saveDiagram);
@@ -447,14 +463,21 @@
             // Enter key para generar diagrama
             descriptionInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && e.ctrlKey) {
+                    console.log('Ctrl+Enter pressed');
                     generateDiagram();
                 }
             });
             
+            console.log('All event listeners set up successfully');
+        });
+            
             async function generateDiagram() {
+                console.log('generateDiagram function called');
                 const description = descriptionInput.value.trim();
+                console.log('Description:', description);
                 
                 if (!description) {
+                    console.log('No description provided');
                     showNotification('Por favor, ingresa una descripción', 'warning');
                     return;
                 }
