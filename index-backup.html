@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Diagram Generator</title>
+    <script src="azure-icons-real.js"></script>
+    <style>
+        :root {
+            --primary-color: #0078d4;
+            --secondary-color: #505a64;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #323130;
+            --border-color: #edebe9;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 350px;
+            background-color: var(--card-color);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: auto;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #106ebe;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 120, 212, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            margin-right: 10px;
+            margin-bottom: 10px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #404040;
+        }
+        
+        .actions {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .examples {
+            margin-top: 20px;
+        }
+        
+        .example-chip {
+            display: inline-block;
+            background-color: #eef2f8;
+            padding: 8px 12px;
+            border-radius: 16px;
+            margin: 0 8px 8px 0;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .example-chip:hover {
+            background-color: #dfe6f1;
+        }
+        
+        .diagram-container {
+            flex: 1;
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            position: relative;
+            overflow: auto;
+            transform-origin: 0 0;
+            transition: transform 0.2s ease;
+        }
+        
+        .diagram-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .zoom-btn {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 4px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #24292f;
+            transition: all 0.2s ease;
+        }
+        
+        .zoom-btn:hover {
+            background: #f3f4f6;
+            border-color: #8c959f;
+        }
+        
+        .zoom-btn:active {
+            background: #e1e4e8;
+        }
+        
+        .zoom-level {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #656d76;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .azure-element {
+            position: absolute;
+            width: 180px;
+            height: 100px;
+            border: 1px solid #d0d7de;
+            border-radius: 3px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+            box-shadow: none;
+            cursor: move;
+            user-select: none;
+            padding: 8px;
+            transition: none;
+            font-family: Arial, sans-serif;
+        }
+        
+        .azure-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: none;
+        }
+        
+        .azure-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .azure-label {
+            font-size: 10px;
+            font-weight: 400;
+            color: #000000;
+            text-align: center;
+            margin-bottom: 2px;
+            line-height: 1.2;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .azure-description {
+            font-size: 8px;
+            color: #666666;
+            text-align: center;
+            line-height: 1.1;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .azure-vm {
+            background-color: #e3f2fd;
+        }
+        
+        .azure-db {
+            background-color: #e8f5e9;
+        }
+        
+        .azure-storage {
+            background-color: #ffebee;
+        }
+        
+        /* Estilos específicos para tipos de servicios Azure */
+        .azure-vm {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #1976d2;
+        }
+        
+        .azure-sql {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+        
+        .azure-storage {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffcc02 100%);
+            border-color: #f57c00;
+        }
+        
+        .azure-firewall {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: #d32f2f;
+        }
+        
+        .azure-bastion {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border-color: #388e3c;
+        }
+        
+        .azure-subscriptions {
+            background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+            border-color: #689f38;
+        }
+        
+        .azure-vnet {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border-color: #7b1fa2;
+        }
+        
+        .azure-app-service {
+            background: linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%);
+            border-color: #00695c;
+        }
+        
+        .connection {
+            position: absolute;
+            background-color: #000000;
+            transform-origin: 0 0;
+            box-shadow: none;
+            border-radius: 0;
+            height: 1px;
+            z-index: 1;
+        }
+        
+        .connection::after {
+            content: '';
+            position: absolute;
+            right: -4px;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid #000000;
+            border-top: 3px solid transparent;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h1>Azure Diagram Generator</h1>
+            <p>Describe tu arquitectura en lenguaje natural y genera un diagrama automáticamente.</p>
+            
+            <textarea id="description-input" placeholder="Ej: Necesito una arquitectura con dos virtual machines, una base de datos y un storage account, todos conectados através de una red virtual."></textarea>
+            
+            <button id="generate-btn">Generar Diagrama</button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generando diagrama...</p>
+            </div>
+            
+            <div class="examples">
+                <h3>Ejemplos:</h3>
+                <div class="example-chip" data-example="Dos virtual machines conectadas a una base de datos">Dos VMs con base de datos</div>
+                <div class="example-chip" data-example="Una aplicación web con storage account y CDN">Web app con storage</div>
+                <div class="example-chip" data-example="Tres virtual machines en una red virtual con balanceador de carga">VMs con load balancer</div>
+                <div class="example-chip" data-example="Arquitectura de microservicios con API Gateway, Service Bus y Application Insights">Microservicios</div>
+                <div class="example-chip" data-example="Pipeline de datos con Data Factory, Data Lake y Synapse Analytics">Pipeline de datos</div>
+                <div class="example-chip" data-example="Solución IoT con IoT Hub, Stream Analytics y Power BI">Solución IoT</div>
+            </div>
+            
+            <div class="actions">
+                <button id="clear-btn" class="btn-secondary">Limpiar Diagrama</button>
+                <button id="export-btn" class="btn-secondary">Exportar</button>
+                <button id="save-btn" class="btn-secondary">Guardar</button>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="diagram-container" id="diagram-container">
+                <div class="diagram-controls">
+                    <button class="zoom-btn" id="zoomOut">-</button>
+                    <div class="zoom-level" id="zoomLevel">100%</div>
+                    <button class="zoom-btn" id="zoomIn">+</button>
+                    <button class="zoom-btn" id="zoomFit">Fit</button>
+                </div>
+                <!-- Aquí se renderizará el diagrama -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Azure Diagram Generator script loading...');
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            const descriptionInput = document.getElementById('description-input');
+            const generateBtn = document.getElementById('generate-btn');
+            const diagramContainer = document.getElementById('diagram-container');
+            const loadingElement = document.getElementById('loading');
+            const exampleChips = document.querySelectorAll('.example-chip');
+            
+            console.log('Elements found:', {
+                descriptionInput: !!descriptionInput,
+                generateBtn: !!generateBtn,
+                diagramContainer: !!diagramContainer,
+                loadingElement: !!loadingElement,
+                exampleChips: exampleChips.length
+            });
+            
+            // Variables para zoom
+            let currentZoom = 1;
+            const zoomInBtn = document.getElementById('zoomIn');
+            const zoomOutBtn = document.getElementById('zoomOut');
+            const zoomFitBtn = document.getElementById('zoomFit');
+            const zoomLevel = document.getElementById('zoomLevel');
+            const clearBtn = document.getElementById('clear-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const saveBtn = document.getElementById('save-btn');
+            
+            let currentDiagramData = null;
+            
+            // Funciones de zoom
+            function updateZoom() {
+                diagramContainer.style.transform = `scale(${currentZoom})`;
+                zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+            }
+            
+            function zoomIn() {
+                currentZoom = Math.min(currentZoom * 1.2, 3);
+                updateZoom();
+            }
+            
+            function zoomOut() {
+                currentZoom = Math.max(currentZoom / 1.2, 0.1);
+                updateZoom();
+            }
+            
+            function zoomFit() {
+                currentZoom = 1;
+                updateZoom();
+            }
+            
+            // Event listeners para zoom
+            zoomInBtn.addEventListener('click', zoomIn);
+            zoomOutBtn.addEventListener('click', zoomOut);
+            zoomFitBtn.addEventListener('click', zoomFit);
+            
+            // Zoom con rueda del mouse
+            diagramContainer.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    if (e.deltaY < 0) {
+                        zoomIn();
+                    } else {
+                        zoomOut();
+                    }
+                }
+            });
+            
+            // Cargar ejemplos
+            exampleChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    descriptionInput.value = chip.getAttribute('data-example');
+                    descriptionInput.focus();
+                });
+            });
+            
+            // Event listeners
+            console.log('Setting up event listeners...');
+            generateBtn.addEventListener('click', function() {
+                console.log('Generate button clicked!');
+                generateDiagram();
+            });
+            clearBtn.addEventListener('click', clearDiagram);
+            exportBtn.addEventListener('click', exportDiagram);
+            saveBtn.addEventListener('click', saveDiagram);
+            
+            // Enter key para generar diagrama
+            descriptionInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    console.log('Ctrl+Enter pressed');
+                    generateDiagram();
+                }
+            });
+            
+            console.log('All event listeners set up successfully');
+        });
+            
+            async function generateDiagram() {
+                console.log('generateDiagram function called');
+                const description = descriptionInput.value.trim();
+                console.log('Description:', description);
+                
+                if (!description) {
+                    console.log('No description provided');
+                    showNotification('Por favor, ingresa una descripción', 'warning');
+                    return;
+                }
+                
+                // Mostrar loading
+                loadingElement.style.display = 'block';
+                diagramContainer.innerHTML = '';
+                
+                // Llamar al backend
+                try {
+                    const response = await fetch('/api/generate-diagram', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ description, useAI: true })
+                    });
+                    
+                    const data = await response.json();
+                    loadingElement.style.display = 'none';
+                    
+                    if (data.success) {
+                        currentDiagramData = data.data;
+                        await renderDiagram(data.data);
+                        showNotification(`Diagrama generado: ${data.data.metadata.totalElements} elementos, ${data.data.metadata.totalConnections} conexiones`, 'success');
+                    } else {
+                        showNotification('Error: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    loadingElement.style.display = 'none';
+                    showNotification('Error de conexión: ' + error.message, 'error');
+                    // Para propósitos de demostración, usamos datos de ejemplo si el backend no está disponible
+                    const fallbackData = {
+                        elements: [
+                            { id: 'vm-1', type: 'azure-vm', text: 'Virtual Machine', x: 100, y: 100, width: 150, height: 80, color: '#0078d4' },
+                            { id: 'db-1', type: 'azure-sql', text: 'SQL Database', x: 350, y: 100, width: 150, height: 80, color: '#0078d4' },
+                            { id: 'storage-1', type: 'azure-storage', text: 'Storage Account', x: 200, y: 250, width: 150, height: 80, color: '#0078d4' }
+                        ],
+                        connections: [
+                            { id: 'conn-1', source: 'vm-1', target: 'db-1', label: 'Database Connection' },
+                            { id: 'conn-2', source: 'vm-1', target: 'storage-1', label: 'File Storage' }
+                        ],
+                        metadata: {
+                            totalElements: 3,
+                            totalConnections: 2,
+                            detectedServices: ['azure-vm', 'azure-sql', 'azure-storage']
+                        }
+                    };
+                    currentDiagramData = fallbackData;
+                    await renderDiagram(fallbackData);
+                    showNotification('Usando datos de ejemplo (backend no disponible)', 'info');
+                }
+            }
+            
+            async function renderDiagram(data) {
+                diagramContainer.innerHTML = '';
+                
+                // Dibujar conexiones primero (para que queden detrás de los elementos)
+                data.connections.forEach(conn => {
+                    const sourceElem = data.elements.find(e => e.id === conn.source);
+                    const targetElem = data.elements.find(e => e.id === conn.target);
+                    
+                    if (sourceElem && targetElem) {
+                        drawConnection(sourceElem, targetElem, conn.label);
+                    }
+                });
+                
+                // Dibujar elementos con iconos reales de Azure
+                for (const elem of data.elements) {
+                    const elementDiv = document.createElement('div');
+                    elementDiv.id = elem.id;
+                    elementDiv.className = `azure-element ${elem.type}`;
+                    elementDiv.style.left = `${elem.x}px`;
+                    elementDiv.style.top = `${elem.y}px`;
+                    elementDiv.style.width = `${elem.width || 180}px`;
+                    elementDiv.style.height = `${elem.height || 100}px`;
+                    
+                    // Obtener información del icono
+                    const iconData = getAzureIconReal(elem.type);
+                    
+                    // Crear contenido del elemento con icono específico
+                    elementDiv.innerHTML = `
+                        <div class="azure-icon">
+                            <img src="${iconData.path}" alt="${iconData.name}" style="width: 24px; height: 24px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div style="width: 24px; height: 24px; background-color: ${iconData.color}; border-radius: 2px; display: none; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: bold;">
+                                ${iconData.name.charAt(0)}
+                            </div>
+                        </div>
+                        <div class="azure-label">${elem.text}</div>
+                        <div class="azure-description">${elem.description || ''}</div>
+                    `;
+                    
+                    // Hacer elementos arrastrables
+                    makeDraggable(elementDiv);
+                    
+                    diagramContainer.appendChild(elementDiv);
+                }
+            }
+            
+            function drawConnection(source, target, label = '') {
+                const svgNS = "http://www.w3.org/2000/svg";
+                const diagramContainer = document.getElementById('diagram-container');
+                
+                // Crear SVG para las conexiones si no existe
+                let svg = document.getElementById('connections-svg');
+                if (!svg) {
+                    svg = document.createElementNS(svgNS, "svg");
+                    svg.id = "connections-svg";
+                    svg.style.position = "absolute";
+                    svg.style.top = "0";
+                    svg.style.left = "0";
+                    svg.style.width = "100%";
+                    svg.style.height = "100%";
+                    svg.style.pointerEvents = "none";
+                    diagramContainer.appendChild(svg);
+                }
+                
+                // Calcular puntos de inicio y fin
+                const startX = source.x + (source.width || 150) / 2;
+                const startY = source.y + (source.height || 80) / 2;
+                const endX = target.x + (target.width || 150) / 2;
+                const endY = target.y + (target.height || 80) / 2;
+                
+                // Crear línea
+                const line = document.createElementNS(svgNS, "line");
+                line.setAttribute("x1", startX);
+                line.setAttribute("y1", startY);
+                line.setAttribute("x2", endX);
+                line.setAttribute("y2", endY);
+                line.setAttribute("stroke", "#0078D4");
+                line.setAttribute("stroke-width", "2");
+                line.setAttribute("marker-end", "url(#arrowhead)");
+                
+                // Añadir marcador de flecha si no existen
+                if (!document.getElementById('arrowhead')) {
+                    const defs = document.createElementNS(svgNS, "defs");
+                    const marker = document.createElementNS(svgNS, "marker");
+                    marker.id = "arrowhead";
+                    marker.setAttribute("markerWidth", "10");
+                    marker.setAttribute("markerHeight", "7");
+                    marker.setAttribute("refX", "9");
+                    marker.setAttribute("refY", "3.5");
+                    marker.setAttribute("orient", "auto");
+                    
+                    const polygon = document.createElementNS(svgNS, "polygon");
+                    polygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+                    polygon.setAttribute("fill", "#0078D4");
+                    
+                    marker.appendChild(polygon);
+                    defs.appendChild(marker);
+                    svg.appendChild(defs);
+                }
+                
+                svg.appendChild(line);
+                
+                // Añadir etiqueta si existe
+                if (label) {
+                    const textX = (startX + endX) / 2;
+                    const textY = (startY + endY) / 2 - 5;
+                    
+                    const text = document.createElementNS(svgNS, "text");
+                    text.setAttribute("x", textX);
+                    text.setAttribute("y", textY);
+                    text.setAttribute("text-anchor", "middle");
+                    text.setAttribute("font-size", "10");
+                    text.setAttribute("fill", "#0078D4");
+                    text.setAttribute("font-weight", "500");
+                    text.textContent = label;
+                    
+                    // Fondo para la etiqueta
+                    const rect = document.createElementNS(svgNS, "rect");
+                    const textLength = label.length * 6;
+                    rect.setAttribute("x", textX - textLength / 2 - 2);
+                    rect.setAttribute("y", textY - 8);
+                    rect.setAttribute("width", textLength + 4);
+                    rect.setAttribute("height", "12");
+                    rect.setAttribute("fill", "white");
+                    rect.setAttribute("stroke", "#0078D4");
+                    rect.setAttribute("stroke-width", "1");
+                    rect.setAttribute("rx", "2");
+                    
+                    svg.appendChild(rect);
+                    svg.appendChild(text);
+                }
+            }
+            
+            function makeDraggable(element) {
+                let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+                
+                element.onmousedown = dragMouseDown;
+                
+                function dragMouseDown(e) {
+                    e.preventDefault();
+                    // obtener la posición del cursor
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    document.onmouseup = closeDragElement;
+                    // llamar a una función cuando se mueva el cursor
+                    document.onmousemove = elementDrag;
+                }
+                
+                function elementDrag(e) {
+                    e.preventDefault();
+                    // calcular la nueva posición
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    // establecer la nueva posición
+                    element.style.top = (element.offsetTop - pos2) + "px";
+                    element.style.left = (element.offsetLeft - pos1) + "px";
+                    
+                    // Actualizar conexiones (en una implementación real)
+                    updateConnections();
+                }
+                
+                function closeDragElement() {
+                    // detener el movimiento cuando se suelta el mouse
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                }
+                
+                function updateConnections() {
+                    // En una implementación real, aquí actualizaríamos las conexiones SVG
+                    // Para esta demo, simplemente recargamos el diagrama
+                }
+            }
+            
+            function clearDiagram() {
+                diagramContainer.innerHTML = '';
+                currentDiagramData = null;
+                showNotification('Diagrama limpiado', 'info');
+            }
+            
+            function exportDiagram() {
+                if (!currentDiagramData) {
+                    showNotification('No hay diagrama para exportar', 'warning');
+                    return;
+                }
+                
+                const exportData = {
+                    description: descriptionInput.value,
+                    diagram: currentDiagramData,
+                    timestamp: new Date().toISOString(),
+                    version: '1.0'
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `azure-diagram-${Date.now()}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                showNotification('Diagrama exportado exitosamente', 'success');
+            }
+            
+            function saveDiagram() {
+                if (!currentDiagramData) {
+                    showNotification('No hay diagrama para guardar', 'warning');
+                    return;
+                }
+                
+                // En una implementación real, aquí enviaríamos los datos al servidor
+                localStorage.setItem('lastDiagram', JSON.stringify({
+                    description: descriptionInput.value,
+                    diagram: currentDiagramData,
+                    timestamp: new Date().toISOString()
+                }));
+                
+                showNotification('Diagrama guardado localmente', 'success');
+            }
+            
+            function showNotification(message, type = 'info') {
+                // Crear elemento de notificación
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.textContent = message;
+                
+                // Estilos para la notificación
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    border-radius: 4px;
+                    color: white;
+                    font-weight: 500;
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                    max-width: 300px;
+                `;
+                
+                // Colores según el tipo
+                const colors = {
+                    success: '#10B981',
+                    error: '#EF4444',
+                    warning: '#F59E0B',
+                    info: '#3B82F6'
+                };
+                
+                notification.style.backgroundColor = colors[type] || colors.info;
+                
+                // Agregar al DOM
+                document.body.appendChild(notification);
+                
+                // Remover después de 3 segundos
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+            
+            // Cargar diagrama guardado al iniciar
+            async function loadSavedDiagram() {
+                const saved = localStorage.getItem('lastDiagram');
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        descriptionInput.value = data.description;
+                        currentDiagramData = data.diagram;
+                        await renderDiagram(data.diagram);
+                        showNotification('Diagrama anterior cargado', 'info');
+                    } catch (error) {
+                        console.error('Error cargando diagrama guardado:', error);
+                    }
+                }
+            }
+            
+            // Cargar diagrama guardado
+            loadSavedDiagram();
+        });
+    </script>
+    
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+        
+        .azure-element {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .azure-element:hover {
+            border-color: #0078d4;
+            border-width: 1px;
+        }
+        
+        .azure-element.selected {
+            border-color: #0078d4;
+            border-width: 2px;
+        }
+    </style>
+
+</body>
+</html>
