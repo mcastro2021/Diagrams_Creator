@@ -169,17 +169,17 @@ class ProfessionalDiagramEngine {
             img.src = elementData.iconPath;
             img.style.cssText = 'width: 24px; height: 24px; filter: brightness(0) invert(1);';
             img.onerror = () => {
-                icon.textContent = elementData.text.charAt(0);
+                icon.textContent = (elementData.text || elementData.name || 'A').charAt(0);
             };
             icon.appendChild(img);
         } else {
-            icon.textContent = elementData.text.charAt(0);
+            icon.textContent = (elementData.text || elementData.name || 'A').charAt(0);
         }
         
         // Create label
         const label = document.createElement('div');
         label.className = 'element-label';
-        label.textContent = elementData.text;
+        label.textContent = elementData.text || elementData.name || 'Element';
         label.style.cssText = `
             font-size: 12px;
             font-weight: 600;
