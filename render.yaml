@@ -1,8 +1,11 @@
 services:
   - type: web
     name: azure-diagram-generator
+    env: node
     plan: starter
-    dockerfilePath: ./Dockerfile.render
+    buildCommand: npm ci --ignore-scripts
+    startCommand: npm start
+    nodeVersion: 20
     envVars:
       - key: NODE_ENV
         value: production

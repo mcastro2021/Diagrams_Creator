@@ -121,3 +121,24 @@ coverage/
 
 # Local development
 .local/
+
+# Python files (to prevent Render.com from detecting Python)
+*.py
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+.python-version
+requirements.txt
+setup.py
+pyproject.toml
+poetry.lock
+Pipfile
+Pipfile.lock
+environment.yml
+conda.yml
+
+# Node modules Python files
+node_modules/**/*.py
+node_modules/**/python/
