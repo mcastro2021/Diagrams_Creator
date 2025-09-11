@@ -1,4 +1,5 @@
 node_modules/flatted/python
+node_modules/**/*.py
 *.py
 requirements.txt
 setup.py
@@ -6,3 +7,5 @@ pyproject.toml
 poetry.lock
 Pipfile
 environment.yml
+Pipfile.lock
+conda.yml
