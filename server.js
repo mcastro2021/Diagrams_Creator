@@ -19,9 +19,15 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 // Configurar Groq
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+let groq = null;
+if (process.env.GROQ_API_KEY) {
+  groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+  });
+  console.log('🤖 Groq AI client initialized');
+} else {
+  console.log('⚠️ GROQ_API_KEY not found, AI features will be disabled');
+}
 
 // Security middleware
 app.use(helmet({
@@ -188,6 +194,10 @@ app.get('/api/health', (req, res) => {
 // Función para procesar descripción con IA usando Groq
 async function processDescriptionWithAI(description) {
   try {
+    if (!groq) {
+      throw new Error('Groq client not initialized - GROQ_API_KEY missing');
+    }
+    
     const prompt = `Eres un experto en arquitectura de Azure. Analiza la siguiente descripción y genera un diagrama de arquitectura Azure en formato JSON.
 
 Descripción: "${description}"
