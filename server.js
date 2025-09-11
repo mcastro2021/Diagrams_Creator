@@ -29,6 +29,117 @@ if (process.env.GROQ_API_KEY) {
   console.log('⚠️ GROQ_API_KEY not found, AI features will be disabled');
 }
 
+// Función para obtener información de arquitecturas de Microsoft
+async function getMicrosoftArchitectureInfo(architectureType) {
+  const architecturePatterns = {
+    'hub-and-spoke': {
+      description: 'Hub and Spoke architecture connects multiple spokes (subsidiaries, departments, or workloads) to a central hub through point-to-point connections.',
+      components: ['azure-subscriptions', 'azure-firewall', 'azure-bastion', 'azure-vnet', 'azure-vm', 'azure-app-service', 'azure-sql', 'azure-storage'],
+      connections: [
+        { from: 'azure-subscriptions', to: 'azure-firewall', type: 'management' },
+        { from: 'azure-firewall', to: 'azure-vnet', type: 'security' },
+        { from: 'azure-bastion', to: 'azure-vm', type: 'remote-access' },
+        { from: 'azure-vnet', to: 'azure-vm', type: 'network' },
+        { from: 'azure-vnet', to: 'azure-app-service', type: 'network' },
+        { from: 'azure-app-service', to: 'azure-sql', type: 'data' },
+        { from: 'azure-app-service', to: 'azure-storage', type: 'data' }
+      ]
+    },
+    'microservices': {
+      description: 'Microservices architecture breaks down applications into small, independent services that communicate over well-defined APIs.',
+      components: ['azure-app-service', 'azure-service-bus', 'azure-redis', 'azure-monitor', 'azure-key-vault', 'azure-sql', 'azure-storage'],
+      connections: [
+        { from: 'azure-app-service', to: 'azure-service-bus', type: 'messaging' },
+        { from: 'azure-app-service', to: 'azure-redis', type: 'cache' },
+        { from: 'azure-app-service', to: 'azure-sql', type: 'data' },
+        { from: 'azure-app-service', to: 'azure-storage', type: 'data' },
+        { from: 'azure-app-service', to: 'azure-key-vault', type: 'security' },
+        { from: 'azure-app-service', to: 'azure-monitor', type: 'monitoring' }
+      ]
+    },
+    'ai-ml': {
+      description: 'AI/ML architecture for machine learning workloads with data processing, model training, and inference capabilities.',
+      components: ['azure-machine-learning', 'azure-cognitive-services', 'azure-storage', 'azure-app-service', 'azure-sql', 'azure-computer-vision', 'azure-speech-services'],
+      connections: [
+        { from: 'azure-storage', to: 'azure-machine-learning', type: 'data' },
+        { from: 'azure-machine-learning', to: 'azure-cognitive-services', type: 'model' },
+        { from: 'azure-app-service', to: 'azure-cognitive-services', type: 'api' },
+        { from: 'azure-app-service', to: 'azure-computer-vision', type: 'api' },
+        { from: 'azure-app-service', to: 'azure-speech-services', type: 'api' },
+        { from: 'azure-sql', to: 'azure-app-service', type: 'data' }
+      ]
+    },
+    'data-analytics': {
+      description: 'Data analytics architecture for processing, storing, and analyzing large volumes of data.',
+      components: ['azure-data-factory', 'azure-data-lake-store', 'azure-synapse-analytics', 'azure-power-bi', 'azure-sql', 'azure-storage'],
+      connections: [
+        { from: 'azure-data-factory', to: 'azure-data-lake-store', type: 'etl' },
+        { from: 'azure-data-lake-store', to: 'azure-synapse-analytics', type: 'data' },
+        { from: 'azure-synapse-analytics', to: 'azure-power-bi', type: 'reporting' },
+        { from: 'azure-sql', to: 'azure-data-factory', type: 'source' },
+        { from: 'azure-storage', to: 'azure-data-factory', type: 'source' }
+      ]
+    }
+  };
+  
+  return architecturePatterns[architectureType] || null;
+}
+
+// Función para generar arquitectura usando IA
+async function generateArchitectureWithAI(description) {
+  if (!groq) {
+    throw new Error('AI service not available');
+  }
+  
+  const prompt = `You are an Azure architecture expert. Based on the following description, generate a complete Azure architecture diagram.
+
+Description: "${description}"
+
+Please respond with a JSON object containing:
+1. architectureType: The type of architecture (hub-and-spoke, microservices, ai-ml, data-analytics, or custom)
+2. components: Array of Azure services with quantities
+3. connections: Array of connections between services
+4. reasoning: Brief explanation of the architecture choices
+
+Example response:
+{
+  "architectureType": "microservices",
+  "components": [
+    {"service": "azure-app-service", "quantity": 3, "role": "API Gateway"},
+    {"service": "azure-sql", "quantity": 1, "role": "Database"},
+    {"service": "azure-redis", "quantity": 1, "role": "Cache"}
+  ],
+  "connections": [
+    {"from": "azure-app-service", "to": "azure-sql", "type": "data"},
+    {"from": "azure-app-service", "to": "azure-redis", "type": "cache"}
+  ],
+  "reasoning": "Microservices architecture with API gateway, database, and cache for scalability"
+}
+
+Respond only with valid JSON, no additional text.`;
+
+  try {
+    const completion = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: 'llama-3.1-8b-instant',
+      temperature: 0.7,
+      max_tokens: 1000
+    });
+    
+    const response = completion.choices[0]?.message?.content;
+    if (!response) {
+      throw new Error('No response from AI');
+    }
+    
+    // Parse JSON response
+    const architecture = JSON.parse(response);
+    return architecture;
+  } catch (error) {
+    console.error('AI generation error:', error);
+    throw new Error('Failed to generate architecture with AI');
+  }
+}
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -315,6 +426,7 @@ function processDescription(description) {
   // Función para detectar cantidades en el texto
   function detectQuantities(text) {
     const quantityMap = {
+      'cero': 0, 'zero': 0,
       'uno': 1, 'una': 1, 'un': 1, 'one': 1,
       'dos': 2, 'two': 2,
       'tres': 3, 'three': 3,
@@ -325,8 +437,24 @@ function processDescription(description) {
       'ocho': 8, 'eight': 8,
       'nueve': 9, 'nine': 9,
       'diez': 10, 'ten': 10,
+      'once': 11, 'eleven': 11,
+      'doce': 12, 'twelve': 12,
+      'trece': 13, 'thirteen': 13,
+      'catorce': 14, 'fourteen': 14,
+      'quince': 15, 'fifteen': 15,
+      'veinte': 20, 'twenty': 20,
+      'treinta': 30, 'thirty': 30,
+      'cuarenta': 40, 'forty': 40,
+      'cincuenta': 50, 'fifty': 50,
+      'cien': 100, 'hundred': 100,
       'múltiples': 3, 'multiple': 3, 'varios': 3, 'several': 3,
-      'muchos': 4, 'many': 4, 'varias': 4
+      'muchos': 4, 'many': 4, 'varias': 4,
+      'pocos': 2, 'few': 2,
+      'algunos': 2, 'some': 2,
+      'todos': 5, 'all': 5,
+      'cada': 1, 'each': 1,
+      'par': 2, 'pair': 2,
+      'docena': 12, 'dozen': 12
     };
     
     const quantities = new Map();
@@ -1691,6 +1819,83 @@ function getServiceInfo(serviceType) {
     color: '#0078d4'
   };
 }
+
+// Endpoint para generar diagramas con IA
+app.post('/api/generate-with-ai', async (req, res) => {
+  try {
+    const { description } = req.body;
+    
+    if (!description) {
+      return res.status(400).json({ error: 'Description is required' });
+    }
+    
+    if (!groq) {
+      return res.status(503).json({ error: 'AI service not available' });
+    }
+    
+    console.log('🤖 Generating architecture with AI for:', description);
+    
+    // Generar arquitectura con IA
+    const aiArchitecture = await generateArchitectureWithAI(description);
+    
+    // Obtener información de arquitectura de Microsoft si es un tipo conocido
+    const microsoftInfo = await getMicrosoftArchitectureInfo(aiArchitecture.architectureType);
+    
+    // Crear elementos basados en la respuesta de IA
+    const elements = [];
+    const connections = [];
+    
+    // Procesar componentes de IA
+    aiArchitecture.components.forEach((component, index) => {
+      const serviceType = component.service;
+      const quantity = component.quantity || 1;
+      
+      for (let i = 0; i < quantity; i++) {
+        const element = {
+          id: `${serviceType}-${i}`,
+          type: serviceType,
+          name: component.role || serviceType.replace('azure-', '').replace(/-/g, ' '),
+          x: 100 + (index * 200) + (i * 50),
+          y: 100 + (i * 100),
+          width: 180,
+          height: 100
+        };
+        elements.push(element);
+      }
+    });
+    
+    // Procesar conexiones de IA
+    aiArchitecture.connections.forEach(connection => {
+      const fromElements = elements.filter(el => el.type === connection.from);
+      const toElements = elements.filter(el => el.type === connection.to);
+      
+      if (fromElements.length > 0 && toElements.length > 0) {
+        connections.push({
+          from: fromElements[0].id,
+          to: toElements[0].id,
+          type: connection.type,
+          label: connection.type
+        });
+      }
+    });
+    
+    const result = {
+      elements,
+      connections,
+      aiGenerated: true,
+      architectureType: aiArchitecture.architectureType,
+      reasoning: aiArchitecture.reasoning,
+      microsoftInfo: microsoftInfo ? microsoftInfo.description : null
+    };
+    
+    console.log('✅ AI architecture generated successfully');
+    res.json(result);
+    
+  } catch (error) {
+    console.error('❌ AI generation error:', error);
+    res.status(500).json({ error: 'Failed to generate architecture with AI' });
+  }
+});
 
 // Initialize database and start server
 async function startServer() {

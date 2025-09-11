@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Azure Diagram Generator</title>
     <script src="azure-icons-real.js"></script>
+    <script src="azure-icons-complete.js"></script>
     <script src="diagram-engine.js"></script>
     <style>
         * {
@@ -270,6 +271,7 @@
             </div>
             
             <div class="actions">
+                <button class="btn-primary" onclick="generateWithAI()">🤖 Generar con IA</button>
                 <button class="btn-secondary" onclick="clearDiagram()">Limpiar</button>
                 <button class="btn-secondary" onclick="exportDiagram()">Exportar</button>
                 <button class="btn-secondary" onclick="saveDiagram()">Guardar</button>
@@ -492,6 +494,115 @@
             diagramEngine.renderDiagram(transformedData);
         }
         
+        
+        // Función para generar diagrama con IA
+        async function generateWithAI() {
+            const descriptionInput = document.getElementById('description-input');
+            const description = descriptionInput.value.trim();
+            
+            if (!description) {
+                alert('Por favor, ingresa una descripción para generar el diagrama con IA');
+                return;
+            }
+            
+            try {
+                // Mostrar loading
+                const loadingDiv = document.getElementById('loading');
+                loadingDiv.style.display = 'block';
+                
+                // Llamar al endpoint de IA
+                const response = await fetch('/api/generate-with-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ description })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Ocultar loading
+                loadingDiv.style.display = 'none';
+                
+                // Renderizar diagrama con IA
+                if (data.elements && data.elements.length > 0) {
+                    renderAIDiagram(data);
+                    
+                    // Mostrar información de IA
+                    if (data.reasoning) {
+                        console.log('🤖 AI Reasoning:', data.reasoning);
+                        console.log('🏗️ Architecture Type:', data.architectureType);
+                        if (data.microsoftInfo) {
+                            console.log('📚 Microsoft Info:', data.microsoftInfo);
+                        }
+                    }
+                } else {
+                    alert('No se pudo generar el diagrama con IA');
+                }
+                
+            } catch (error) {
+                console.error('Error generating with AI:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('Error al generar diagrama con IA: ' + error.message);
+            }
+        }
+        
+        // Función para renderizar diagrama generado por IA
+        function renderAIDiagram(data) {
+            const diagramContainer = document.getElementById('diagram-container');
+            
+            // Limpiar diagrama anterior
+            diagramContainer.innerHTML = '';
+            
+            // Inicializar motor de diagramas
+            diagramEngine = new ProfessionalDiagramEngine('diagram-container');
+            diagramEngine.init();
+            
+            // Transformar datos para el motor
+            const transformedData = {
+                elements: data.elements.map(element => ({
+                    id: element.id,
+                    type: element.type,
+                    name: element.name,
+                    x: element.x,
+                    y: element.y,
+                    width: element.width,
+                    height: element.height
+                })),
+                connections: data.connections || []
+            };
+            
+            // Renderizar diagrama
+            diagramEngine.renderDiagram(transformedData);
+            
+            // Mostrar información de IA si está disponible
+            if (data.aiGenerated) {
+                const infoDiv = document.createElement('div');
+                infoDiv.className = 'ai-info';
+                infoDiv.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: rgba(0, 120, 212, 0.9);
+                    color: white;
+                    padding: 10px;
+                    border-radius: 5px;
+                    font-size: 12px;
+                    max-width: 300px;
+                    z-index: 1000;
+                `;
+                infoDiv.innerHTML = `
+                    <strong>🤖 Generado con IA</strong><br>
+                    <strong>Tipo:</strong> ${data.architectureType}<br>
+                    ${data.reasoning ? `<strong>Razonamiento:</strong> ${data.reasoning}` : ''}
+                `;
+                diagramContainer.appendChild(infoDiv);
+            }
+        }
         
         // Inicialización cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
