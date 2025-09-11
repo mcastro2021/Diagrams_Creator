@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Azure Diagram Generator</title>
     <script src="azure-icons-real.js"></script>
+    <script src="diagram-engine.js"></script>
     <style>
         * {
             margin: 0;
@@ -161,7 +162,10 @@
             height: 100%;
             position: relative;
             overflow: auto;
-            background: rgba(255, 255, 255, 0.1);
+            background: #f8f9fa;
+            background-image: 
+                radial-gradient(circle, #e0e0e0 1px, transparent 1px);
+            background-size: 20px 20px;
             min-width: 2000px;
             min-height: 1500px;
         }
@@ -286,6 +290,7 @@
         // Variables globales
         let currentZoom = 1;
         let currentDiagramData = null;
+        let diagramEngine = null;
         
         // Funciones globales
         function loadExample(element) {
@@ -325,16 +330,29 @@
             const diagramContainer = document.getElementById('diagram-container');
             diagramContainer.innerHTML = '<div class="diagram-controls"><button class="zoom-btn" onclick="zoomOut()">-</button><div class="zoom-level" id="zoomLevel">100%</div><button class="zoom-btn" onclick="zoomIn()">+</button><button class="zoom-btn" onclick="zoomFit()">Fit</button></div>';
             currentDiagramData = null;
+            diagramEngine = null; // Reset diagram engine
             showNotification('Diagrama limpiado', 'info');
         }
         
         function exportDiagram() {
             console.log('exportDiagram called');
-            if (!currentDiagramData) {
+            if (!diagramEngine) {
                 showNotification('No hay diagrama para exportar', 'warning');
                 return;
             }
-            showNotification('Función de exportación en desarrollo', 'info');
+            
+            const exportData = diagramEngine.exportDiagram();
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `azure-diagram-${Date.now()}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification('Diagrama exportado exitosamente', 'success');
         }
         
         function saveDiagram() {
@@ -441,68 +459,35 @@
         
         async function renderDiagram(data) {
             console.log('renderDiagram called with data:', data);
-            const diagramContainer = document.getElementById('diagram-container');
             
-            // Dibujar conexiones primero (para que queden detrás de los elementos)
-            data.connections.forEach(conn => {
-                const sourceElem = data.elements.find(e => e.id === conn.source);
-                const targetElem = data.elements.find(e => e.id === conn.target);
-                
-                if (sourceElem && targetElem) {
-                    drawConnection(sourceElem, targetElem, conn.label);
-                }
-            });
-            
-            // Dibujar elementos con iconos reales de Azure
-            for (const elem of data.elements) {
-                const elementDiv = document.createElement('div');
-                elementDiv.id = elem.id;
-                elementDiv.className = `azure-element ${elem.type}`;
-                elementDiv.style.left = `${elem.x}px`;
-                elementDiv.style.top = `${elem.y}px`;
-                elementDiv.style.width = `${elem.width || 180}px`;
-                elementDiv.style.height = `${elem.height || 100}px`;
-                
-                // Obtener información del icono
-                const iconData = getAzureIconReal(elem.type);
-                
-                // Crear contenido del elemento con icono específico
-                elementDiv.innerHTML = `
-                    <div class="azure-icon">
-                        <img src="${iconData.path}" alt="${iconData.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        <div style="width: 40px; height: 40px; background-color: ${iconData.color}; border-radius: 5px; display: none; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
-                            ${iconData.name.charAt(0)}
-                        </div>
-                    </div>
-                    <div class="azure-text">${elem.text}</div>
-                `;
-                
-                diagramContainer.appendChild(elementDiv);
+            // Initialize diagram engine if not exists
+            if (!diagramEngine) {
+                diagramEngine = new ProfessionalDiagramEngine('diagram-container');
             }
+            
+            // Transform data for professional diagram engine
+            const transformedData = {
+                elements: data.elements.map(elem => {
+                    const iconData = getAzureIconReal(elem.type);
+                    return {
+                        id: elem.id,
+                        x: elem.x,
+                        y: elem.y,
+                        width: elem.width || 200,
+                        height: elem.height || 100,
+                        text: elem.text,
+                        type: elem.type,
+                        color: iconData.color,
+                        iconPath: iconData.path
+                    };
+                }),
+                connections: data.connections
+            };
+            
+            // Render with professional engine
+            diagramEngine.renderDiagram(transformedData);
         }
         
-        function drawConnection(sourceElem, targetElem, label) {
-            const diagramContainer = document.getElementById('diagram-container');
-            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-            svg.style.position = 'absolute';
-            svg.style.top = '0';
-            svg.style.left = '0';
-            svg.style.width = '100%';
-            svg.style.height = '100%';
-            svg.style.pointerEvents = 'none';
-            svg.style.zIndex = '1';
-            
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', sourceElem.x + (sourceElem.width || 180) / 2);
-            line.setAttribute('y1', sourceElem.y + (sourceElem.height || 100) / 2);
-            line.setAttribute('x2', targetElem.x + (targetElem.width || 180) / 2);
-            line.setAttribute('y2', targetElem.y + (targetElem.height || 100) / 2);
-            line.setAttribute('stroke', '#0078d4');
-            line.setAttribute('stroke-width', '2');
-            
-            svg.appendChild(line);
-            diagramContainer.appendChild(svg);
-        }
         
         // Inicialización cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
