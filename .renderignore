@@ -1,0 +1,8 @@
+node_modules/flatted/python
+*.py
+requirements.txt
+setup.py
+pyproject.toml
+poetry.lock
+Pipfile
+environment.yml
