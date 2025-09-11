@@ -373,6 +373,22 @@ function processDescription(description) {
       { regex: /(\d+|\w+)\s+ai\s+services?/gi, serviceType: 'cognitive services' },
       { regex: /(\d+|\w+)\s+machine\s+learning\s+services?/gi, serviceType: 'cognitive services' },
       
+      // Patrones específicos para IA/ML
+      { regex: /(\d+|\w+)\s+machine\s+learning\s+workspaces?/gi, serviceType: 'machine learning workspaces' },
+      { regex: /(\d+|\w+)\s+ml\s+workspaces?/gi, serviceType: 'machine learning workspaces' },
+      { regex: /(\d+|\w+)\s+computer\s+vision\s+services?/gi, serviceType: 'computer vision services' },
+      { regex: /(\d+|\w+)\s+speech\s+services?/gi, serviceType: 'speech services' },
+      { regex: /(\d+|\w+)\s+language\s+understanding\s+services?/gi, serviceType: 'language understanding services' },
+      { regex: /(\d+|\w+)\s+text\s+analytics\s+services?/gi, serviceType: 'text analytics services' },
+      { regex: /(\d+|\w+)\s+form\s+recognizers?/gi, serviceType: 'form recognizers' },
+      { regex: /(\d+|\w+)\s+anomaly\s+detectors?/gi, serviceType: 'anomaly detectors' },
+      { regex: /(\d+|\w+)\s+openai\s+services?/gi, serviceType: 'openai services' },
+      { regex: /(\d+|\w+)\s+ai\s+studio\s+services?/gi, serviceType: 'ai studio services' },
+      { regex: /(\d+|\w+)\s+bot\s+services?/gi, serviceType: 'bot services' },
+      { regex: /(\d+|\w+)\s+chatbots?/gi, serviceType: 'bot services' },
+      { regex: /(\d+|\w+)\s+genomics\s+accounts?/gi, serviceType: 'genomics accounts' },
+      { regex: /(\d+|\w+)\s+applied\s+ai\s+services?/gi, serviceType: 'applied ai services' },
+      
       // Patrones para Event Hubs
       { regex: /(\d+|\w+)\s+event\s+hubs?/gi, serviceType: 'event hubs' },
       { regex: /(\d+|\w+)\s+streaming\s+services?/gi, serviceType: 'event hubs' },
@@ -801,6 +817,33 @@ function processDescription(description) {
           detectedServices.set('azure-sql', 1);
           detectedServices.set('azure-storage', 1);
           detectedServices.set('azure-cosmos', 1);
+        } else if (text.includes('inteligencia artificial') || text.includes('machine learning') || text.includes('ai') || text.includes('ml')) {
+          // Arquitectura de IA/ML
+          detectedServices.set('azure-machine-learning', 1);
+          detectedServices.set('azure-cognitive-services', 1);
+          detectedServices.set('azure-storage', 1);
+          detectedServices.set('azure-app-service', 1);
+          detectedServices.set('azure-sql', 1);
+        } else if (text.includes('computer vision') || text.includes('visión por computadora')) {
+          detectedServices.set('azure-computer-vision', 1);
+          detectedServices.set('azure-storage', 1);
+          detectedServices.set('azure-app-service', 1);
+        } else if (text.includes('speech') || text.includes('voz') || text.includes('habla')) {
+          detectedServices.set('azure-speech-services', 1);
+          detectedServices.set('azure-storage', 1);
+          detectedServices.set('azure-app-service', 1);
+        } else if (text.includes('language understanding') || text.includes('comprensión de lenguaje')) {
+          detectedServices.set('azure-language-understanding', 1);
+          detectedServices.set('azure-storage', 1);
+          detectedServices.set('azure-app-service', 1);
+        } else if (text.includes('openai') || text.includes('gpt') || text.includes('llm')) {
+          detectedServices.set('azure-openai', 1);
+          detectedServices.set('azure-storage', 1);
+          detectedServices.set('azure-app-service', 1);
+        } else if (text.includes('bot') || text.includes('chatbot') || text.includes('asistente')) {
+          detectedServices.set('azure-bot-services', 1);
+          detectedServices.set('azure-language-understanding', 1);
+          detectedServices.set('azure-app-service', 1);
         } else {
           // Configuración básica por defecto
           detectedServices.set('azure-app-service', 1);
@@ -846,6 +889,44 @@ function processDescription(description) {
     }
     if (serviceTextLower === 'service buses') {
       return 'azure-service-bus';
+    }
+    
+    // Mapeo para servicios de IA/ML
+    if (serviceTextLower === 'machine learning workspaces') {
+      return 'azure-machine-learning-studio-workspaces';
+    }
+    if (serviceTextLower === 'computer vision services') {
+      return 'azure-computer-vision';
+    }
+    if (serviceTextLower === 'speech services') {
+      return 'azure-speech-services';
+    }
+    if (serviceTextLower === 'language understanding services') {
+      return 'azure-language-understanding';
+    }
+    if (serviceTextLower === 'text analytics services') {
+      return 'azure-text-analytics';
+    }
+    if (serviceTextLower === 'form recognizers') {
+      return 'azure-form-recognizers';
+    }
+    if (serviceTextLower === 'anomaly detectors') {
+      return 'azure-anomaly-detector';
+    }
+    if (serviceTextLower === 'openai services') {
+      return 'azure-openai';
+    }
+    if (serviceTextLower === 'ai studio services') {
+      return 'azure-ai-studio';
+    }
+    if (serviceTextLower === 'bot services') {
+      return 'azure-bot-services';
+    }
+    if (serviceTextLower === 'genomics accounts') {
+      return 'azure-genomics-accounts';
+    }
+    if (serviceTextLower === 'applied ai services') {
+      return 'azure-applied-ai-services';
     }
     
     // Mapeo por palabras clave (fallback)
@@ -905,6 +986,41 @@ function processDescription(description) {
     if (serviceTextLower.includes('cognitive services') || serviceTextLower.includes('ai services') || 
         serviceTextLower.includes('machine learning') || serviceTextLower.includes('artificial intelligence')) {
       return 'azure-cognitive-services';
+    }
+    
+    // Mapeos específicos para servicios de IA/ML
+    if (serviceTextLower.includes('computer vision') || serviceTextLower.includes('visión por computadora')) {
+      return 'azure-computer-vision';
+    }
+    if (serviceTextLower.includes('speech services') || serviceTextLower.includes('servicios de voz')) {
+      return 'azure-speech-services';
+    }
+    if (serviceTextLower.includes('language understanding') || serviceTextLower.includes('luis')) {
+      return 'azure-language-understanding';
+    }
+    if (serviceTextLower.includes('text analytics') || serviceTextLower.includes('análisis de texto')) {
+      return 'azure-text-analytics';
+    }
+    if (serviceTextLower.includes('form recognizer') || serviceTextLower.includes('reconocimiento de formularios')) {
+      return 'azure-form-recognizers';
+    }
+    if (serviceTextLower.includes('anomaly detector') || serviceTextLower.includes('detección de anomalías')) {
+      return 'azure-anomaly-detector';
+    }
+    if (serviceTextLower.includes('openai') || serviceTextLower.includes('gpt') || serviceTextLower.includes('llm')) {
+      return 'azure-openai';
+    }
+    if (serviceTextLower.includes('ai studio') || serviceTextLower.includes('estudio de ia')) {
+      return 'azure-ai-studio';
+    }
+    if (serviceTextLower.includes('bot services') || serviceTextLower.includes('chatbot') || serviceTextLower.includes('asistente')) {
+      return 'azure-bot-services';
+    }
+    if (serviceTextLower.includes('genomics') || serviceTextLower.includes('genómica')) {
+      return 'azure-genomics-accounts';
+    }
+    if (serviceTextLower.includes('applied ai') || serviceTextLower.includes('ia aplicada')) {
+      return 'azure-applied-ai-services';
     }
     if (serviceTextLower.includes('event hubs') || serviceTextLower.includes('event streaming') || 
         serviceTextLower.includes('stream processing')) {
