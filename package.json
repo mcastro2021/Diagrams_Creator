@@ -12,6 +12,8 @@
     "build": "npm install --production",
     "heroku-postbuild": "npm install --production",
     "render-build": "npm ci --ignore-scripts",
+    "preinstall": "node preinstall.js",
+    "postinstall": "node install.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
