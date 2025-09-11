@@ -8,6 +8,7 @@ class ProfessionalDiagramEngine {
         this.container = document.getElementById(containerId);
         this.elements = [];
         this.connections = [];
+        this.containers = [];
         this.selectedElement = null;
         this.isDragging = false;
         this.dragOffset = { x: 0, y: 0 };
@@ -253,6 +254,56 @@ class ProfessionalDiagramEngine {
         return element;
     }
     
+    createContainer(containerData) {
+        const container = document.createElement('div');
+        container.className = 'diagram-container-box';
+        container.id = containerData.id;
+        
+        // Styling for the container
+        container.style.cssText = `
+            position: absolute;
+            left: ${containerData.x}px;
+            top: ${containerData.y}px;
+            width: ${containerData.width}px;
+            height: ${containerData.height}px;
+            border: 2px solid ${containerData.borderColor || '#0078d4'};
+            border-radius: 12px;
+            background: ${containerData.backgroundColor || 'rgba(0, 120, 212, 0.05)'};
+            z-index: 1;
+            pointer-events: none;
+        `;
+        
+        // Create container label
+        if (containerData.label) {
+            const label = document.createElement('div');
+            label.className = 'container-label';
+            label.textContent = containerData.label;
+            label.style.cssText = `
+                position: absolute;
+                top: -12px;
+                left: 16px;
+                background: ${containerData.borderColor || '#0078d4'};
+                color: white;
+                padding: 4px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                z-index: 2;
+            `;
+            container.appendChild(label);
+        }
+        
+        this.elementsLayer.appendChild(container);
+        this.containers.push({
+            id: containerData.id,
+            element: container,
+            data: containerData
+        });
+        
+        return container;
+    }
+    
     createConnection(connectionData) {
         const sourceElement = this.elements.find(e => 
             e.id === connectionData.from || 
@@ -405,6 +456,14 @@ class ProfessionalDiagramEngine {
         }
         this.elements = [];
         this.connections = [];
+        this.containers = [];
+        
+        // Create containers first (so they appear behind elements)
+        if (diagramData.containers) {
+            diagramData.containers.forEach(containerData => {
+                this.createContainer(containerData);
+            });
+        }
         
         // Create elements
         diagramData.elements.forEach(elementData => {

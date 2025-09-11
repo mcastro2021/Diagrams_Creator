@@ -167,8 +167,8 @@
             background-image: 
                 radial-gradient(circle, #e0e0e0 1px, transparent 1px);
             background-size: 20px 20px;
-            min-width: 3000px;
-            min-height: 2000px;
+            min-width: 1800px;
+            min-height: 1200px;
         }
         
         .diagram-controls {
@@ -271,6 +271,7 @@
             <div class="actions">
                 <button class="btn-primary" onclick="generateWithAI()">🤖 Generar Diagrama</button>
                 <button class="btn-secondary" onclick="clearDiagram()">Limpiar</button>
+                <button class="btn-secondary" onclick="fitDiagram()">🎯 Centrar</button>
                 <button class="btn-secondary" onclick="exportDiagram()">Exportar</button>
                 <button class="btn-secondary" onclick="saveDiagram()">Guardar</button>
             </div>
@@ -508,13 +509,90 @@
                     target: conn.target || conn.to,
                     label: conn.label,
                     type: conn.type || 'standard'
-                }))
+                })),
+                containers: data.containers || []
             };
             
             // Render with professional engine
             diagramEngine.renderDiagram(transformedData);
+            
+            // Auto-fit deshabilitado temporalmente para solucionar problemas de posicionamiento
+            // setTimeout(() => {
+            //     autoFitDiagram(data.elements);
+            // }, 200);
         }
         
+        // Función para auto-ajustar zoom y centrar diagrama
+        function autoFitDiagram(elements) {
+            if (!elements || elements.length === 0) return;
+            
+            // Calcular bounds de todos los elementos
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            elements.forEach(el => {
+                minX = Math.min(minX, el.x);
+                minY = Math.min(minY, el.y);
+                maxX = Math.max(maxX, el.x + (el.width || 180));
+                maxY = Math.max(maxY, el.y + (el.height || 100));
+            });
+            
+            // Agregar padding para contenedores si existen
+            const padding = 200;
+            minX -= padding;
+            minY -= padding;
+            maxX += padding;
+            maxY += padding;
+            
+            // Calcular dimensiones del contenido
+            const contentWidth = maxX - minX;
+            const contentHeight = maxY - minY;
+            
+            // Dimensiones del contenedor visible
+            const container = document.getElementById('diagram-container');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            
+            // Calcular zoom para que quepa todo
+            const scaleX = containerWidth / contentWidth;
+            const scaleY = containerHeight / contentHeight;
+            const scale = Math.min(scaleX, scaleY, 1.0); // No hacer zoom mayor a 1
+            
+            // Centrar el contenido
+            const centerX = (containerWidth - contentWidth * scale) / 2 - minX * scale;
+            const centerY = (containerHeight - contentHeight * scale) / 2 - minY * scale;
+            
+            // Aplicar transformación
+            const content = container.querySelector('.diagram-content');
+            if (content) {
+                content.style.transform = `translate(${centerX}px, ${centerY}px) scale(${scale})`;
+                content.style.transformOrigin = '0 0';
+            }
+            
+            console.log(`Auto-fit applied: scale=${scale.toFixed(2)}, center=(${Math.round(centerX)}, ${Math.round(centerY)})`);
+        }
+        
+        // Función para centrar diagrama manualmente
+        function fitDiagram() {
+            const container = document.getElementById('diagram-container');
+            const elements = container.querySelectorAll('.element');
+            
+            if (elements.length === 0) {
+                alert('No hay elementos en el diagrama para centrar');
+                return;
+            }
+            
+            // Crear array de elementos con posiciones
+            const elementsData = Array.from(elements).map(el => {
+                const style = el.style;
+                const x = parseInt(style.left) || 0;
+                const y = parseInt(style.top) || 0;
+                const width = parseInt(style.width) || 180;
+                const height = parseInt(style.height) || 100;
+                return { x, y, width, height };
+            });
+            
+            autoFitDiagram(elementsData);
+        }
         
         // Función para generar diagrama con IA
         async function generateWithAI() {
@@ -627,7 +705,8 @@
                     target: conn.target || conn.to,
                     label: conn.label,
                     type: conn.type || 'standard'
-                }))
+                })),
+                containers: data.containers || []
             };
             
             // Renderizar diagrama

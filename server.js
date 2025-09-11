@@ -33,26 +33,31 @@ if (process.env.GROQ_API_KEY) {
 async function getMicrosoftArchitectureInfo(architectureType) {
   const architecturePatterns = {
     'hub-and-spoke': {
-      description: 'Hub and Spoke architecture connects multiple spokes (subsidiaries, departments, or workloads) to a central hub through point-to-point connections.',
+      description: 'Hub and Spoke architecture connects multiple spokes to a central hub with firewall, VPN gateway, and shared services.',
       components: [
         { service: 'azure-subscriptions', quantity: 1, role: 'Hub Subscription' },
         { service: 'azure-subscriptions', quantity: 3, role: 'Spoke Subscriptions' },
-        { service: 'azure-firewalls', quantity: 1, role: 'Hub Firewall' },
-        { service: 'azure-bastion', quantity: 1, role: 'Hub Bastion' },
-        { service: 'azure-virtual-networks', quantity: 1, role: 'Hub VNet' },
-        { service: 'azure-virtual-machine', quantity: 2, role: 'Hub VMs' },
-        { service: 'azure-app-service', quantity: 1, role: 'Hub App Service' },
-        { service: 'azure-sql-database', quantity: 1, role: 'Hub SQL Database' },
-        { service: 'azure-storage-accounts', quantity: 1, role: 'Hub Storage' }
+        { service: 'azure-firewalls', quantity: 1, role: 'Hub Firewall (Central Security)' },
+        { service: 'azure-bastion', quantity: 1, role: 'Hub Bastion (Secure Access)' },
+        { service: 'azure-virtual-networks', quantity: 4, role: 'Hub + Spoke VNets' },
+        { service: 'azure-vpn-gateways', quantity: 1, role: 'Hub VPN Gateway' },
+        { service: 'azure-virtual-machine', quantity: 2, role: 'Hub Shared VMs' },
+        { service: 'azure-app-service', quantity: 1, role: 'Hub Shared App Service' },
+        { service: 'azure-sql-database', quantity: 1, role: 'Hub Shared Database' },
+        { service: 'azure-storage-accounts', quantity: 1, role: 'Hub Shared Storage' },
+        { service: 'azure-monitor', quantity: 1, role: 'Hub Monitoring' },
+        { service: 'azure-key-vault', quantity: 1, role: 'Hub Key Vault' }
       ],
       connections: [
-        { from: 'azure-subscriptions', to: 'azure-firewalls', type: 'management', label: 'Management' },
-        { from: 'azure-firewalls', to: 'azure-virtual-networks', type: 'security', label: 'Security' },
-        { from: 'azure-bastion', to: 'azure-virtual-machine', type: 'remote-access', label: 'Remote Access' },
-        { from: 'azure-virtual-networks', to: 'azure-virtual-machine', type: 'network', label: 'Network' },
-        { from: 'azure-virtual-networks', to: 'azure-app-service', type: 'network', label: 'Network' },
-        { from: 'azure-app-service', to: 'azure-sql-database', type: 'data', label: 'Data' },
-        { from: 'azure-app-service', to: 'azure-storage-accounts', type: 'data', label: 'Data' }
+        { from: 'azure-firewalls', to: 'azure-virtual-networks', type: 'security', label: 'Traffic Control' },
+        { from: 'azure-vpn-gateways', to: 'azure-virtual-networks', type: 'connectivity', label: 'VPN Connection' },
+        { from: 'azure-bastion', to: 'azure-virtual-machine', type: 'remote-access', label: 'Secure Access' },
+        { from: 'azure-virtual-networks', to: 'azure-virtual-machine', type: 'network', label: 'Network Access' },
+        { from: 'azure-virtual-networks', to: 'azure-app-service', type: 'network', label: 'Private Endpoint' },
+        { from: 'azure-app-service', to: 'azure-sql-database', type: 'data', label: 'Database Access' },
+        { from: 'azure-app-service', to: 'azure-storage-accounts', type: 'data', label: 'Storage Access' },
+        { from: 'azure-monitor', to: 'azure-virtual-machine', type: 'monitoring', label: 'VM Monitoring' },
+        { from: 'azure-key-vault', to: 'azure-app-service', type: 'security', label: 'Secrets Management' }
       ]
     },
     'microservices': {
@@ -1339,13 +1344,75 @@ function processDescription(description) {
   // Crear conexiones inteligentes basadas en patrones comunes
   createIntelligentConnections(elements, connections, text);
   
+  // Crear contenedores para hub-and-spoke si es detectado
+  const containers = [];
+  if (isHubSpokeArchitecture) {
+    console.log('Creating containers for hub-and-spoke architecture (local)');
+    
+    // Contenedor para el hub
+    const hubElements = elements.filter(el => 
+      el.type === 'azure-firewall' || 
+      el.type === 'azure-bastion' || 
+      (el.type === 'azure-vnet' && el.text.includes('hub'))
+    );
+    
+    if (hubElements.length > 0) {
+      const hubBounds = calculateElementsBounds(hubElements, 50);
+      containers.push({
+        id: 'hub-container',
+        label: 'Hub (Centro)',
+        x: hubBounds.x,
+        y: hubBounds.y,
+        width: hubBounds.width,
+        height: hubBounds.height,
+        borderColor: '#0078d4',
+        backgroundColor: 'rgba(0, 120, 212, 0.08)'
+      });
+    }
+    
+    // Contenedores para servicios distribuidos (simulando spokes)
+    const spokeElements = elements.filter(el => 
+      el.type !== 'azure-firewall' && 
+      el.type !== 'azure-bastion' &&
+      !(el.type === 'azure-vnet' && el.text.includes('hub'))
+    );
+    
+    if (spokeElements.length > 0) {
+      // Agrupar elementos en spokes lógicos
+      const spokeGroups = [];
+      const elementsPerSpoke = Math.ceil(spokeElements.length / 3); // Máximo 3 spokes
+      
+      for (let i = 0; i < spokeElements.length; i += elementsPerSpoke) {
+        spokeGroups.push(spokeElements.slice(i, i + elementsPerSpoke));
+      }
+      
+      spokeGroups.forEach((group, index) => {
+        if (group.length > 0) {
+          const spokeBounds = calculateElementsBounds(group, 40);
+          containers.push({
+            id: `spoke-container-${index}`,
+            label: `Spoke ${index + 1}`,
+            x: spokeBounds.x,
+            y: spokeBounds.y,
+            width: spokeBounds.width,
+            height: spokeBounds.height,
+            borderColor: '#00aa44',
+            backgroundColor: 'rgba(0, 170, 68, 0.08)'
+          });
+        }
+      });
+    }
+  }
+  
   return { 
     elements, 
     connections,
+    containers,
     metadata: {
       totalElements: elements.length,
       totalConnections: connections.length,
-      detectedServices: Array.from(detectedServices)
+      detectedServices: Array.from(detectedServices),
+      hasContainers: containers.length > 0
     }
   };
 }
@@ -1899,11 +1966,12 @@ app.post('/api/generate-with-ai', async (req, res) => {
     // Crear elementos basados en la respuesta de IA
     const elements = [];
     const connections = [];
+    const containers = [];
     
     // Procesar componentes con posicionamiento inteligente
     const isHubSpoke = aiArchitecture.architectureType === 'hub-and-spoke';
-    const centerX = 1000;
-    const centerY = 600;
+    const centerX = 800;
+    const centerY = 500;
     
     console.log('Processing components:', aiArchitecture.components);
     
@@ -1925,32 +1993,88 @@ app.post('/api/generate-with-ai', async (req, res) => {
         let x, y;
         
         if (isHubSpoke) {
-          // Posicionamiento hub-and-spoke correcto
+          // Posicionamiento hub-and-spoke simplificado y funcional
           if (serviceType === 'azure-subscriptions') {
             if (component.role === 'Hub Subscription') {
               // Hub subscription en el centro
-              x = centerX;
-              y = centerY;
+              x = 600;
+              y = 400;
             } else {
-              // Spoke subscriptions en círculo alrededor del hub
-              const spokeIndex = i;
-              const angle = (spokeIndex * 120) * (Math.PI / 180); // 3 spokes, 120 grados entre cada uno
-              const radius = 400;
-              x = centerX + Math.cos(angle) * radius;
-              y = centerY + Math.sin(angle) * radius;
+              // Spoke subscriptions bien separados
+              if (i === 0) {
+                x = 1200; // Spoke 1 - derecha
+                y = 400;
+              } else if (i === 1) {
+                x = 300; // Spoke 2 - izquierda abajo
+                y = 700;
+              } else if (i === 2) {
+                x = 300; // Spoke 3 - izquierda arriba
+                y = 100;
+              }
             }
-          } else if (serviceType === 'azure-firewalls' || serviceType === 'azure-bastion' || serviceType === 'azure-virtual-networks') {
-            // Servicios centrales del hub alrededor del hub subscription
-            const angle = (i * 60) * (Math.PI / 180);
-            const radius = 150;
-            x = centerX + Math.cos(angle) * radius;
-            y = centerY + Math.sin(angle) * radius;
+          } else if (serviceType === 'azure-firewalls') {
+            // Firewall en posición del hub
+            x = 450;
+            y = 250;
+          } else if (serviceType === 'azure-bastion') {
+            // Bastion en posición del hub
+            x = 750;
+            y = 250;
+          } else if (serviceType === 'azure-virtual-networks') {
+            // VNets distribuidas
+            if (i === 0) {
+              // Hub VNet
+              x = 600;
+              y = 200;
+            } else if (i === 1) {
+              // Spoke 1 VNet
+              x = 1150;
+              y = 350;
+            } else if (i === 2) {
+              // Spoke 2 VNet
+              x = 350;
+              y = 650;
+            } else if (i === 3) {
+              // Spoke 3 VNet
+              x = 350;
+              y = 50;
+            }
+          } else if (serviceType === 'azure-vpn-gateways') {
+            // VPN Gateway
+            x = 600;
+            y = 600;
+          } else if (serviceType === 'azure-monitor') {
+            // Monitor
+            x = 400;
+            y = 500;
+          } else if (serviceType === 'azure-key-vault') {
+            // Key Vault
+            x = 800;
+            y = 500;
           } else {
-            // Otros servicios del hub en un círculo más amplio
-            const angle = (i * 45) * (Math.PI / 180);
-            const radius = 250;
-            x = centerX + Math.cos(angle) * radius;
-            y = centerY + Math.sin(angle) * radius;
+            // Otros servicios del hub en posiciones fijas
+            const hubServices = ['azure-virtual-machine', 'azure-app-service', 'azure-sql-database', 'azure-storage-accounts'];
+            const serviceIndex = hubServices.indexOf(serviceType);
+            if (serviceIndex >= 0) {
+              // Posiciones fijas para servicios del hub
+              const positions = [
+                [700, 350],  // VM 1
+                [500, 350],  // App Service
+                [500, 450],  // SQL Database  
+                [700, 450]   // Storage
+              ];
+              if (positions[serviceIndex + i]) {
+                x = positions[serviceIndex + i][0];
+                y = positions[serviceIndex + i][1];
+              } else {
+                x = 600 + (i * 100);
+                y = 500 + (i * 100);
+              }
+            } else {
+              // Servicios adicionales
+              x = 600 + (i * 150);
+              y = 550;
+            }
           }
         } else {
           // Posicionamiento en grid mejorado para otras arquitecturas
@@ -2044,9 +2168,175 @@ app.post('/api/generate-with-ai', async (req, res) => {
       });
     }
     
+    // Crear contenedores basados en el tipo de arquitectura
+    if (isHubSpoke) {
+      console.log('Creating containers for hub-and-spoke architecture');
+      
+      // Calcular bounds para el hub (servicios centrales)
+      const hubElements = elements.filter(el => 
+        el.type !== 'azure-subscriptions' || el.name.includes('Hub')
+      );
+      
+      if (hubElements.length > 0) {
+        const hubBounds = calculateElementsBounds(hubElements, 50); // 50px padding
+        containers.push({
+          id: 'hub-container',
+          label: 'Hub (Centro)',
+          x: hubBounds.x,
+          y: hubBounds.y,
+          width: hubBounds.width,
+          height: hubBounds.height,
+          borderColor: '#0078d4',
+          backgroundColor: 'rgba(0, 120, 212, 0.08)'
+        });
+      }
+      
+      // Crear contenedores para cada spoke con servicios asociados
+      const spokeElements = elements.filter(el => 
+        el.type === 'azure-subscriptions' && el.name.includes('Spoke')
+      );
+      
+      spokeElements.forEach((spoke, index) => {
+        // Encontrar VNet del spoke correspondiente
+        const spokeVNets = elements.filter(el => 
+          el.type === 'azure-virtual-networks' && 
+          Math.abs(el.x - spoke.x) < 100 && 
+          Math.abs(el.y - spoke.y) < 200
+        );
+        
+        // Elementos del spoke (subscription + vnet si existe)
+        const spokeServiceElements = [spoke, ...spokeVNets];
+        
+        if (spokeServiceElements.length > 0) {
+          const spokeBounds = calculateElementsBounds(spokeServiceElements, 60);
+          containers.push({
+            id: `spoke-container-${index}`,
+            label: `Spoke ${index + 1}`,
+            x: spokeBounds.x,
+            y: spokeBounds.y,
+            width: spokeBounds.width,
+            height: spokeBounds.height,
+            borderColor: '#00aa44',
+            backgroundColor: 'rgba(0, 170, 68, 0.08)'
+          });
+        }
+      });
+    } else if (aiArchitecture.architectureType === 'microservices') {
+      console.log('Creating containers for microservices architecture');
+      
+      // Agrupar servicios por capas lógicas
+      const frontendServices = elements.filter(el => 
+        el.type.includes('app-service') || el.type.includes('api')
+      );
+      const backendServices = elements.filter(el => 
+        el.type.includes('functions') || el.type.includes('service-bus')
+      );
+      const dataServices = elements.filter(el => 
+        el.type.includes('sql') || el.type.includes('storage') || el.type.includes('cosmos')
+      );
+      
+      if (frontendServices.length > 0) {
+        const bounds = calculateElementsBounds(frontendServices, 40);
+        containers.push({
+          id: 'frontend-container',
+          label: 'Capa de Presentación',
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          borderColor: '#e74c3c',
+          backgroundColor: 'rgba(231, 76, 60, 0.08)'
+        });
+      }
+      
+      if (backendServices.length > 0) {
+        const bounds = calculateElementsBounds(backendServices, 40);
+        containers.push({
+          id: 'backend-container',
+          label: 'Capa de Lógica',
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          borderColor: '#f39c12',
+          backgroundColor: 'rgba(243, 156, 18, 0.08)'
+        });
+      }
+      
+      if (dataServices.length > 0) {
+        const bounds = calculateElementsBounds(dataServices, 40);
+        containers.push({
+          id: 'data-container',
+          label: 'Capa de Datos',
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          borderColor: '#27ae60',
+          backgroundColor: 'rgba(39, 174, 96, 0.08)'
+        });
+      }
+    } else if (aiArchitecture.architectureType === 'ai-ml') {
+      console.log('Creating containers for AI/ML architecture');
+      
+      // Agrupar por función en arquitecturas de IA
+      const mlServices = elements.filter(el => 
+        el.type.includes('machine-learning') || el.type.includes('cognitive')
+      );
+      const dataServices = elements.filter(el => 
+        el.type.includes('storage') || el.type.includes('sql')
+      );
+      const appServices = elements.filter(el => 
+        el.type.includes('app-service') || el.type.includes('functions')
+      );
+      
+      if (mlServices.length > 0) {
+        const bounds = calculateElementsBounds(mlServices, 40);
+        containers.push({
+          id: 'ml-container',
+          label: 'Servicios de IA/ML',
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          borderColor: '#9b59b6',
+          backgroundColor: 'rgba(155, 89, 182, 0.08)'
+        });
+      }
+      
+      if (dataServices.length > 0) {
+        const bounds = calculateElementsBounds(dataServices, 40);
+        containers.push({
+          id: 'data-container',
+          label: 'Almacenamiento de Datos',
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          borderColor: '#27ae60',
+          backgroundColor: 'rgba(39, 174, 96, 0.08)'
+        });
+      }
+      
+      if (appServices.length > 0) {
+        const bounds = calculateElementsBounds(appServices, 40);
+        containers.push({
+          id: 'app-container',
+          label: 'Aplicaciones',
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52, 152, 219, 0.08)'
+        });
+      }
+    }
+    
     const result = {
       elements,
       connections,
+      containers,
       aiGenerated: true,
       architectureType: aiArchitecture.architectureType,
       reasoning: aiArchitecture.reasoning,
@@ -2061,6 +2351,25 @@ app.post('/api/generate-with-ai', async (req, res) => {
     res.status(500).json({ error: 'Failed to generate architecture with AI' });
   }
 });
+
+// Función helper para calcular bounds de elementos
+function calculateElementsBounds(elements, padding = 20) {
+  if (elements.length === 0) {
+    return { x: 0, y: 0, width: 200, height: 200 };
+  }
+  
+  let minX = Math.min(...elements.map(el => el.x));
+  let minY = Math.min(...elements.map(el => el.y));
+  let maxX = Math.max(...elements.map(el => el.x + (el.width || 180)));
+  let maxY = Math.max(...elements.map(el => el.y + (el.height || 100)));
+  
+  return {
+    x: minX - padding,
+    y: minY - padding,
+    width: (maxX - minX) + (padding * 2),
+    height: (maxY - minY) + (padding * 2)
+  };
+}
 
 // Initialize database and start server
 async function startServer() {
