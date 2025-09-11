@@ -33,8 +33,27 @@ if (!fs.existsSync(debugPath)) {
 if (needsReinstall) {
     console.log('🔄 Reinstalling missing modules...');
     try {
-        execSync('npm install express debug --ignore-scripts', { stdio: 'inherit' });
+        // Force reinstall Express completely
+        console.log('🗑️ Removing existing Express installation...');
+        execSync('rm -rf node_modules/express', { stdio: 'inherit' });
+        
+        console.log('📦 Reinstalling Express...');
+        execSync('npm install express@latest --ignore-scripts', { stdio: 'inherit' });
+        
+        // Also reinstall debug if needed
+        if (!fs.existsSync(debugPath)) {
+            console.log('📦 Reinstalling debug...');
+            execSync('npm install debug@latest --ignore-scripts', { stdio: 'inherit' });
+        }
+        
         console.log('✅ Modules reinstalled successfully');
+        
+        // Verify again
+        if (!fs.existsSync(expressRouterPath)) {
+            console.error('❌ Express router still missing after reinstall');
+            process.exit(1);
+        }
+        
     } catch (error) {
         console.error('❌ Failed to reinstall modules:', error.message);
         process.exit(1);
