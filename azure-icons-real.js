@@ -3813,3 +3813,12 @@ if (typeof module !== 'undefined' && module.exports) {
     searchIcons
   };
 }
+
+// Hacer funciones disponibles globalmente en el navegador
+if (typeof window !== 'undefined') {
+  window.azureIconsReal = azureIconsReal;
+  window.getAzureIconReal = getAzureIconReal;
+  window.loadAzureIcon = loadAzureIcon;
+  window.getIconsByCategory = getIconsByCategory;
+  window.searchIcons = searchIcons;
+}
