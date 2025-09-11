@@ -11,6 +11,7 @@
     "test:coverage": "jest --coverage",
     "build": "npm install --production",
     "heroku-postbuild": "npm install --production",
+    "render-build": "npm ci --ignore-scripts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
