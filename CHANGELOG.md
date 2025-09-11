@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- CI/CD pipeline with GitHub Actions
 - Docker support for development and production
 - Comprehensive testing suite with Jest
 - ESLint and Prettier for code quality
