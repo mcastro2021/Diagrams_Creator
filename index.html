@@ -335,7 +335,7 @@
             
             <textarea id="description-input" placeholder="Ej: Necesito una arquitectura con dos virtual machines, una base de datos y un storage account, todos conectados através de una red virtual."></textarea>
             
-            <button id="generate-btn">Generar Diagrama</button>
+            <button id="generate-btn" onclick="generateDiagram()">Generar Diagrama</button>
             
             <div class="loading" id="loading">
                 <div class="spinner"></div>
@@ -344,28 +344,28 @@
             
             <div class="examples">
                 <h3>Ejemplos:</h3>
-                <div class="example-chip" data-example="Dos virtual machines conectadas a una base de datos">Dos VMs con base de datos</div>
-                <div class="example-chip" data-example="Una aplicación web con storage account y CDN">Web app con storage</div>
-                <div class="example-chip" data-example="Tres virtual machines en una red virtual con balanceador de carga">VMs con load balancer</div>
-                <div class="example-chip" data-example="Arquitectura de microservicios con API Gateway, Service Bus y Application Insights">Microservicios</div>
-                <div class="example-chip" data-example="Pipeline de datos con Data Factory, Data Lake y Synapse Analytics">Pipeline de datos</div>
-                <div class="example-chip" data-example="Solución IoT con IoT Hub, Stream Analytics y Power BI">Solución IoT</div>
+                <div class="example-chip" data-example="Dos virtual machines conectadas a una base de datos" onclick="loadExample(this)">Dos VMs con base de datos</div>
+                <div class="example-chip" data-example="Una aplicación web con storage account y CDN" onclick="loadExample(this)">Web app con storage</div>
+                <div class="example-chip" data-example="Tres virtual machines en una red virtual con balanceador de carga" onclick="loadExample(this)">VMs con load balancer</div>
+                <div class="example-chip" data-example="Arquitectura de microservicios con API Gateway, Service Bus y Application Insights" onclick="loadExample(this)">Microservicios</div>
+                <div class="example-chip" data-example="Pipeline de datos con Data Factory, Data Lake y Synapse Analytics" onclick="loadExample(this)">Pipeline de datos</div>
+                <div class="example-chip" data-example="Solución IoT con IoT Hub, Stream Analytics y Power BI" onclick="loadExample(this)">Solución IoT</div>
             </div>
             
             <div class="actions">
-                <button id="clear-btn" class="btn-secondary">Limpiar Diagrama</button>
-                <button id="export-btn" class="btn-secondary">Exportar</button>
-                <button id="save-btn" class="btn-secondary">Guardar</button>
+                <button id="clear-btn" class="btn-secondary" onclick="clearDiagram()">Limpiar Diagrama</button>
+                <button id="export-btn" class="btn-secondary" onclick="exportDiagram()">Exportar</button>
+                <button id="save-btn" class="btn-secondary" onclick="saveDiagram()">Guardar</button>
             </div>
         </div>
         
         <div class="main-content">
             <div class="diagram-container" id="diagram-container">
                 <div class="diagram-controls">
-                    <button class="zoom-btn" id="zoomOut">-</button>
+                    <button class="zoom-btn" id="zoomOut" onclick="zoomOut()">-</button>
                     <div class="zoom-level" id="zoomLevel">100%</div>
-                    <button class="zoom-btn" id="zoomIn">+</button>
-                    <button class="zoom-btn" id="zoomFit">Fit</button>
+                    <button class="zoom-btn" id="zoomIn" onclick="zoomIn()">+</button>
+                    <button class="zoom-btn" id="zoomFit" onclick="zoomFit()">Fit</button>
                 </div>
                 <!-- Aquí se renderizará el diagrama -->
             </div>
@@ -375,60 +375,49 @@
     <script>
         console.log('Azure Diagram Generator script loading...');
         
+        // Variables globales
+        let currentZoom = 1;
+        let currentDiagramData = null;
+        
+        // Funciones globales
+        function loadExample(element) {
+            const example = element.getAttribute('data-example');
+            document.getElementById('description-input').value = example;
+            document.getElementById('description-input').focus();
+        }
+        
+        function updateZoom() {
+            const diagramContainer = document.getElementById('diagram-container');
+            const zoomLevel = document.getElementById('zoomLevel');
+            diagramContainer.style.transform = `scale(${currentZoom})`;
+            zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+        }
+        
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            updateZoom();
+        }
+        
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.1);
+            updateZoom();
+        }
+        
+        function zoomFit() {
+            currentZoom = 1;
+            updateZoom();
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing...');
             
             const descriptionInput = document.getElementById('description-input');
-            const generateBtn = document.getElementById('generate-btn');
             const diagramContainer = document.getElementById('diagram-container');
-            const loadingElement = document.getElementById('loading');
-            const exampleChips = document.querySelectorAll('.example-chip');
             
             console.log('Elements found:', {
                 descriptionInput: !!descriptionInput,
-                generateBtn: !!generateBtn,
-                diagramContainer: !!diagramContainer,
-                loadingElement: !!loadingElement,
-                exampleChips: exampleChips.length
+                diagramContainer: !!diagramContainer
             });
-            
-            // Variables para zoom
-            let currentZoom = 1;
-            const zoomInBtn = document.getElementById('zoomIn');
-            const zoomOutBtn = document.getElementById('zoomOut');
-            const zoomFitBtn = document.getElementById('zoomFit');
-            const zoomLevel = document.getElementById('zoomLevel');
-            const clearBtn = document.getElementById('clear-btn');
-            const exportBtn = document.getElementById('export-btn');
-            const saveBtn = document.getElementById('save-btn');
-            
-            let currentDiagramData = null;
-            
-            // Funciones de zoom
-            function updateZoom() {
-                diagramContainer.style.transform = `scale(${currentZoom})`;
-                zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
-            }
-            
-            function zoomIn() {
-                currentZoom = Math.min(currentZoom * 1.2, 3);
-                updateZoom();
-            }
-            
-            function zoomOut() {
-                currentZoom = Math.max(currentZoom / 1.2, 0.1);
-                updateZoom();
-            }
-            
-            function zoomFit() {
-                currentZoom = 1;
-                updateZoom();
-            }
-            
-            // Event listeners para zoom
-            zoomInBtn.addEventListener('click', zoomIn);
-            zoomOutBtn.addEventListener('click', zoomOut);
-            zoomFitBtn.addEventListener('click', zoomFit);
             
             // Zoom con rueda del mouse
             diagramContainer.addEventListener('wheel', function(e) {
@@ -442,24 +431,6 @@
                 }
             });
             
-            // Cargar ejemplos
-            exampleChips.forEach(chip => {
-                chip.addEventListener('click', () => {
-                    descriptionInput.value = chip.getAttribute('data-example');
-                    descriptionInput.focus();
-                });
-            });
-            
-            // Event listeners
-            console.log('Setting up event listeners...');
-            generateBtn.addEventListener('click', function() {
-                console.log('Generate button clicked!');
-                generateDiagram();
-            });
-            clearBtn.addEventListener('click', clearDiagram);
-            exportBtn.addEventListener('click', exportDiagram);
-            saveBtn.addEventListener('click', saveDiagram);
-            
             // Enter key para generar diagrama
             descriptionInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && e.ctrlKey) {
@@ -470,9 +441,13 @@
             
             console.log('All event listeners set up successfully');
         });
-            
-            async function generateDiagram() {
+        
+        async function generateDiagram() {
                 console.log('generateDiagram function called');
+                const descriptionInput = document.getElementById('description-input');
+                const loadingElement = document.getElementById('loading');
+                const diagramContainer = document.getElementById('diagram-container');
+                
                 const description = descriptionInput.value.trim();
                 console.log('Description:', description);
                 
