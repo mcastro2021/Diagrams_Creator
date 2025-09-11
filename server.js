@@ -35,23 +35,24 @@ async function getMicrosoftArchitectureInfo(architectureType) {
     'hub-and-spoke': {
       description: 'Hub and Spoke architecture connects multiple spokes (subsidiaries, departments, or workloads) to a central hub through point-to-point connections.',
       components: [
-        { service: 'azure-subscriptions', quantity: 4, role: 'Spoke Subscriptions' },
-        { service: 'azure-firewall', quantity: 1, role: 'Hub Firewall' },
+        { service: 'azure-subscriptions', quantity: 1, role: 'Hub Subscription' },
+        { service: 'azure-subscriptions', quantity: 3, role: 'Spoke Subscriptions' },
+        { service: 'azure-firewalls', quantity: 1, role: 'Hub Firewall' },
         { service: 'azure-bastion', quantity: 1, role: 'Hub Bastion' },
-        { service: 'azure-vnet', quantity: 1, role: 'Hub VNet' },
-        { service: 'azure-vm', quantity: 2, role: 'Hub VMs' },
+        { service: 'azure-virtual-networks', quantity: 1, role: 'Hub VNet' },
+        { service: 'azure-virtual-machine', quantity: 2, role: 'Hub VMs' },
         { service: 'azure-app-service', quantity: 1, role: 'Hub App Service' },
-        { service: 'azure-sql', quantity: 1, role: 'Hub SQL Database' },
-        { service: 'azure-storage', quantity: 1, role: 'Hub Storage' }
+        { service: 'azure-sql-database', quantity: 1, role: 'Hub SQL Database' },
+        { service: 'azure-storage-accounts', quantity: 1, role: 'Hub Storage' }
       ],
       connections: [
-        { from: 'azure-subscriptions', to: 'azure-firewall', type: 'management', label: 'Management' },
-        { from: 'azure-firewall', to: 'azure-vnet', type: 'security', label: 'Security' },
-        { from: 'azure-bastion', to: 'azure-vm', type: 'remote-access', label: 'Remote Access' },
-        { from: 'azure-vnet', to: 'azure-vm', type: 'network', label: 'Network' },
-        { from: 'azure-vnet', to: 'azure-app-service', type: 'network', label: 'Network' },
-        { from: 'azure-app-service', to: 'azure-sql', type: 'data', label: 'Data' },
-        { from: 'azure-app-service', to: 'azure-storage', type: 'data', label: 'Data' }
+        { from: 'azure-subscriptions', to: 'azure-firewalls', type: 'management', label: 'Management' },
+        { from: 'azure-firewalls', to: 'azure-virtual-networks', type: 'security', label: 'Security' },
+        { from: 'azure-bastion', to: 'azure-virtual-machine', type: 'remote-access', label: 'Remote Access' },
+        { from: 'azure-virtual-networks', to: 'azure-virtual-machine', type: 'network', label: 'Network' },
+        { from: 'azure-virtual-networks', to: 'azure-app-service', type: 'network', label: 'Network' },
+        { from: 'azure-app-service', to: 'azure-sql-database', type: 'data', label: 'Data' },
+        { from: 'azure-app-service', to: 'azure-storage-accounts', type: 'data', label: 'Data' }
       ]
     },
     'microservices': {
@@ -1237,11 +1238,14 @@ function processDescription(description) {
             y = 500 + Math.sin(hubAngle) * hubRadius;
           }
         } else {
-          // Posicionamiento normal
-          const row = Math.floor(elementIndex / 4);
-          const col = elementIndex % 4;
-          x = 100 + col * spacing;
-          y = 100 + row * spacing;
+          // Posicionamiento normal mejorado
+          const cols = Math.min(3, Math.max(2, Math.ceil(Math.sqrt(detectedQuantities.size * 2))));
+          const elementSpacing = 450;
+          const rowSpacing = 350;
+          const row = Math.floor(elementIndex / cols);
+          const col = elementIndex % cols;
+          x = 200 + col * elementSpacing;
+          y = 200 + row * rowSpacing;
         }
         
         const serviceInfo = getServiceInfo(serviceType);
@@ -1301,10 +1305,15 @@ function processDescription(description) {
       }
     } else {
       // Posicionamiento normal con mejor distribución
-      const row = Math.floor(elementIndex / 3); // 3 columnas en lugar de 4
-      const col = elementIndex % 3;
-      x = 150 + col * 600; // Más separación horizontal
-      y = 150 + row * 300; // Más separación vertical
+      const totalElements = Array.from(detectedServices).length + Array.from(detectedQuantities).reduce((sum, [, qty]) => sum + qty, 0);
+      const cols = Math.min(3, Math.max(2, Math.ceil(Math.sqrt(totalElements)))); // Entre 2 y 3 columnas
+      const elementSpacing = 450; // Aún más espacio entre elementos
+      const rowSpacing = 350;
+      
+      const row = Math.floor(elementIndex / cols);
+      const col = elementIndex % cols;
+      x = 200 + col * elementSpacing;
+      y = 200 + row * rowSpacing;
     }
     
     const serviceInfo = getServiceInfo(serviceType);
@@ -1839,113 +1848,199 @@ app.post('/api/generate-with-ai', async (req, res) => {
       return res.status(400).json({ error: 'Description is required' });
     }
     
-    if (!groq) {
-      return res.status(503).json({ error: 'AI service not available' });
+    console.log('🤖 Generating architecture for:', description);
+    
+    // Detectar tipo de arquitectura directamente
+    let architectureType = 'custom';
+    if (description.toLowerCase().includes('hub') && description.toLowerCase().includes('spoke')) {
+      architectureType = 'hub-and-spoke';
+    } else if (description.toLowerCase().includes('microservice')) {
+      architectureType = 'microservices';
+    } else if (description.toLowerCase().includes('ai') || description.toLowerCase().includes('machine learning')) {
+      architectureType = 'ai-ml';
     }
     
-    console.log('🤖 Generating architecture with AI for:', description);
+    console.log('Detected architecture type:', architectureType);
     
-    // Generar arquitectura con IA
-    const aiArchitecture = await generateArchitectureWithAI(description);
+    // Usar patrón de Microsoft directamente
+    const microsoftInfo = await getMicrosoftArchitectureInfo(architectureType);
+    let aiArchitecture;
     
-    // Obtener información de arquitectura de Microsoft si es un tipo conocido
-    const microsoftInfo = await getMicrosoftArchitectureInfo(aiArchitecture.architectureType);
+    if (microsoftInfo && microsoftInfo.components) {
+      console.log('Using Microsoft pattern:', architectureType);
+      
+      // Convertir componentes de string a objetos si es necesario
+      const components = microsoftInfo.components.map(component => {
+        if (typeof component === 'string') {
+          return {
+            service: component,
+            quantity: 1,
+            role: component.replace('azure-', '').replace(/-/g, ' ')
+          };
+        }
+        return component;
+      });
+      
+      aiArchitecture = {
+        architectureType: architectureType,
+        components: components,
+        connections: microsoftInfo.connections,
+        reasoning: `${architectureType} architecture pattern from Microsoft documentation`
+      };
+    } else {
+      // Fallback a IA solo si no hay patrón
+      if (groq) {
+        aiArchitecture = await generateArchitectureWithAI(description);
+      } else {
+        return res.status(503).json({ error: 'AI service not available and no pattern found' });
+      }
+    }
     
     // Crear elementos basados en la respuesta de IA
     const elements = [];
     const connections = [];
     
-    // Procesar componentes de IA con posicionamiento inteligente
+    // Procesar componentes con posicionamiento inteligente
     const isHubSpoke = aiArchitecture.architectureType === 'hub-and-spoke';
-    const centerX = 600;
-    const centerY = 400;
+    const centerX = 1000;
+    const centerY = 600;
+    
+    console.log('Processing components:', aiArchitecture.components);
     
     aiArchitecture.components.forEach((component, index) => {
-      const serviceType = component.service;
-      const quantity = component.quantity || 1;
+      // Handle both object format {service: "...", quantity: 1, role: "..."} and string format
+      let serviceType, quantity, role;
+      
+      if (typeof component === 'string') {
+        serviceType = component;
+        quantity = 1;
+        role = component.replace('azure-', '').replace(/-/g, ' ');
+      } else {
+        serviceType = component.service;
+        quantity = component.quantity || 1;
+        role = component.role;
+      }
       
       for (let i = 0; i < quantity; i++) {
         let x, y;
         
         if (isHubSpoke) {
-          // Posicionamiento hub-and-spoke según documentación Microsoft
-          if (serviceType.includes('subscription')) {
-            // Subscripciones (spokes) en círculo alrededor del hub
-            const angle = (i * 360 / quantity) * (Math.PI / 180);
-            const radius = 500;
+          // Posicionamiento hub-and-spoke correcto
+          if (serviceType === 'azure-subscriptions') {
+            if (component.role === 'Hub Subscription') {
+              // Hub subscription en el centro
+              x = centerX;
+              y = centerY;
+            } else {
+              // Spoke subscriptions en círculo alrededor del hub
+              const spokeIndex = i;
+              const angle = (spokeIndex * 120) * (Math.PI / 180); // 3 spokes, 120 grados entre cada uno
+              const radius = 400;
+              x = centerX + Math.cos(angle) * radius;
+              y = centerY + Math.sin(angle) * radius;
+            }
+          } else if (serviceType === 'azure-firewalls' || serviceType === 'azure-bastion' || serviceType === 'azure-virtual-networks') {
+            // Servicios centrales del hub alrededor del hub subscription
+            const angle = (i * 60) * (Math.PI / 180);
+            const radius = 150;
             x = centerX + Math.cos(angle) * radius;
             y = centerY + Math.sin(angle) * radius;
-          } else if (serviceType.includes('firewall') || serviceType.includes('bastion') || serviceType.includes('vnet')) {
-            // Servicios centrales del hub en el centro
-            x = centerX + (i * 200) - 100;
-            y = centerY;
           } else {
-            // Otros servicios del hub alrededor del centro
+            // Otros servicios del hub en un círculo más amplio
             const angle = (i * 45) * (Math.PI / 180);
-            const radius = 200;
+            const radius = 250;
             x = centerX + Math.cos(angle) * radius;
             y = centerY + Math.sin(angle) * radius;
           }
         } else {
-          // Posicionamiento en grid para otras arquitecturas
-          const cols = Math.ceil(Math.sqrt(aiArchitecture.components.length));
-          const row = Math.floor(index / cols);
-          const col = index % cols;
-          x = 100 + col * 300;
-          y = 100 + row * 200 + (i * 50);
+          // Posicionamiento en grid mejorado para otras arquitecturas
+          const totalElements = aiArchitecture.components.reduce((sum, comp) => {
+            if (typeof comp === 'string') return sum + 1;
+            return sum + (comp.quantity || 1);
+          }, 0);
+          const cols = Math.ceil(Math.sqrt(totalElements));
+          const elementSpacing = 350; // Más espacio entre elementos
+          const rowSpacing = 300;
+          
+          let currentElementIndex = 0;
+          for (let j = 0; j < index; j++) {
+            const prevComponent = aiArchitecture.components[j];
+            if (typeof prevComponent === 'string') {
+              currentElementIndex += 1;
+            } else {
+              currentElementIndex += (prevComponent.quantity || 1);
+            }
+          }
+          currentElementIndex += i;
+          
+          const row = Math.floor(currentElementIndex / cols);
+          const col = currentElementIndex % cols;
+          x = 200 + col * elementSpacing; // Más margen inicial
+          y = 200 + row * rowSpacing;
         }
         
         const element = {
           id: `${serviceType}-${i}`,
           type: serviceType,
-          name: component.role || serviceType.replace('azure-', '').replace(/-/g, ' '),
+          name: role || serviceType.replace('azure-', '').replace(/-/g, ' '),
           x: Math.round(x),
           y: Math.round(y),
           width: 180,
           height: 100
         };
         elements.push(element);
+        console.log('Created element:', element);
       }
     });
     
     // Procesar conexiones de IA
-    aiArchitecture.connections.forEach(connection => {
-      const fromElements = elements.filter(el => el.type === connection.from);
-      const toElements = elements.filter(el => el.type === connection.to);
-      
-      if (fromElements.length > 0 && toElements.length > 0) {
-        connections.push({
-          from: fromElements[0].id,
-          to: toElements[0].id,
-          type: connection.type,
-          label: connection.label || connection.type
-        });
-      }
-    });
+    if (aiArchitecture.connections && Array.isArray(aiArchitecture.connections)) {
+      aiArchitecture.connections.forEach((connection, index) => {
+        const fromElements = elements.filter(el => el.type === connection.from);
+        const toElements = elements.filter(el => el.type === connection.to);
+        
+        if (fromElements.length > 0 && toElements.length > 0) {
+          connections.push({
+            id: `conn-${index + 1}`,
+            source: fromElements[0].id,
+            target: toElements[0].id,
+            type: connection.type || 'standard',
+            label: connection.label || connection.type || 'Connection'
+          });
+        }
+      });
+    }
     
     // Agregar conexiones específicas para hub-and-spoke
     if (isHubSpoke) {
-      const hubElements = elements.filter(el => 
-        el.type.includes('firewall') || 
-        el.type.includes('bastion') || 
-        el.type.includes('vnet') ||
-        el.type.includes('vm') ||
-        el.type.includes('app-service') ||
-        el.type.includes('sql') ||
-        el.type.includes('storage')
-      );
-      const spokeElements = elements.filter(el => el.type.includes('subscription'));
+      const hubSubscription = elements.find(el => el.type === 'azure-subscriptions' && el.name.includes('Hub'));
+      const spokeElements = elements.filter(el => el.type === 'azure-subscriptions' && el.name.includes('Spoke'));
+      const hubServices = elements.filter(el => el.type !== 'azure-subscriptions');
       
-      // Conectar cada spoke con el hub
-      spokeElements.forEach(spoke => {
-        hubElements.forEach(hub => {
+      // Conectar cada spoke con el hub subscription
+      spokeElements.forEach((spoke, index) => {
+        if (hubSubscription) {
           connections.push({
-            from: spoke.id,
-            to: hub.id,
+            id: `hub-spoke-${index + 1}`,
+            source: spoke.id,
+            target: hubSubscription.id,
             type: 'management',
-            label: 'Management'
+            label: 'Hub Connection'
           });
-        });
+        }
+      });
+      
+      // Conectar servicios del hub con el hub subscription
+      hubServices.forEach((service, index) => {
+        if (hubSubscription) {
+          connections.push({
+            id: `hub-service-${index + 1}`,
+            source: hubSubscription.id,
+            target: service.id,
+            type: 'service',
+            label: 'Hub Service'
+          });
+        }
       });
     }
     

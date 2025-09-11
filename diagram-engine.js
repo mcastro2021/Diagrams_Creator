@@ -45,7 +45,18 @@ class ProfessionalDiagramEngine {
             pointer-events: none;
             z-index: 1;
         `;
-        this.container.appendChild(this.svg);
+        
+        // Create diagram content wrapper
+        this.contentWrapper = document.createElement('div');
+        this.contentWrapper.className = 'diagram-content';
+        this.contentWrapper.style.cssText = `
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-width: 3000px;
+            min-height: 2000px;
+            z-index: 1;
+        `;
         
         // Create elements layer
         this.elementsLayer = document.createElement('div');
@@ -57,7 +68,10 @@ class ProfessionalDiagramEngine {
             height: 100%;
             z-index: 2;
         `;
-        this.container.appendChild(this.elementsLayer);
+        
+        this.contentWrapper.appendChild(this.svg);
+        this.contentWrapper.appendChild(this.elementsLayer);
+        this.container.appendChild(this.contentWrapper);
     }
     
     setupEventListeners() {
@@ -88,8 +102,21 @@ class ProfessionalDiagramEngine {
     handleMouseMove(e) {
         if (this.isDragging && this.selectedElement) {
             const containerRect = this.container.getBoundingClientRect();
-            const x = e.clientX - containerRect.left - this.dragOffset.x;
-            const y = e.clientY - containerRect.top - this.dragOffset.y;
+            
+            // Get current zoom scale if applied
+            let scale = 1;
+            if (this.contentWrapper) {
+                const transform = window.getComputedStyle(this.contentWrapper).transform;
+                if (transform && transform !== 'none') {
+                    const matrix = transform.match(/matrix\(([^)]+)\)/);
+                    if (matrix) {
+                        scale = parseFloat(matrix[1].split(',')[0]);
+                    }
+                }
+            }
+            
+            const x = (e.clientX - containerRect.left - this.dragOffset.x) / scale;
+            const y = (e.clientY - containerRect.top - this.dragOffset.y) / scale;
             
             this.selectedElement.style.left = Math.max(0, x) + 'px';
             this.selectedElement.style.top = Math.max(0, y) + 'px';
@@ -150,13 +177,13 @@ class ProfessionalDiagramEngine {
         const icon = document.createElement('div');
         icon.className = 'element-icon';
         icon.style.cssText = `
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: ${elementData.color || '#0078d4'};
+            background: ${elementData.iconPath ? 'transparent' : (elementData.color || '#0078d4')};
             border-radius: 6px;
             color: white;
             font-size: 16px;
@@ -167,12 +194,19 @@ class ProfessionalDiagramEngine {
         if (elementData.iconPath) {
             const img = document.createElement('img');
             img.src = elementData.iconPath;
-            img.style.cssText = 'width: 24px; height: 24px; filter: brightness(0) invert(1);';
+            img.style.cssText = 'width: 28px; height: 28px; object-fit: contain;';
             img.onerror = () => {
+                console.log('Failed to load icon:', elementData.iconPath);
+                icon.style.background = elementData.color || '#0078d4';
                 icon.textContent = (elementData.text || elementData.name || 'A').charAt(0);
+            };
+            img.onload = () => {
+                console.log('Successfully loaded icon:', elementData.iconPath);
+                icon.style.background = 'transparent';
             };
             icon.appendChild(img);
         } else {
+            icon.style.background = elementData.color || '#0078d4';
             icon.textContent = (elementData.text || elementData.name || 'A').charAt(0);
         }
         
@@ -220,10 +254,30 @@ class ProfessionalDiagramEngine {
     }
     
     createConnection(connectionData) {
-        const sourceElement = this.elements.find(e => e.id === connectionData.from || e.id === connectionData.source);
-        const targetElement = this.elements.find(e => e.id === connectionData.to || e.id === connectionData.target);
+        const sourceElement = this.elements.find(e => 
+            e.id === connectionData.from || 
+            e.id === connectionData.source ||
+            e.data.id === connectionData.from ||
+            e.data.id === connectionData.source
+        );
+        const targetElement = this.elements.find(e => 
+            e.id === connectionData.to || 
+            e.id === connectionData.target ||
+            e.data.id === connectionData.to ||
+            e.data.id === connectionData.target
+        );
         
-        if (!sourceElement || !targetElement) return;
+        console.log('Creating connection:', {
+            connectionData,
+            sourceElement: sourceElement ? sourceElement.id : 'NOT FOUND',
+            targetElement: targetElement ? targetElement.id : 'NOT FOUND',
+            availableElements: this.elements.map(e => e.id)
+        });
+        
+        if (!sourceElement || !targetElement) {
+            console.log('Connection skipped - missing elements');
+            return;
+        }
         
         const connection = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         connection.id = connectionData.id;
@@ -281,7 +335,11 @@ class ProfessionalDiagramEngine {
             connection: connection,
             line: line,
             label: label,
-            data: connectionData
+            data: {
+                ...connectionData,
+                source: connectionData.source || connectionData.from,
+                target: connectionData.target || connectionData.to
+            }
         });
         
         this.updateConnection(connectionData.id);
@@ -291,8 +349,18 @@ class ProfessionalDiagramEngine {
         const conn = this.connections.find(c => c.id === connectionId);
         if (!conn) return;
         
-        const sourceElement = this.elements.find(e => e.id === conn.data.source);
-        const targetElement = this.elements.find(e => e.id === conn.data.target);
+        const sourceElement = this.elements.find(e => 
+            e.id === conn.data.source || 
+            e.id === conn.data.from ||
+            e.data.id === conn.data.source ||
+            e.data.id === conn.data.from
+        );
+        const targetElement = this.elements.find(e => 
+            e.id === conn.data.target || 
+            e.id === conn.data.to ||
+            e.data.id === conn.data.target ||
+            e.data.id === conn.data.to
+        );
         
         if (!sourceElement || !targetElement) return;
         
@@ -329,8 +397,12 @@ class ProfessionalDiagramEngine {
     
     renderDiagram(diagramData) {
         // Clear existing elements
-        this.elementsLayer.innerHTML = '';
-        this.svg.innerHTML = '';
+        if (this.elementsLayer) {
+            this.elementsLayer.innerHTML = '';
+        }
+        if (this.svg) {
+            this.svg.innerHTML = '';
+        }
         this.elements = [];
         this.connections = [];
         
@@ -340,7 +412,9 @@ class ProfessionalDiagramEngine {
         });
         
         // Create connections
+        console.log('Creating connections:', diagramData.connections);
         diagramData.connections.forEach(connectionData => {
+            console.log('Creating connection:', connectionData);
             this.createConnection(connectionData);
         });
         

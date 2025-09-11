@@ -249,8 +249,6 @@
             
             <textarea id="description-input" placeholder="Ej: Necesito una arquitectura con dos virtual machines, una base de datos y un storage account, todos conectados através de una red virtual."></textarea>
             
-            <button onclick="generateDiagram()">Generar Diagrama</button>
-            
             <div class="loading" id="loading">
                 <div class="spinner"></div>
                 <p>Generando diagrama...</p>
@@ -309,27 +307,38 @@
         function updateZoom() {
             const diagramContainer = document.getElementById('diagram-container');
             const zoomLevel = document.getElementById('zoomLevel');
-                diagramContainer.style.transform = `scale(${currentZoom})`;
+            if (diagramContainer && zoomLevel) {
+                // Aplicar zoom solo al contenido, no a los controles
+                const content = diagramContainer.querySelector('.diagram-content') || diagramContainer;
+                if (content !== diagramContainer) {
+                    content.style.transform = `scale(${currentZoom})`;
+                    content.style.transformOrigin = 'top left';
+                } else {
+                    // Si no hay contenedor separado, aplicar al contenedor completo
+                    diagramContainer.style.transform = `scale(${currentZoom})`;
+                    diagramContainer.style.transformOrigin = 'top left';
+                }
                 zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
             }
-            
-            function zoomIn() {
+        }
+        
+        function zoomIn() {
             console.log('zoomIn called');
-                currentZoom = Math.min(currentZoom * 1.2, 3);
-                updateZoom();
-            }
-            
-            function zoomOut() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            updateZoom();
+        }
+        
+        function zoomOut() {
             console.log('zoomOut called');
-                currentZoom = Math.max(currentZoom / 1.2, 0.1);
-                updateZoom();
-            }
-            
-            function zoomFit() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.1);
+            updateZoom();
+        }
+        
+        function zoomFit() {
             console.log('zoomFit called');
-                currentZoom = 1;
-                updateZoom();
-            }
+            currentZoom = 1;
+            updateZoom();
+        }
             
         function clearDiagram() {
             console.log('clearDiagram called');
@@ -474,7 +483,13 @@
             // Transform data for professional diagram engine
             const transformedData = {
                 elements: data.elements.map(elem => {
-                    const iconData = getAzureIconReal(elem.type);
+                    let iconData = { color: '#0078d4', path: null };
+                    
+                    // Try to get icon data from available sources
+                    if (typeof getAzureIconReal === 'function') {
+                        iconData = getAzureIconReal(elem.type) || iconData;
+                    }
+                    
                     return {
                         id: elem.id,
                         x: elem.x,
@@ -487,7 +502,13 @@
                         iconPath: iconData.path
                     };
                 }),
-                connections: data.connections
+                connections: data.connections.map(conn => ({
+                    id: conn.id || `conn-${Math.random().toString(36).substr(2, 9)}`,
+                    source: conn.source || conn.from,
+                    target: conn.target || conn.to,
+                    label: conn.label,
+                    type: conn.type || 'standard'
+                }))
             };
             
             // Render with professional engine
@@ -558,6 +579,12 @@
             // Limpiar diagrama anterior
             diagramContainer.innerHTML = '';
             
+            // Verificar que los iconos estén cargados
+            console.log('Azure Icons Complete available:', !!window.azureIconsComplete);
+            if (window.azureIconsComplete) {
+                console.log('Available icons:', Object.keys(window.azureIconsComplete).slice(0, 10));
+            }
+            
             // Inicializar motor de diagramas
             diagramEngine = new ProfessionalDiagramEngine('diagram-container');
             diagramEngine.init();
@@ -565,8 +592,21 @@
             // Transformar datos para el motor con información completa
             const transformedData = {
                 elements: data.elements.map(element => {
-                    // Buscar información del icono en azureIconsComplete
-                    const iconInfo = window.azureIconsComplete ? window.azureIconsComplete[element.type] : null;
+                    // Buscar información del icono directamente
+                    let iconInfo = { color: '#0078d4', path: null };
+                    
+                    // Try multiple sources for icon data
+                    if (window.azureIconsComplete && window.azureIconsComplete[element.type]) {
+                        iconInfo = window.azureIconsComplete[element.type];
+                        console.log(`Icon found for ${element.type}:`, iconInfo);
+                    } else if (typeof getAzureIconReal === 'function') {
+                        const iconData = getAzureIconReal(element.type);
+                        if (iconData) {
+                            iconInfo = iconData;
+                        }
+                    } else {
+                        console.log(`No icon found for ${element.type} - using fallback`);
+                    }
                     
                     return {
                         id: element.id,
@@ -577,11 +617,17 @@
                         y: element.y,
                         width: element.width || 200,
                         height: element.height || 100,
-                        iconPath: iconInfo ? iconInfo.path : null,
-                        color: iconInfo ? iconInfo.color : '#0078d4'
+                        iconPath: iconInfo.path,
+                        color: iconInfo.color
                     };
                 }),
-                connections: data.connections || []
+                connections: (data.connections || []).map(conn => ({
+                    id: conn.id || `conn-${Math.random().toString(36).substr(2, 9)}`,
+                    source: conn.source || conn.from,
+                    target: conn.target || conn.to,
+                    label: conn.label,
+                    type: conn.type || 'standard'
+                }))
             };
             
             // Renderizar diagrama
