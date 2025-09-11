@@ -203,6 +203,12 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             z-index: 10;
+            min-width: 180px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .azure-element:hover {
@@ -461,7 +467,10 @@
                 // Crear contenido del elemento con icono específico
                 elementDiv.innerHTML = `
                     <div class="azure-icon">
-                        <img src="${iconData.icon}" alt="${iconData.name}" />
+                        <img src="${iconData.path}" alt="${iconData.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div style="width: 40px; height: 40px; background-color: ${iconData.color}; border-radius: 5px; display: none; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">
+                            ${iconData.name.charAt(0)}
+                        </div>
                     </div>
                     <div class="azure-text">${elem.text}</div>
                 `;

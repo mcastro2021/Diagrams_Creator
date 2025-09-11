@@ -1041,17 +1041,17 @@ function processDescription(description) {
         y = 500;
       } else {
         // Otros servicios del hub alrededor del firewall
-        const hubAngle = (elementIndex * 60) * (Math.PI / 180); // 60 grados entre servicios
-        const hubRadius = 300;
+        const hubAngle = (elementIndex * 45) * (Math.PI / 180); // 45 grados entre servicios
+        const hubRadius = 400; // Aumentar el radio para más separación
         x = 600 + Math.cos(hubAngle) * hubRadius;
         y = 500 + Math.sin(hubAngle) * hubRadius;
       }
     } else {
-      // Posicionamiento normal
-      const row = Math.floor(elementIndex / 4);
-      const col = elementIndex % 4;
-      x = 100 + col * spacing;
-      y = 100 + row * spacing;
+      // Posicionamiento normal con mejor distribución
+      const row = Math.floor(elementIndex / 3); // 3 columnas en lugar de 4
+      const col = elementIndex % 3;
+      x = 150 + col * 600; // Más separación horizontal
+      y = 150 + row * 300; // Más separación vertical
     }
     
     const serviceInfo = getServiceInfo(serviceType);
