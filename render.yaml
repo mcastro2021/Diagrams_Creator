@@ -5,7 +5,8 @@ services:
     plan: starter
     buildCommand: npm ci --ignore-scripts
     startCommand: npm start
-    nodeVersion: 18
+    nodeVersion: 20
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: NODE_ENV
         value: production
