@@ -220,8 +220,8 @@ class ProfessionalDiagramEngine {
     }
     
     createConnection(connectionData) {
-        const sourceElement = this.elements.find(e => e.id === connectionData.source);
-        const targetElement = this.elements.find(e => e.id === connectionData.target);
+        const sourceElement = this.elements.find(e => e.id === connectionData.from || e.id === connectionData.source);
+        const targetElement = this.elements.find(e => e.id === connectionData.to || e.id === connectionData.target);
         
         if (!sourceElement || !targetElement) return;
         

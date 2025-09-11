@@ -167,8 +167,8 @@
             background-image: 
                 radial-gradient(circle, #e0e0e0 1px, transparent 1px);
             background-size: 20px 20px;
-            min-width: 2000px;
-            min-height: 1500px;
+            min-width: 3000px;
+            min-height: 2000px;
         }
         
         .diagram-controls {
@@ -271,7 +271,7 @@
             </div>
             
             <div class="actions">
-                <button class="btn-primary" onclick="generateWithAI()">🤖 Generar con IA</button>
+                <button class="btn-primary" onclick="generateWithAI()">🤖 Generar Diagrama</button>
                 <button class="btn-secondary" onclick="clearDiagram()">Limpiar</button>
                 <button class="btn-secondary" onclick="exportDiagram()">Exportar</button>
                 <button class="btn-secondary" onclick="saveDiagram()">Guardar</button>
@@ -562,17 +562,25 @@
             diagramEngine = new ProfessionalDiagramEngine('diagram-container');
             diagramEngine.init();
             
-            // Transformar datos para el motor
+            // Transformar datos para el motor con información completa
             const transformedData = {
-                elements: data.elements.map(element => ({
-                    id: element.id,
-                    type: element.type,
-                    name: element.name,
-                    x: element.x,
-                    y: element.y,
-                    width: element.width,
-                    height: element.height
-                })),
+                elements: data.elements.map(element => {
+                    // Buscar información del icono en azureIconsComplete
+                    const iconInfo = window.azureIconsComplete ? window.azureIconsComplete[element.type] : null;
+                    
+                    return {
+                        id: element.id,
+                        type: element.type,
+                        name: element.name,
+                        text: element.name,
+                        x: element.x,
+                        y: element.y,
+                        width: element.width || 200,
+                        height: element.height || 100,
+                        iconPath: iconInfo ? iconInfo.path : null,
+                        color: iconInfo ? iconInfo.color : '#0078d4'
+                    };
+                }),
                 connections: data.connections || []
             };
             

@@ -34,15 +34,24 @@ async function getMicrosoftArchitectureInfo(architectureType) {
   const architecturePatterns = {
     'hub-and-spoke': {
       description: 'Hub and Spoke architecture connects multiple spokes (subsidiaries, departments, or workloads) to a central hub through point-to-point connections.',
-      components: ['azure-subscriptions', 'azure-firewall', 'azure-bastion', 'azure-vnet', 'azure-vm', 'azure-app-service', 'azure-sql', 'azure-storage'],
+      components: [
+        { service: 'azure-subscriptions', quantity: 4, role: 'Spoke Subscriptions' },
+        { service: 'azure-firewall', quantity: 1, role: 'Hub Firewall' },
+        { service: 'azure-bastion', quantity: 1, role: 'Hub Bastion' },
+        { service: 'azure-vnet', quantity: 1, role: 'Hub VNet' },
+        { service: 'azure-vm', quantity: 2, role: 'Hub VMs' },
+        { service: 'azure-app-service', quantity: 1, role: 'Hub App Service' },
+        { service: 'azure-sql', quantity: 1, role: 'Hub SQL Database' },
+        { service: 'azure-storage', quantity: 1, role: 'Hub Storage' }
+      ],
       connections: [
-        { from: 'azure-subscriptions', to: 'azure-firewall', type: 'management' },
-        { from: 'azure-firewall', to: 'azure-vnet', type: 'security' },
-        { from: 'azure-bastion', to: 'azure-vm', type: 'remote-access' },
-        { from: 'azure-vnet', to: 'azure-vm', type: 'network' },
-        { from: 'azure-vnet', to: 'azure-app-service', type: 'network' },
-        { from: 'azure-app-service', to: 'azure-sql', type: 'data' },
-        { from: 'azure-app-service', to: 'azure-storage', type: 'data' }
+        { from: 'azure-subscriptions', to: 'azure-firewall', type: 'management', label: 'Management' },
+        { from: 'azure-firewall', to: 'azure-vnet', type: 'security', label: 'Security' },
+        { from: 'azure-bastion', to: 'azure-vm', type: 'remote-access', label: 'Remote Access' },
+        { from: 'azure-vnet', to: 'azure-vm', type: 'network', label: 'Network' },
+        { from: 'azure-vnet', to: 'azure-app-service', type: 'network', label: 'Network' },
+        { from: 'azure-app-service', to: 'azure-sql', type: 'data', label: 'Data' },
+        { from: 'azure-app-service', to: 'azure-storage', type: 'data', label: 'Data' }
       ]
     },
     'microservices': {
@@ -1821,6 +1830,7 @@ function getServiceInfo(serviceType) {
 }
 
 // Endpoint para generar diagramas con IA
+console.log('🔧 Registering AI endpoint: /api/generate-with-ai');
 app.post('/api/generate-with-ai', async (req, res) => {
   try {
     const { description } = req.body;
@@ -1845,18 +1855,52 @@ app.post('/api/generate-with-ai', async (req, res) => {
     const elements = [];
     const connections = [];
     
-    // Procesar componentes de IA
+    // Procesar componentes de IA con posicionamiento inteligente
+    const isHubSpoke = aiArchitecture.architectureType === 'hub-and-spoke';
+    const centerX = 600;
+    const centerY = 400;
+    
     aiArchitecture.components.forEach((component, index) => {
       const serviceType = component.service;
       const quantity = component.quantity || 1;
       
       for (let i = 0; i < quantity; i++) {
+        let x, y;
+        
+        if (isHubSpoke) {
+          // Posicionamiento hub-and-spoke según documentación Microsoft
+          if (serviceType.includes('subscription')) {
+            // Subscripciones (spokes) en círculo alrededor del hub
+            const angle = (i * 360 / quantity) * (Math.PI / 180);
+            const radius = 500;
+            x = centerX + Math.cos(angle) * radius;
+            y = centerY + Math.sin(angle) * radius;
+          } else if (serviceType.includes('firewall') || serviceType.includes('bastion') || serviceType.includes('vnet')) {
+            // Servicios centrales del hub en el centro
+            x = centerX + (i * 200) - 100;
+            y = centerY;
+          } else {
+            // Otros servicios del hub alrededor del centro
+            const angle = (i * 45) * (Math.PI / 180);
+            const radius = 200;
+            x = centerX + Math.cos(angle) * radius;
+            y = centerY + Math.sin(angle) * radius;
+          }
+        } else {
+          // Posicionamiento en grid para otras arquitecturas
+          const cols = Math.ceil(Math.sqrt(aiArchitecture.components.length));
+          const row = Math.floor(index / cols);
+          const col = index % cols;
+          x = 100 + col * 300;
+          y = 100 + row * 200 + (i * 50);
+        }
+        
         const element = {
           id: `${serviceType}-${i}`,
           type: serviceType,
           name: component.role || serviceType.replace('azure-', '').replace(/-/g, ' '),
-          x: 100 + (index * 200) + (i * 50),
-          y: 100 + (i * 100),
+          x: Math.round(x),
+          y: Math.round(y),
           width: 180,
           height: 100
         };
@@ -1874,10 +1918,36 @@ app.post('/api/generate-with-ai', async (req, res) => {
           from: fromElements[0].id,
           to: toElements[0].id,
           type: connection.type,
-          label: connection.type
+          label: connection.label || connection.type
         });
       }
     });
+    
+    // Agregar conexiones específicas para hub-and-spoke
+    if (isHubSpoke) {
+      const hubElements = elements.filter(el => 
+        el.type.includes('firewall') || 
+        el.type.includes('bastion') || 
+        el.type.includes('vnet') ||
+        el.type.includes('vm') ||
+        el.type.includes('app-service') ||
+        el.type.includes('sql') ||
+        el.type.includes('storage')
+      );
+      const spokeElements = elements.filter(el => el.type.includes('subscription'));
+      
+      // Conectar cada spoke con el hub
+      spokeElements.forEach(spoke => {
+        hubElements.forEach(hub => {
+          connections.push({
+            from: spoke.id,
+            to: hub.id,
+            type: 'management',
+            label: 'Management'
+          });
+        });
+      });
+    }
     
     const result = {
       elements,
