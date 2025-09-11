@@ -3,7 +3,7 @@ services:
     name: azure-diagram-generator
     env: node
     plan: starter
-    buildCommand: chmod +x build.sh && ./build.sh
+    buildCommand: npm ci --ignore-scripts
     startCommand: npm start
     nodeVersion: 20
     envVars:
